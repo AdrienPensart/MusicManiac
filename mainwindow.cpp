@@ -9,8 +9,6 @@ using namespace std;
 #include <taglib/fileref.h>
 #include <taglib/tpropertymap.h>
 #include <taglib/uniquefileidentifierframe.h>
-#include <taglib/mpegfile.h>
-#include <taglib/flacfile.h>
 #include <taglib/id3v2tag.h>
 #include <taglib/xiphcomment.h>
 using namespace TagLib;
@@ -24,115 +22,144 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
     ui->setupUi(this);
-    connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
-    connect(ui->actionAdd_missing_MP3_UUID, SIGNAL(triggered()), this, SLOT(addMissingMP3UUID()));
-    connect(ui->actionAdd_missing_FLAC_UUID, SIGNAL(triggered()), this, SLOT(addMissingFLACUUID()));
+    connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(chooseFolder()));
 }
 
 MainWindow::~MainWindow(){
     delete ui;
 }
 
-void MainWindow::loadFolder(){
+void MainWindow::chooseFolder(){
     QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home/crunch/music", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if(!folderPath.size())
     {
+        qDebug() << "Invalid folder";
         return;
     }
 
     QDir music(folderPath);
-    scanDirIter(music);
+    qDebug() << "Scanning folder " << folderPath;
+    scanFolder(music);
 }
 
-void MainWindow::addMissingFLACUUID(){
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/crunch/music/test",tr("Music (*.flac)"));
-    if(!filePath.size()){
-        cout << "No file path given" << endl;
-        return;
-    }
-
-    FLAC::File f(filePath.toStdString().c_str());
-    if(!f.hasXiphComment()){
-        cout << "No XiphComment present" << endl;
-        return;
-    }
-
-    Ogg::XiphComment * tag = f.xiphComment();
-    if(!tag){
-        cout << "Tag invalid" << endl;
-        return;
-    }
-
-    if(!tag->contains("UFID")){
-        cout << "No UFID frame" << endl;
-        QUuid quuid = QUuid::createUuid();
-        string uuid = quuid.toString().toStdString();
-        cout << "Generating UUID : " << uuid << endl;
-        tag->addField("UFID", uuid.c_str());
-        f.save();
-    } else {
-        StringList list = tag->properties()["UFID"];
-        if(list.size()){
-            cout << "UFID BEGIN" << endl;
-            cout << list.front() << endl;
-            cout << "UFID BEGIN" << endl;
+void MainWindow::scanFolder(QDir dir){
+    ui->tableWidget->setRowCount(0);
+    QDirIterator iterator(dir.absolutePath(), QDirIterator::Subdirectories);
+    while(iterator.hasNext()){
+        iterator.next();
+        if (!iterator.fileInfo().isDir()){
+            if(iterator.filePath().endsWith(".mp3")){
+                qDebug() << "Adding mp3 " << iterator.filePath();
+                addMP3(iterator.filePath());
+            }
+            else if(iterator.filePath().endsWith(".flac")){
+                qDebug() << "Adding flac " << iterator.filePath();
+                addFLAC(iterator.filePath());
+            }
+            else {
+                qDebug() << "Music file not supported " << iterator.filePath();
+            }
         }
     }
 }
 
-void MainWindow::addMissingMP3UUID(){
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),"/home/crunch/music/test",tr("Music (*.mp3)"));
-    if(!filePath.size()){
-        cout << "No file path given" << endl;
+void MainWindow::addMP3(QString filepath){
+    MPEG::File f(filepath.toStdString().c_str());
+    if(!f.audioProperties()){
+        qDebug() << "No audio property";
         return;
     }
 
-    MPEG::File f(filePath.toStdString().c_str());
     if(!f.hasID3v2Tag()){
-        cout << "No ID3v2 Tag present" << endl;
+        qDebug() << "No ID3v2 Tag present";
         return;
     }
 
     ID3v2::Tag * tag = f.ID3v2Tag();
     if(!tag){
-        cout << "Tag invalid" << endl;
+        qDebug() << "Tag invalid";
         return;
     }
 
     const ID3v2::FrameListMap& frames = tag->frameListMap();
     ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
+    QString uuid;
     if(ufidIter == frames.end()){
-        cout << "No UFID frame" << endl;
+        qDebug() << "No UFID frame";
         QUuid quuid = QUuid::createUuid();
-        string uuid = quuid.toString().toStdString();
-        cout << "Generating UUID : " << uuid << endl;
-        ID3v2::UniqueFileIdentifierFrame * ufid = new ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.c_str());
+        uuid = quuid.toString();
+        qDebug() << "Generating UUID : " << uuid;
+        ID3v2::UniqueFileIdentifierFrame * ufid = new ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.toStdString().c_str());
         tag->addFrame(ufid);
-        f.save();
-        return;
+        //f.save();
     } else {
         ID3v2::UniqueFileIdentifierFrame * ufid = (ID3v2::UniqueFileIdentifierFrame *)ufidIter->second.front();
-        cout << "UFID BEGIN" << endl;
-        cout << ufid->owner() << " " << ufid->identifier() << endl;
-        cout << "UFID BEGIN" << endl;
+        uuid = ufid->identifier().data();
     }
+
+    TagLib::PropertyMap tags = f.properties();
+    TagLib::StringList list = tags["FMPS_RATING"];
+    double rating = 0;
+    if(list.size() == 1){
+        QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
+        rating = ratingStr.toDouble();
+        rating *= 5;
+    }
+
+    addRow(filepath, getDuration(&f), rating, uuid);
 }
 
-void MainWindow::scanDirIter(QDir dir){
-    ui->tableWidget->setRowCount(0);
-    QDirIterator iterator(dir.absolutePath(), QDirIterator::Subdirectories);
-    while (iterator.hasNext()) {
-        iterator.next();
-        if (iterator.fileInfo().isDir()){
-            continue;
-        }
+void MainWindow::addFLAC(QString filepath){
+    FLAC::File f(filepath.toStdString().c_str());
+    if(!f.audioProperties()){
+        qDebug() << "No audio property";
+        return;
+    }
 
-        TagLib::FileRef f(iterator.filePath().toStdString().c_str());
-        if(f.isNull() || !f.audioProperties()){
-            continue;
-        }
+    if(!f.hasXiphComment()){
+        qDebug() << "No XiphComment present";
+        return;
+    }
 
-        TagLib::AudioProperties *properties = f.audioProperties();
+    Ogg::XiphComment * tag = f.xiphComment();
+    if(!tag){
+        qDebug() << "Tag invalid";
+        return;
+    }
+
+    QString uuid;
+    if(!tag->contains("UFID")){
+        qDebug() << "No UFID frame";
+        QUuid quuid = QUuid::createUuid();
+        uuid = quuid.toString();
+        tag->addField("UFID", uuid.toStdString().c_str());
+        //f.save();
+    } else {
+        StringList list = tag->properties()["UFID"];
+        if(list.size()){
+            uuid = list.front().toCString();
+        }
+    }
+
+    double rating = 0;
+    if(!tag->contains("FMPS_RATING")){
+        qDebug() << "No rating";
+    } else {
+        StringList list = tag->properties()["FMPS_RATING"];
+        if(list.size()){
+            QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
+            rating = ratingStr.toDouble();
+            rating *= 5;
+        }
+    }
+
+    addRow(filepath, getDuration(&f), rating, uuid);
+}
+
+QString MainWindow::getDuration(TagLib::File * file){
+    TagLib::AudioProperties * properties = file->audioProperties();
+    QString totalDurationText;
+    if(properties){
         int totalSeconds;
         int seconds;
         int minutes;
@@ -143,37 +170,34 @@ void MainWindow::scanDirIter(QDir dir){
         minutes = floor((totalSeconds - hours * 3600) / 60);
         seconds = floor(totalSeconds - hours * 3600 - minutes * 60);
 
-        QString totalDurationText;
+
         if(hours <= 0) {
             totalDurationText = QString().sprintf("%02d:%02d", minutes, seconds);
         } else {
             totalDurationText = QString().sprintf("%d:%02d:%02d", hours, minutes, seconds);
         }
-
-        int row = ui->tableWidget->rowCount();
-        ui->tableWidget->insertRow(row);
-
-        QTableWidgetItem* path = new QTableWidgetItem();
-        path->setText(iterator.filePath());
-        ui->tableWidget->setItem(row, 0, path);
-
-        QTableWidgetItem* duration = new QTableWidgetItem();
-        duration->setText(totalDurationText);
-        ui->tableWidget->setItem(row, 1, duration);
-
-        TagLib::PropertyMap tags = f.file()->properties();
-        TagLib::StringList list = tags["FMPS_RATING"];
-        if(list.size() == 1){
-            QTableWidgetItem* ratingItem = new QTableWidgetItem();
-            QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
-            double rating = ratingStr.toDouble();
-            rating *= 5;
-            ratingStr = QString::number(rating);
-            ratingItem->setText(ratingStr);
-            ui->tableWidget->setItem(row, 2, ratingItem);
-        }
-
-        //QTableWidgetItem* uuid = new QTableWidgetItem();
-        //filesTable->setItem(row, 1, sizeItem);
     }
+    return totalDurationText;
+}
+
+void MainWindow::addRow(QString filepath, QString duration, double rating, QString uuid){
+    int row = ui->tableWidget->rowCount();
+    ui->tableWidget->insertRow(row);
+
+    QTableWidgetItem* pathItem = new QTableWidgetItem();
+    pathItem->setText(filepath);
+    ui->tableWidget->setItem(row, 0, pathItem);
+
+    QTableWidgetItem* durationItem = new QTableWidgetItem();
+    durationItem->setText(duration);
+    ui->tableWidget->setItem(row, 1, durationItem);
+
+    QTableWidgetItem* ratingItem = new QTableWidgetItem();
+    QString ratingStr = QString::number(rating);
+    ratingItem->setText(ratingStr);
+    ui->tableWidget->setItem(row, 2, ratingItem);
+
+    QTableWidgetItem* uuidItem = new QTableWidgetItem();
+    uuidItem->setText(uuid);
+    ui->tableWidget->setItem(row, 3, uuidItem);
 }

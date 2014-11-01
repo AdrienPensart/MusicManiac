@@ -64,8 +64,6 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Folder"/>
-    <addaction name="actionAdd_missing_MP3_UUID"/>
-    <addaction name="actionAdd_missing_FLAC_UUID"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
