@@ -13,8 +13,19 @@ TEMPLATE = app
 LIBS += -ltag
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+    MusicFile.cpp \
+    MusicFolderModel.cpp \
+    MainWindow.cpp \
+    MP3File.cpp \
+    FLACFile.cpp \
+    MusicFileFactory.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    MusicFile.hpp \
+    MusicFolderModel.hpp \
+    MP3File.hpp \
+    MainWindow.hpp \
+    FLACFile.hpp \
+    MusicFileFactory.hpp
 
 FORMS    += mainwindow.ui
