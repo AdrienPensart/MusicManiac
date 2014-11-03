@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     MainWindow.cpp \
     MP3File.cpp \
     FLACFile.cpp \
-    MusicFileFactory.cpp
+    MusicFileFactory.cpp \
+    MusicDebugger.cpp
 
 HEADERS  += \
     MusicFile.hpp \
@@ -26,6 +27,9 @@ HEADERS  += \
     MP3File.hpp \
     MainWindow.hpp \
     FLACFile.hpp \
-    MusicFileFactory.hpp
+    MusicFileFactory.hpp \
+    MusicDebugger.hpp \
+    NonCopyable.hpp \
+    Singleton.hpp
 
 FORMS    += mainwindow.ui

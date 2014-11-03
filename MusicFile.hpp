@@ -13,13 +13,22 @@ class MusicFile
         virtual ~MusicFile();
         virtual QString getDuration();
         virtual QString getFilepath();
-        virtual double getRating()=0;
-        virtual QString getUUID()=0;
+        virtual double getRating();
+        virtual QString getUUID();
+        virtual QStringList getKeywords();
         virtual void setKeywords(const QStringList&)=0;
-        virtual QStringList getKeywords()=0;
+
+    protected:
+
+        void setRating(double);
+        void setUUID(QString);
 
     private:
 
+        QStringList keywords;
+        double rating;
+        QString uuid;
+        QString duration;
         QString filepath;
         TagLib::File * file;
 };

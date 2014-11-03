@@ -9,10 +9,7 @@ class FLACFile : public MusicFile
     public:
 
         FLACFile(QString filepath, TagLib::FLAC::File * flac);
-        virtual double getRating();
-        virtual QString getUUID();
         virtual void setKeywords(const QStringList&);
-        virtual QStringList getKeywords();
 
      private:
 

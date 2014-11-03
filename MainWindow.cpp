@@ -1,8 +1,9 @@
 #include <QDebug>
 #include <QFileDialog>
 
-#include "MainWindow.hpp"
 #include "ui_mainwindow.h"
+
+#include "MainWindow.hpp"
 #include "MusicFileFactory.hpp"
 #include "MusicFolderModel.hpp"
 
@@ -35,7 +36,6 @@ void MainWindow::loadFolder(){
         MusicFile * mf = 0;
         mf = mff.factory();
         if(mf){
-            qDebug() << "pointer = " << mf;
             musicModel->add(mf);
         }
     }
