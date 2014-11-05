@@ -29,7 +29,6 @@ FLACFile::FLACFile(QString filepath, TagLib::FLAC::File * _flac)
         uuid = quuid.toString();
         flac->xiphComment()->addField("UFID", uuid.toStdString().c_str());
         qDebug() << "No UFID frame for " << getFilepath() << " generating one " << uuid;
-        //flac.save();
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["UFID"];
         if(list.size()){
@@ -39,5 +38,6 @@ FLACFile::FLACFile(QString filepath, TagLib::FLAC::File * _flac)
     setUUID(uuid);
 }
 
-void FLACFile::setKeywords(const QStringList&){
+void FLACFile::setKeywords(QString _keywords){
+    MusicFile::setKeywords(_keywords);
 }

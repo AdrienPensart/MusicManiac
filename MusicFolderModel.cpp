@@ -1,5 +1,7 @@
 #include "MusicFolderModel.hpp"
 
+#include <QDebug>
+
 enum { COLUMN_PATH, COLUMN_UUID, COLUMN_DURATION, COLUMN_RATING, COLUMN_KEYWORDS, COLUMN_COUNT, COLUMN_MAX=COLUMN_COUNT-1};
 
 MusicFolderModel::MusicFolderModel(QObject *parent) :
@@ -32,24 +34,57 @@ MusicFile * MusicFolderModel::musicAt(int offset) const {
     return 0;
 }
 
+Qt::ItemFlags MusicFolderModel::flags(const QModelIndex &index) const {
+    if (!index.isValid()) {
+        return Qt::ItemIsEnabled;
+    }
+    if(index.column() == COLUMN_KEYWORDS || index.column() == COLUMN_RATING){
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    }
+    return QAbstractItemModel::flags(index);// | Qt::ItemIsEditable;
+}
+
 QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
-    if(!index.isValid())
-    {
+    if(!index.isValid()){
         return QVariant();
     }
-    else if(role == Qt::TextAlignmentRole)
-    {
+
+    if (index.row() >= music.size()){
+        return QVariant();
+    }
+    /*
+    if(role == Qt::TextAlignmentRole) {
         return int(Qt::AlignHCenter | Qt::AlignVCenter);
     }
-    else if(role == Qt::DisplayRole)
-    {
+    */
+
+    if(role == Qt::DisplayRole || role == Qt::EditRole) {
         MusicFile * rowMusic = musicAt(index.row());
-        if(rowMusic != 0)
-        {
+        if(rowMusic != 0){
             return infoAtColumn(rowMusic, index.column());
         }
     }
     return QVariant();
+}
+
+bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & value, int role){
+    if (index.isValid() && role == Qt::EditRole){
+        qDebug() << "Setting data : " << value.toString();
+        MusicFile * rowMusic = musicAt(index.row());
+        if(rowMusic){
+            switch(index.column()){
+                case COLUMN_RATING:
+                    rowMusic->setRating(value.toDouble());
+                    break;
+                case COLUMN_KEYWORDS:
+                    rowMusic->setKeywords(value.toString());
+                    break;
+            }
+            emit dataChanged(index, index);
+            return true;
+        }
+    }
+    return false;
 }
 
 QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -95,7 +130,7 @@ QString MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
             return QString::number(mf->getRating());
             break;
         case COLUMN_KEYWORDS:
-            return mf->getKeywords().join(" ");
+            return mf->getKeywords();
             break;
         default:
             return tr("Undefined");

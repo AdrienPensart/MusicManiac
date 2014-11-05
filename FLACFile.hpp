@@ -9,7 +9,7 @@ class FLACFile : public MusicFile
     public:
 
         FLACFile(QString filepath, TagLib::FLAC::File * flac);
-        virtual void setKeywords(const QStringList&);
+        virtual void setKeywords(QString);
 
      private:
 

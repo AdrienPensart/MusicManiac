@@ -3,7 +3,7 @@
 #include <QDebug>
 
 MusicFile::MusicFile(QString _filepath, TagLib::File * _file)
-    :filepath(_filepath), file(_file){
+    :filepath(_filepath), file(_file), modified(false){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
         int totalSeconds;
@@ -30,6 +30,16 @@ MusicFile::~MusicFile(){
     delete file;
 }
 
+void MusicFile::save(){
+    if(modified){
+        file->save();
+    }
+}
+
+bool MusicFile::isModified(){
+    return modified;
+}
+
 QString MusicFile::getFilepath(){
     return filepath;
 }
@@ -39,11 +49,24 @@ QString MusicFile::getDuration(){
 }
 
 void MusicFile::setRating(double _rating){
-    rating = _rating;
+    if(rating != _rating){
+        modified = true;
+        rating = _rating;
+        qDebug() << "Setting rating : " << rating;
+    }
 }
 
 void MusicFile::setUUID(QString _uuid){
+    modified = true;
     uuid = _uuid;
+}
+
+void MusicFile::setKeywords(QString _keywords){
+    if(keywords != _keywords){
+        modified = true;
+        keywords = _keywords;
+        qDebug() << "Setting keywords : " << keywords;
+    }
 }
 
 double MusicFile::getRating(){
@@ -54,6 +77,6 @@ QString MusicFile::getUUID(){
     return uuid;
 }
 
-QStringList MusicFile::getKeywords(){
+QString MusicFile::getKeywords(){
     return keywords;
 }

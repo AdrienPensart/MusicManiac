@@ -11,26 +11,29 @@ class MusicFile
 
         MusicFile(QString filepath, TagLib::File *);
         virtual ~MusicFile();
-        virtual QString getDuration();
-        virtual QString getFilepath();
-        virtual double getRating();
-        virtual QString getUUID();
-        virtual QStringList getKeywords();
-        virtual void setKeywords(const QStringList&)=0;
+        QString getDuration();
+        QString getFilepath();
+        double getRating();
+        QString getUUID();
+        QString getKeywords();
+        bool isModified();
+        virtual void setKeywords(QString);
+        virtual void setRating(double);
+        virtual void save();
 
     protected:
 
-        void setRating(double);
         void setUUID(QString);
 
     private:
 
-        QStringList keywords;
-        double rating;
-        QString uuid;
-        QString duration;
         QString filepath;
         TagLib::File * file;
+        bool modified;
+        double rating;
+        QString keywords;
+        QString uuid;
+        QString duration;
 };
 
 #endif // MUSICFILE_HPP
