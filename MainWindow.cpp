@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
 
-    musicModel = new MusicFolderModel();
+    musicModel = new MusicFolderModel(this);
     ui->musicView->setModel(musicModel);
-    ui->musicView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->musicView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 MainWindow::~MainWindow(){

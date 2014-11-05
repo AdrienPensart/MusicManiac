@@ -18,8 +18,8 @@ MP3File::MP3File(QString filepath, TagLib::MPEG::File * _mp3)
         QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
         rating = ratingStr.toDouble();
         rating *= 5;
+        MusicFile::setRating(rating, false);
     }
-    setRating(rating);
 
     const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();
     TagLib::ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
@@ -30,25 +30,25 @@ MP3File::MP3File(QString filepath, TagLib::MPEG::File * _mp3)
         qDebug() << "No UFID frame for " << getFilepath() << " generating one " << uuid;
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.toStdString().c_str());
         mp3->ID3v2Tag()->addFrame(ufid);
+        MusicFile::setUUID(uuid, true);
     } else {
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = (TagLib::ID3v2::UniqueFileIdentifierFrame *)ufidIter->second.front();
         uuid = ufid->identifier().data();
+        MusicFile::setUUID(uuid, false);
     }
-    setUUID(uuid);
-    setKeywords(mp3->ID3v2Tag()->comment().to8Bit(true).c_str());
+
+    MusicFile::setKeywords(mp3->ID3v2Tag()->comment().to8Bit(true).c_str(), false);
 }
 
 void MP3File::setRating(double _rating){
-    MusicFile::setRating(_rating);
-    /*
+    MusicFile::setRating(_rating, true);
     TagLib::StringList& list = mp3->properties()["FMPS_RATING"];
     if(list.size() == 1){
-        list[0] = QString::number(_rating).toStdString().c_str();
+        list[0] = QString::number(_rating / 5.0).toStdString().c_str();
     }
-    */
 }
 
 void MP3File::setKeywords(QString _keywords){
-    MusicFile::setKeywords(_keywords);
+    MusicFile::setKeywords(_keywords, true);
     mp3->ID3v2Tag()->setComment(_keywords.toStdString().c_str());
 }

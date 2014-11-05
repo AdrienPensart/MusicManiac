@@ -8,8 +8,15 @@ MusicFolderModel::MusicFolderModel(QObject *parent) :
     QAbstractTableModel(parent) {
 }
 
-void MusicFolderModel::clear(){
+MusicFolderModel::~MusicFolderModel(){
+    clear();
+}
 
+void MusicFolderModel::clear(){
+    qDebug() << "Clearing music folder";
+    for(QVector<MusicFile*>::ConstIterator ci = music.begin(); ci != music.end() ; ci++){
+        delete *ci;
+    }
 }
 
 int MusicFolderModel::rowCount(const QModelIndex& /* parent */) const {

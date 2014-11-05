@@ -17,13 +17,15 @@ class MusicFile
         QString getUUID();
         QString getKeywords();
         bool isModified();
-        virtual void setKeywords(QString);
-        virtual void setRating(double);
+        virtual void setRating(double)=0;
+        virtual void setKeywords(QString)=0;
         virtual void save();
 
     protected:
 
-        void setUUID(QString);
+        virtual void setKeywords(QString, bool erase);
+        virtual void setRating(double, bool erase);
+        virtual void setUUID(QString, bool erase);
 
     private:
 

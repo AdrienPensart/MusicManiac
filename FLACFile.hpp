@@ -10,8 +10,9 @@ class FLACFile : public MusicFile
 
         FLACFile(QString filepath, TagLib::FLAC::File * flac);
         virtual void setKeywords(QString);
+        virtual void setRating(double);
 
-     private:
+    private:
 
         TagLib::FLAC::File * flac;
 };

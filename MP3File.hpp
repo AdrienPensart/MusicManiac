@@ -10,7 +10,7 @@ class MP3File : public MusicFile
 
         MP3File(QString filepath, TagLib::MPEG::File * mp3);
         virtual void setKeywords(QString);
-        virtual void setRating(double rating);
+        virtual void setRating(double);
 
     private:
 

@@ -27,11 +27,13 @@ MusicFile::MusicFile(QString _filepath, TagLib::File * _file)
 }
 
 MusicFile::~MusicFile(){
+    save();
     delete file;
 }
 
 void MusicFile::save(){
     if(modified){
+        qDebug() << "Saving file " << filepath;
         file->save();
     }
 }
@@ -48,22 +50,25 @@ QString MusicFile::getDuration(){
     return duration;
 }
 
-void MusicFile::setRating(double _rating){
+void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
-        modified = true;
+        modified = erase;
         rating = _rating;
         qDebug() << "Setting rating : " << rating;
     }
 }
 
-void MusicFile::setUUID(QString _uuid){
-    modified = true;
-    uuid = _uuid;
+void MusicFile::setUUID(QString _uuid, bool erase){
+    if(uuid != _uuid){
+        modified = erase;
+        uuid = _uuid;
+        qDebug() << "Setting UUID " << uuid;
+    }
 }
 
-void MusicFile::setKeywords(QString _keywords){
+void MusicFile::setKeywords(QString _keywords, bool erase){
     if(keywords != _keywords){
-        modified = true;
+        modified = erase;
         keywords = _keywords;
         qDebug() << "Setting keywords : " << keywords;
     }
