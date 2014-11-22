@@ -1,0 +1,6 @@
+*.o
+musicman
+ui_*.h
+moc_*.cpp
+*.pro.user
+Makefile
