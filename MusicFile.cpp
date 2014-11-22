@@ -1,8 +1,10 @@
 #include "MusicFile.hpp"
 #include <cmath>
-#include <QDebug>
+#include <cstdio>
+#include <iostream>
+using namespace std;
 
-MusicFile::MusicFile(QString _filepath, TagLib::File * _file)
+MusicFile::MusicFile(string _filepath, TagLib::File * _file)
     :filepath(_filepath), file(_file), modified(false){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
@@ -16,13 +18,15 @@ MusicFile::MusicFile(QString _filepath, TagLib::File * _file)
         minutes = floor((totalSeconds - hours * 3600) / 60);
         seconds = floor(totalSeconds - hours * 3600 - minutes * 60);
 
+        char buffer[256];
         if(hours <= 0) {
-            duration = QString().sprintf("%02d:%02d", minutes, seconds);
+             snprintf(buffer, sizeof(buffer), "%02d:%02d", minutes, seconds);
         } else {
-            duration = QString().sprintf("%d:%02d:%02d", hours, minutes, seconds);
+             snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
         }
+        duration = buffer;
     } else {
-        qDebug() << "No duration properties for " << filepath;
+        cout << "No duration properties for " << filepath;
     }
 }
 
@@ -33,7 +37,7 @@ MusicFile::~MusicFile(){
 
 void MusicFile::save(){
     if(modified){
-        qDebug() << "Saving file " << filepath;
+        cout << "Saving file " << filepath;
         file->save();
     }
 }
@@ -42,11 +46,11 @@ bool MusicFile::isModified(){
     return modified;
 }
 
-QString MusicFile::getFilepath(){
+string MusicFile::getFilepath(){
     return filepath;
 }
 
-QString MusicFile::getDuration(){
+string MusicFile::getDuration(){
     return duration;
 }
 
@@ -54,23 +58,23 @@ void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
         modified = erase;
         rating = _rating;
-        qDebug() << "Setting rating : " << rating;
+        cout << "Setting rating : " << rating;
     }
 }
 
-void MusicFile::setUUID(QString _uuid, bool erase){
+void MusicFile::setUUID(string _uuid, bool erase){
     if(uuid != _uuid){
         modified = erase;
         uuid = _uuid;
-        qDebug() << "Setting UUID " << uuid;
+        cout << "Setting UUID " << uuid;
     }
 }
 
-void MusicFile::setKeywords(QString _keywords, bool erase){
+void MusicFile::setKeywords(string _keywords, bool erase){
     if(keywords != _keywords){
         modified = erase;
         keywords = _keywords;
-        qDebug() << "Setting keywords : " << keywords;
+        cout << "Setting keywords : " << keywords;
     }
 }
 
@@ -78,10 +82,10 @@ double MusicFile::getRating(){
     return rating;
 }
 
-QString MusicFile::getUUID(){
+string MusicFile::getUUID(){
     return uuid;
 }
 
-QString MusicFile::getKeywords(){
+string MusicFile::getKeywords(){
     return keywords;
 }

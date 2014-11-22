@@ -1,7 +1,9 @@
-#include <QDebug>
-#include <QUuid>
+#include <uuid/uuid.h>
 #include <iostream>
+using namespace std;
 
+#include "Uuid.hpp"
+#include "Utility.hpp"
 #include "MP3File.hpp"
 
 #include <taglib/tpropertymap.h>
@@ -9,26 +11,25 @@
 #include <taglib/uniquefileidentifierframe.h>
 #include <taglib/textidentificationframe.h>
 
-MP3File::MP3File(QString filepath, TagLib::MPEG::File * _mp3)
+MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
     : MusicFile(filepath, _mp3), mp3(_mp3)
 {
     double rating = 0;
     TagLib::StringList list = mp3->properties()["FMPS_RATING"];
     if(list.size() == 1){
-        QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
-        rating = ratingStr.toDouble();
+        string ratingStr = list[0].to8Bit(true);
+        Common::fromString(ratingStr, rating);
         rating *= 5;
         MusicFile::setRating(rating, false);
     }
 
     const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();
     TagLib::ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
-    QString uuid;
+    string uuid;
     if(ufidIter == frames.end()){
-        QUuid quuid = QUuid::createUuid();
-        uuid = quuid.toString();
-        qDebug() << "No UFID frame for " << getFilepath() << " generating one " << uuid;
-        TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.toStdString().c_str());
+        uuid = newUUID();
+        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid;
+        TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.c_str());
         mp3->ID3v2Tag()->addFrame(ufid);
         MusicFile::setUUID(uuid, true);
     } else {
@@ -44,11 +45,11 @@ void MP3File::setRating(double _rating){
     MusicFile::setRating(_rating, true);
     TagLib::StringList& list = mp3->properties()["FMPS_RATING"];
     if(list.size() == 1){
-        list[0] = QString::number(_rating / 5.0).toStdString().c_str();
+        list[0] = Common::toString(_rating / 5.0).c_str();
     }
 }
 
-void MP3File::setKeywords(QString _keywords){
+void MP3File::setKeywords(string _keywords){
     MusicFile::setKeywords(_keywords, true);
-    mp3->ID3v2Tag()->setComment(_keywords.toStdString().c_str());
+    mp3->ID3v2Tag()->setComment(_keywords.c_str());
 }

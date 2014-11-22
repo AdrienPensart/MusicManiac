@@ -19,7 +19,7 @@ MusicFile * MusicFileFactory::factory(){
         if(iterator.fileInfo().isDir()){
             continue;
         }
-        MusicDebugger::instance().setCurrentMusic(iterator.filePath());
+        MusicDebugger::instance().setCurrentMusic(iterator.filePath().toStdString());
 
         if(iterator.filePath().endsWith(".mp3")){
             TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
@@ -38,7 +38,7 @@ MusicFile * MusicFileFactory::factory(){
                 qDebug() << "Tag invalid for " << iterator.filePath();
                 continue;
             }
-            return new MP3File(iterator.filePath(), mp3);
+            return new MP3File(iterator.filePath().toStdString(), mp3);
         }
         else if(iterator.filePath().endsWith(".flac")){
             TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator.filePath().toStdString().c_str());
@@ -57,7 +57,7 @@ MusicFile * MusicFileFactory::factory(){
                 qDebug() << "Tag invalid for " << iterator.filePath();;
                 continue;
             }
-            return new FLACFile(iterator.filePath(), flac);
+            return new FLACFile(iterator.filePath().toStdString(), flac);
         } else {
             qDebug() << "Music file not supported " << iterator.filePath();
         }

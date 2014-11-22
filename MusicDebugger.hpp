@@ -1,7 +1,7 @@
 #ifndef MUSICDEBUGGER_HPP
 #define MUSICDEBUGGER_HPP
 
-#include <QString>
+#include <string>
 #include <taglib/tdebuglistener.h>
 #include "Singleton.hpp"
 
@@ -11,7 +11,7 @@ class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugList
 
     public:
 
-        void setCurrentMusic(QString current);
+        void setCurrentMusic(std::string current);
         virtual void printMessage (const TagLib::String &msg);
 
     protected:
@@ -21,7 +21,7 @@ class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugList
 
     private:
 
-        QString currentMusic;
+        std::string currentMusic;
 };
 
 #endif // MUSICDEBUGGER_HPP

@@ -8,8 +8,8 @@ class FLACFile : public MusicFile
 {
     public:
 
-        FLACFile(QString filepath, TagLib::FLAC::File * flac);
-        virtual void setKeywords(QString);
+        FLACFile(std::string filepath, TagLib::FLAC::File * flac);
+        virtual void setKeywords(std::string);
         virtual void setRating(double);
 
     private:

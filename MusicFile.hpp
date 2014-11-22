@@ -3,39 +3,39 @@
 
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
-#include <QStringList>
+#include <string>
 
 class MusicFile
 {
     public:
 
-        MusicFile(QString filepath, TagLib::File *);
+        MusicFile(std::string filepath, TagLib::File *);
         virtual ~MusicFile();
-        QString getDuration();
-        QString getFilepath();
+        std::string getDuration();
+        std::string getFilepath();
         double getRating();
-        QString getUUID();
-        QString getKeywords();
+        std::string getUUID();
+        std::string getKeywords();
         bool isModified();
         virtual void setRating(double)=0;
-        virtual void setKeywords(QString)=0;
+        virtual void setKeywords(std::string)=0;
         virtual void save();
 
     protected:
 
-        virtual void setKeywords(QString, bool erase);
+        virtual void setKeywords(std::string, bool erase);
         virtual void setRating(double, bool erase);
-        virtual void setUUID(QString, bool erase);
+        virtual void setUUID(std::string, bool erase);
 
     private:
 
-        QString filepath;
+        std::string filepath;
         TagLib::File * file;
         bool modified;
         double rating;
-        QString keywords;
-        QString uuid;
-        QString duration;
+        std::string keywords;
+        std::string uuid;
+        std::string duration;
 };
 
 #endif // MUSICFILE_HPP

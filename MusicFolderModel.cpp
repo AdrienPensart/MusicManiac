@@ -84,7 +84,7 @@ bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & valu
                     rowMusic->setRating(value.toDouble());
                     break;
                 case COLUMN_KEYWORDS:
-                    rowMusic->setKeywords(value.toString());
+                    rowMusic->setKeywords(value.toString().toStdString());
                     break;
             }
             emit dataChanged(index, index);
@@ -125,19 +125,19 @@ QString MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
 
     switch(offset){
         case COLUMN_PATH:
-            return mf->getFilepath();
+            return mf->getFilepath().c_str();
             break;
         case COLUMN_UUID:
-            return mf->getUUID();
+            return mf->getUUID().c_str();
             break;
         case COLUMN_DURATION:
-            return mf->getDuration();
+            return mf->getDuration().c_str();
             break;
         case COLUMN_RATING:
             return QString::number(mf->getRating());
             break;
         case COLUMN_KEYWORDS:
-            return mf->getKeywords();
+            return mf->getKeywords().c_str();
             break;
         default:
             return tr("Undefined");

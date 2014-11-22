@@ -1,6 +1,6 @@
 #include "MusicDebugger.hpp"
 
-#include <QDebug>
+#include <iostream>
 
 MusicDebugger::MusicDebugger(){
     TagLib::setDebugListener(this);
@@ -9,10 +9,10 @@ MusicDebugger::MusicDebugger(){
 MusicDebugger::~MusicDebugger(){
 }
 
-void MusicDebugger::setCurrentMusic(QString current){
+void MusicDebugger::setCurrentMusic(std::string current){
     currentMusic = current;
 }
 
 void MusicDebugger::printMessage (const TagLib::String &msg){
-    qDebug() << currentMusic << " : " << msg.toCString();
+    std::cout << currentMusic << " : " << msg.toCString();
 }

@@ -1,33 +1,35 @@
-#include <QDebug>
-#include <QUuid>
-
 #include "FLACFile.hpp"
+
+#include <iostream>
+using namespace std;
+
+#include "Utility.hpp"
+#include "Uuid.hpp"
 
 #include <taglib/xiphcomment.h>
 #include <taglib/tstringlist.h>
 #include <taglib/tpropertymap.h>
 
-FLACFile::FLACFile(QString filepath, TagLib::FLAC::File * _flac)
+FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac)
     : MusicFile(filepath, _flac), flac(_flac)
 {
     double rating = 0;
     if(!flac->xiphComment()->contains("FMPS_RATING")){
-        qDebug() << "No rating in file " << filepath;
+        cout << "No rating in file " << filepath;
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["FMPS_RATING"];
         if(list.size()){
-            QString ratingStr = QString::fromStdString(list[0].to8Bit(true));
-            rating = ratingStr.toDouble();
+            string ratingStr = list[0].to8Bit(true);
+            Common::fromString(ratingStr, rating);
             rating *= 5;
             MusicFile::setRating(rating, false);
         }
     }
 
     if(!flac->xiphComment()->contains("UFID")){
-        QUuid quuid = QUuid::createUuid();
-        QString uuid = quuid.toString();
-        flac->xiphComment()->addField("UFID", uuid.toStdString().c_str());
-        qDebug() << "No UFID frame for " << getFilepath() << " generating one " << uuid;
+        string uuid = newUUID();
+        flac->xiphComment()->addField("UFID", uuid.c_str());
+        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid;
         MusicFile::setUUID(uuid, true);
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["UFID"];
@@ -41,14 +43,14 @@ FLACFile::FLACFile(QString filepath, TagLib::FLAC::File * _flac)
 
 void FLACFile::setRating(double _rating){
     if(!flac->xiphComment()->contains("FMPS_RATING")){
-        flac->xiphComment()->addField("FMPS_RATING", QString::number(_rating / 5.0).toStdString().c_str());
+        flac->xiphComment()->addField("FMPS_RATING", Common::toString(_rating / 5.0).c_str());
     } else {
-        flac->xiphComment()->addField("FMPS_RATING", QString::number(_rating / 5.0).toStdString().c_str(), true);
+        flac->xiphComment()->addField("FMPS_RATING", Common::toString(_rating / 5.0).c_str(), true);
     }
     MusicFile::setRating(_rating, true);
 }
 
-void FLACFile::setKeywords(QString _keywords){
-    flac->xiphComment()->setComment(_keywords.toStdString().c_str());
+void FLACFile::setKeywords(string _keywords){
+    flac->xiphComment()->setComment(_keywords.c_str());
     MusicFile::setKeywords(_keywords, true);
 }

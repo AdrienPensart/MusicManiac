@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = musicman
 TEMPLATE = app
-LIBS += -ltag
+LIBS += -ltag -luuid
 
 SOURCES += main.cpp\
     MusicFile.cpp \
@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     FLACFile.cpp \
     MusicFileFactory.cpp \
     MusicDebugger.cpp \
-    PlaylistGenerator.cpp
+    PlaylistGenerator.cpp \
+    Uuid.cpp
 
 HEADERS  += \
     MusicFile.hpp \
@@ -32,6 +33,8 @@ HEADERS  += \
     MusicDebugger.hpp \
     NonCopyable.hpp \
     Singleton.hpp \
-    PlaylistGenerator.hpp
+    PlaylistGenerator.hpp \
+    Utility.hpp \
+    Uuid.hpp
 
 FORMS    += mainwindow.ui

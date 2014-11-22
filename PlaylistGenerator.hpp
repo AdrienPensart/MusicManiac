@@ -1,8 +1,9 @@
 #ifndef PLAYLISTGENERATOR_HPP
 #define PLAYLISTGENERATOR_HPP
 
-#include <QMap>
-#include <QList>
+#include <map>
+#include <vector>
+#include <string>
 #include "MusicFile.hpp"
 
 class PlaylistGenerator
@@ -14,7 +15,7 @@ class PlaylistGenerator
 
     private:
 
-        QMap<QString, QList<MusicFile *> > dict;
+        std::map<std::string, std::vector<MusicFile *> > dict;
 };
 
 #endif // PLAYLISTGENERATOR_HPP
