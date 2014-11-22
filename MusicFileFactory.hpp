@@ -8,7 +8,7 @@ class MusicFileFactory
 {
     public:
 
-        MusicFileFactory(QString folder);
+        MusicFileFactory(QString folder, bool regen=false);
         MusicFile * factory();
         bool valid();
 
@@ -16,6 +16,7 @@ class MusicFileFactory
 
         QDir music;
         QDirIterator iterator;
+        bool regen;
 };
 
 #endif // MUSICFILEFACTORY_H

@@ -21,9 +21,11 @@ public:
 private slots:
 
     void loadFolder();
+    void loadFolderWithRegen();
 
 private:
 
+    void loadFolderWith(bool regen);
     MusicFolderModel * musicModel;
     Ui::MainWindow * ui;
 };

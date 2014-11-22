@@ -47,6 +47,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Folder"/>
+    <addaction name="actionRegen_UUID"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -63,6 +64,11 @@
   <action name="actionAdd_missing_FLAC_UUID">
    <property name="text">
     <string>Add missing FLAC UUID</string>
+   </property>
+  </action>
+  <action name="actionRegen_UUID">
+   <property name="text">
+    <string>Regen UUID</string>
    </property>
   </action>
  </widget>

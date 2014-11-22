@@ -11,7 +11,7 @@ using namespace std;
 #include <taglib/uniquefileidentifierframe.h>
 #include <taglib/textidentificationframe.h>
 
-MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
+MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3, bool regen)
     : MusicFile(filepath, _mp3), mp3(_mp3)
 {
     double rating = 0;
@@ -26,9 +26,9 @@ MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
     const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();
     TagLib::ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
     string uuid;
-    if(ufidIter == frames.end()){
+    if(regen || ufidIter == frames.end()){
         uuid = newUUID();
-        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid;
+        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid << endl;
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.c_str());
         mp3->ID3v2Tag()->addFrame(ufid);
         MusicFile::setUUID(uuid, true);

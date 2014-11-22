@@ -1,12 +1,15 @@
-#include <QDebug>
+#include <iostream>
+using namespace std;
 
 #include "MusicFileFactory.hpp"
 #include "MP3File.hpp"
 #include "FLACFile.hpp"
 #include "MusicDebugger.hpp"
 
-MusicFileFactory::MusicFileFactory(QString folder)
-    : music(folder), iterator(music.absolutePath(), QDirIterator::Subdirectories) {
+MusicFileFactory::MusicFileFactory(QString folder, bool _regen) :
+    music(folder), iterator(music.absolutePath(), QDirIterator::Subdirectories),
+    regen(_regen)
+{
 }
 
 bool MusicFileFactory::valid(){
@@ -24,42 +27,42 @@ MusicFile * MusicFileFactory::factory(){
         if(iterator.filePath().endsWith(".mp3")){
             TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
             if(!mp3->audioProperties()){
-                qDebug() << "No audio property for " << iterator.filePath();
+                cout << "No audio property for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
 
             if(!mp3->hasID3v2Tag()){
-                qDebug() << "No ID3v2 Tag present for " << iterator.filePath();
+                cout << "No ID3v2 Tag present for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
 
             TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
             if(!tag){
-                qDebug() << "Tag invalid for " << iterator.filePath();
+                cout << "Tag invalid for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
-            return new MP3File(iterator.filePath().toStdString(), mp3);
+            return new MP3File(iterator.filePath().toStdString(), mp3, regen);
         }
         else if(iterator.filePath().endsWith(".flac")){
             TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator.filePath().toStdString().c_str());
             if(!flac->audioProperties()){
-                qDebug() << "No audio property for " << iterator.filePath();;
+                cout << "No audio property for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
 
             if(!flac->hasXiphComment()){
-                qDebug() << "No XiphComment present for " << iterator.filePath();;
+                cout << "No XiphComment present for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
 
             TagLib::Ogg::XiphComment * tag = flac->xiphComment();
             if(!tag){
-                qDebug() << "Tag invalid for " << iterator.filePath();;
+                cout << "Tag invalid for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
-            return new FLACFile(iterator.filePath().toStdString(), flac);
+            return new FLACFile(iterator.filePath().toStdString(), flac, regen);
         } else {
-            qDebug() << "Music file not supported " << iterator.filePath();
+            cout << "Music file not supported " << iterator.filePath().toStdString() << endl;
         }
     }
     return 0;

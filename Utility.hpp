@@ -51,7 +51,7 @@ namespace Common
 		time_t now;
 		time(&now);
 		std::string mytime = ctime(&now);
-		mytime.erase(std::remove(mytime.begin(), mytime.end(), '\n'), mytime.end());
+        mytime.erase(std::remove(mytime.begin(), mytime.end(), '\n'), mytime.end());
 		return mytime;
 	}
 

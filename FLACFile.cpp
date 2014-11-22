@@ -10,12 +10,11 @@ using namespace std;
 #include <taglib/tstringlist.h>
 #include <taglib/tpropertymap.h>
 
-FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac)
-    : MusicFile(filepath, _flac), flac(_flac)
-{
+FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac, bool regen)
+    : MusicFile(filepath, _flac), flac(_flac) {
     double rating = 0;
     if(!flac->xiphComment()->contains("FMPS_RATING")){
-        cout << "No rating in file " << filepath;
+        cout << "No rating in file " << filepath << endl;
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["FMPS_RATING"];
         if(list.size()){
@@ -26,10 +25,10 @@ FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac)
         }
     }
 
-    if(!flac->xiphComment()->contains("UFID")){
+    if(regen || !flac->xiphComment()->contains("UFID")){
         string uuid = newUUID();
         flac->xiphComment()->addField("UFID", uuid.c_str());
-        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid;
+        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid << endl;
         MusicFile::setUUID(uuid, true);
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["UFID"];

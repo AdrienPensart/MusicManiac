@@ -14,5 +14,5 @@ void MusicDebugger::setCurrentMusic(std::string current){
 }
 
 void MusicDebugger::printMessage (const TagLib::String &msg){
-    std::cout << currentMusic << " : " << msg.toCString();
+    std::cout << currentMusic << " : " << msg.toCString() << std::endl;
 }

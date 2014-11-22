@@ -1,6 +1,7 @@
 #include "MusicFolderModel.hpp"
 
-#include <QDebug>
+#include <iostream>
+using namespace std;
 
 enum { COLUMN_PATH, COLUMN_UUID, COLUMN_DURATION, COLUMN_RATING, COLUMN_KEYWORDS, COLUMN_COUNT, COLUMN_MAX=COLUMN_COUNT-1};
 
@@ -13,10 +14,13 @@ MusicFolderModel::~MusicFolderModel(){
 }
 
 void MusicFolderModel::clear(){
-    qDebug() << "Clearing music folder";
+    beginResetModel();
+    cout << "Clearing music folder" << endl;
     for(QVector<MusicFile*>::ConstIterator ci = music.begin(); ci != music.end() ; ci++){
         delete *ci;
     }
+    music.clear();
+    endResetModel();
 }
 
 int MusicFolderModel::rowCount(const QModelIndex& /* parent */) const {
@@ -76,7 +80,7 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
 
 bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & value, int role){
     if (index.isValid() && role == Qt::EditRole){
-        qDebug() << "Setting data : " << value.toString();
+        cout << "Setting data : " << value.toString().toStdString() << endl;
         MusicFile * rowMusic = musicAt(index.row());
         if(rowMusic){
             switch(index.column()){
