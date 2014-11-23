@@ -1,7 +1,6 @@
 #ifndef PLAYLISTGENERATOR_HPP
 #define PLAYLISTGENERATOR_HPP
 
-#include <map>
 #include <vector>
 #include <string>
 #include "MusicFile.hpp"
@@ -10,12 +9,14 @@ class PlaylistGenerator
 {
     public:
 
-        PlaylistGenerator();
+        PlaylistGenerator(std::string _basefolder);
         void add(MusicFile * file);
+        void save(std::string filepath);
 
     private:
 
-        std::map<std::string, std::vector<MusicFile *> > dict;
+        std::string basefolder;
+        std::vector<MusicFile *> musics;
 };
 
 #endif // PLAYLISTGENERATOR_HPP

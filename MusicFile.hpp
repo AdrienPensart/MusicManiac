@@ -11,11 +11,11 @@ class MusicFile
 
         MusicFile(std::string filepath, TagLib::File *);
         virtual ~MusicFile();
-        std::string getDuration();
-        std::string getFilepath();
-        double getRating();
-        std::string getUUID();
-        std::string getKeywords();
+        std::string getDuration() const;
+        std::string getFilepath() const;
+        double getRating() const;
+        std::string getUUID() const;
+        std::string getKeywords() const;
         bool isModified();
         virtual void setRating(double)=0;
         virtual void setKeywords(std::string)=0;

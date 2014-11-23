@@ -2,12 +2,14 @@
 using namespace std;
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "ui_mainwindow.h"
 
 #include "MainWindow.hpp"
 #include "MusicFileFactory.hpp"
 #include "MusicFolderModel.hpp"
+#include "PlaylistGenerator.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
     connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
     connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
+    connect(ui->generatePlaylistButton, SIGNAL(clicked()), this, SLOT(generatePlaylist()));
 
     musicProxyModel = new CustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
     connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
@@ -50,6 +53,25 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow(){
     delete ui;
     cout << "MainWindow destructor" << endl;
+}
+
+void MainWindow::generatePlaylist(){
+    PlaylistGenerator pg(basefolder.toStdString());
+    for(int i = 0; i < musicProxyModel->rowCount(); i++){
+        QModelIndex index = musicProxyModel->index(i,0);
+        QModelIndex index2 = musicProxyModel->mapToSource(index);
+        pg.add(musicModel->musicAt(index2.row()));
+    }
+
+    if(!basefolder.size()){
+        QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), QDir::homePath(), tr("Playlist (*.m3u)"));
+    if(fileName.size()){
+        pg.save(fileName.toStdString());
+    }
 }
 
 void MainWindow::selectionToModel(
@@ -93,15 +115,15 @@ void MainWindow::loadFolderWithRegen(){
 }
 
 void MainWindow::loadFolderWith(bool regen){
-    QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if(!folderPath.size())
+    basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if(!basefolder.size())
     {
         cout << "Invalid folder" << endl;
         return;
     }
 
     musicModel->clear();
-    MusicFileFactory mff(folderPath, regen);
+    MusicFileFactory mff(basefolder, regen);
     while(mff.valid()){
         MusicFile * mf = 0;
         mf = mff.factory();

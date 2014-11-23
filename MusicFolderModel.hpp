@@ -22,17 +22,15 @@ class MusicFolderModel : public QAbstractTableModel
         QVariant headerData(int section, Qt::Orientation, int role) const;
         Qt::ItemFlags flags(const QModelIndex &index) const;
         bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
-
+        MusicFile * musicAt(int row) const;
         void add(MusicFile*mf);
         void clear();
         QStringList getKeywords();
 
     private:
 
-        MusicFile * musicAt(int offset) const;
-        QVariant infoAtColumn(MusicFile * ptr, int offset) const;
-
-        QVector<MusicFile*> music;
+        QVariant infoAtColumn(MusicFile * ptr, int row) const;
+        QVector<MusicFile*> musics;
 };
 
 #endif // MUSICFOLDERMODEL_HPP

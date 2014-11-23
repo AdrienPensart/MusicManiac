@@ -46,11 +46,11 @@ bool MusicFile::isModified(){
     return modified;
 }
 
-string MusicFile::getFilepath(){
+string MusicFile::getFilepath() const {
     return filepath;
 }
 
-string MusicFile::getDuration(){
+string MusicFile::getDuration() const {
     return duration;
 }
 
@@ -78,14 +78,14 @@ void MusicFile::setKeywords(string _keywords, bool erase){
     }
 }
 
-double MusicFile::getRating(){
+double MusicFile::getRating() const {
     return rating;
 }
 
-string MusicFile::getUUID(){
+string MusicFile::getUUID() const {
     return uuid;
 }
 
-string MusicFile::getKeywords(){
+string MusicFile::getKeywords() const {
     return keywords;
 }

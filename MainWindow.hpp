@@ -25,6 +25,7 @@ public:
 
 private slots:
 
+    void generatePlaylist();
     void loadFolder();
     void loadFolderWithRegen();
     void withoutToAvailable();
@@ -49,6 +50,7 @@ private:
     QItemSelectionModel * withKeywordsSelection;
 
     Ui::MainWindow * ui;
+    QString basefolder;
 };
 
 #endif // MAINWINDOW_H

@@ -14,7 +14,7 @@ MusicFolderModel::~MusicFolderModel(){
 
 QStringList MusicFolderModel::getKeywords(){
     QStringList keywords;
-    for(QVector<MusicFile*>::ConstIterator ci = music.begin(); ci != music.end() ; ci++){
+    for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
         vector<string> currentKeywords;
         Common::split((*ci)->getKeywords(), " ", currentKeywords);
         for(vector<string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
@@ -27,15 +27,15 @@ QStringList MusicFolderModel::getKeywords(){
 void MusicFolderModel::clear(){
     beginResetModel();
     cout << "Clearing music folder" << endl;
-    for(QVector<MusicFile*>::ConstIterator ci = music.begin(); ci != music.end() ; ci++){
+    for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
         delete *ci;
     }
-    music.clear();
+    musics.clear();
     endResetModel();
 }
 
 int MusicFolderModel::rowCount(const QModelIndex& /* parent */) const {
-    return music.size();
+    return musics.size();
 }
 
 int MusicFolderModel::columnCount(const QModelIndex& /* parent */) const {
@@ -43,15 +43,15 @@ int MusicFolderModel::columnCount(const QModelIndex& /* parent */) const {
 }
 
 void MusicFolderModel::add(MusicFile*mf) {
-    beginInsertRows(QModelIndex(), music.size(), music.size());
-    music.append(mf);
+    beginInsertRows(QModelIndex(), musics.size(), musics.size());
+    musics.append(mf);
     endInsertRows();
 }
 
-MusicFile * MusicFolderModel::musicAt(int offset) const {
-    if(offset >= 0 && offset < (int)music.size())
+MusicFile * MusicFolderModel::musicAt(int row) const {
+    if(row >= 0 && row < (int)musics.size())
     {
-        return music[offset];
+        return musics[row];
     }
     return 0;
 }
@@ -71,7 +71,7 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
         return QVariant();
     }
 
-    if (index.row() >= music.size()){
+    if (index.row() >= musics.size()){
         return QVariant();
     }
     /*
@@ -132,13 +132,13 @@ QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
-QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
+QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int row) const
 {
     if(!mf){
         return "Undefined";
     }
 
-    switch(offset){
+    switch(row){
         case COLUMN_PATH:
             return mf->getFilepath().c_str();
             break;
