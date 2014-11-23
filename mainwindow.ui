@@ -251,7 +251,7 @@
   </action>
   <action name="actionRegen_UUID">
    <property name="text">
-    <string>Regen UUID</string>
+    <string>Open Folder (regen UUID)</string>
    </property>
   </action>
  </widget>

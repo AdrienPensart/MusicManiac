@@ -15,11 +15,22 @@ void PlaylistGenerator::add(MusicFile * music)
 }
 
 void PlaylistGenerator::save(std::string filepath){
-    ofstream myfile(filepath.c_str(), ios::out | ios::trunc);
+    // uuid playlist
+    string music = filepath+".music";
+    ofstream music_file(music.c_str(), ios::out | ios::trunc);
+    for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++){
+        string s = (*i)->getUUID();
+        music_file << s << '\n';
+    }
+    music_file.close();
+
+    // m3u playlist
+    string m3u = filepath+".m3u";
+    ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
     for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++){
         string s = (*i)->getFilepath();
         s.erase(0, basefolder.size()+1);
-        myfile << s << '\n';
+        m3u_file << s << '\n';
     }
-    myfile.close();
+    m3u_file.close();
 }

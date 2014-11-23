@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     musicProxyModel->setSourceModel(musicModel);
     ui->musicView->setModel(musicProxyModel);
     ui->musicView->setSortingEnabled(true);
+    ui->musicView->sortByColumn(MusicFolderModel::COLUMN_PATH, Qt::AscendingOrder);
     ui->musicView->horizontalHeader()->setStretchLastSection(true);
     musicProxyModel->setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
     musicProxyModel->setDynamicSortFilter(true);
@@ -68,7 +69,7 @@ void MainWindow::generatePlaylist(){
         return;
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), QDir::homePath(), tr("Playlist (*.m3u)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("name"));
     if(fileName.size()){
         pg.save(fileName.toStdString());
     }
