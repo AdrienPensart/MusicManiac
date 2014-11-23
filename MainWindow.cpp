@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
     connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
 
+    musicProxyModel = new QCustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
     withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
     availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);
     withKeywordsSelection = new QItemSelectionModel(&withKeywordsModel);
@@ -34,35 +35,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->withKeywordsView->setSelectionModel(withKeywordsSelection);
 
     musicModel = new MusicFolderModel(this);
-    musicProxyModel.setSourceModel(musicModel);
-    ui->musicView->setModel(&musicProxyModel);
+    musicProxyModel->setSourceModel(musicModel);
+    ui->musicView->setModel(musicProxyModel);
     ui->musicView->setSortingEnabled(true);
     ui->musicView->horizontalHeader()->setStretchLastSection(true);
-    musicProxyModel.setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
+    musicProxyModel->setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
+    musicProxyModel->setDynamicSortFilter(true);
 }
 
 MainWindow::~MainWindow(){
     delete ui;
     cout << "MainWindow destructor" << endl;
-}
-
-void MainWindow::updateFilter(){
-    QString with;
-    foreach(QString keyword, withKeywordsModel.stringList()){
-        with.append("(?: "+keyword+")|");
-    }
-    with.chop(1);
-
-    /*
-    QString without;
-    foreach(QString keyword, withoutKeywordsModel.stringList()){
-        without.append(keyword+"{0}|");
-    }
-    without.chop(1);
-    QRegExp reg(with+"|"+without);
-    */
-    QRegExp reg(with);
-    musicProxyModel.setFilterRegExp(reg);
 }
 
 void MainWindow::selectionToModel(
@@ -78,8 +61,7 @@ void MainWindow::selectionToModel(
         indexes = sourceSelection->selection().indexes();
     }
     destinationModel.setStringList(list);
-
-    updateFilter();
+    musicProxyModel->refilter();
 }
 
 void MainWindow::withoutToAvailable(){
@@ -124,9 +106,8 @@ void MainWindow::loadFolderWith(bool regen){
         }
     }
 
-    withKeywordsModel.setStringList(musicModel->getKeywords());
-    updateFilter();
-
+    availableKeywordsModel.setStringList(musicModel->getKeywords());
     ui->musicView->resizeColumnsToContents();
     ui->musicView->reset();
+    musicProxyModel->refilter();
 }

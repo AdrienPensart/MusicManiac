@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include <QStringListModel>
-#include <QSortFilterProxyModel>
 #include <QItemSelectionModel>
+
+#include "QCustomSortFilterProxyModel.hpp"
 
 namespace Ui {
     class MainWindow;
@@ -37,7 +38,7 @@ private:
     void selectionToModel(QItemSelectionModel *, QItemSelectionModel *, QStringListModel&, QStringListModel&);
     void loadFolderWith(bool regen);
     MusicFolderModel * musicModel;
-    QSortFilterProxyModel musicProxyModel;
+    QCustomSortFilterProxyModel * musicProxyModel;
 
     QStringListModel withoutKeywordsModel;
     QStringListModel availableKeywordsModel;
