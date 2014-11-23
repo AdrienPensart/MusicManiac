@@ -15,16 +15,87 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
     connect(ui->actionRegen_UUID, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
+    connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
+    connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
+    connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
+    connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
+
+    withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
+    availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);
+    withKeywordsSelection = new QItemSelectionModel(&withKeywordsModel);
+
+    ui->withoutKeywordsView->setModel(&withoutKeywordsModel);
+    ui->withoutKeywordsView->setSelectionModel(withoutKeywordsSelection);
+
+    ui->availableKeywordsView->setModel(&availableKeywordsModel);
+    ui->availableKeywordsView->setSelectionModel(availableKeywordsSelection);
+
+    ui->withKeywordsView->setModel(&withKeywordsModel);
+    ui->withKeywordsView->setSelectionModel(withKeywordsSelection);
 
     musicModel = new MusicFolderModel(this);
-    ui->musicView->setModel(musicModel);
-    //ui->musicView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch );
+    musicProxyModel.setSourceModel(musicModel);
+    ui->musicView->setModel(&musicProxyModel);
+    ui->musicView->setSortingEnabled(true);
     ui->musicView->horizontalHeader()->setStretchLastSection(true);
+    musicProxyModel.setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
 }
 
 MainWindow::~MainWindow(){
     delete ui;
     cout << "MainWindow destructor" << endl;
+}
+
+void MainWindow::updateFilter(){
+    QString with;
+    foreach(QString keyword, withKeywordsModel.stringList()){
+        with.append("(?: "+keyword+")|");
+    }
+    with.chop(1);
+
+    /*
+    QString without;
+    foreach(QString keyword, withoutKeywordsModel.stringList()){
+        without.append(keyword+"{0}|");
+    }
+    without.chop(1);
+    QRegExp reg(with+"|"+without);
+    */
+    QRegExp reg(with);
+    musicProxyModel.setFilterRegExp(reg);
+}
+
+void MainWindow::selectionToModel(
+        QItemSelectionModel * sourceSelection,
+        QItemSelectionModel * /*destinationSelection*/,
+        QStringListModel& sourceModel,
+        QStringListModel& destinationModel){
+    QModelIndexList indexes = sourceSelection->selection().indexes();
+    QStringList list = destinationModel.stringList();
+    while(indexes.size()) {
+        list.append(sourceModel.data(indexes.first(), Qt::DisplayRole).toString());
+        sourceModel.removeRow(indexes.first().row());
+        indexes = sourceSelection->selection().indexes();
+    }
+    destinationModel.setStringList(list);
+
+    updateFilter();
+}
+
+void MainWindow::withoutToAvailable(){
+    selectionToModel(withoutKeywordsSelection, availableKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);
+}
+
+void MainWindow::availableToWithout(){
+    selectionToModel(availableKeywordsSelection, withoutKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);
+}
+
+void MainWindow::availableToWith(){
+    selectionToModel(availableKeywordsSelection, withKeywordsSelection, availableKeywordsModel, withKeywordsModel);
+}
+
+void MainWindow::withToAvailable(){
+    selectionToModel(withKeywordsSelection, availableKeywordsSelection, withKeywordsModel, availableKeywordsModel);
 }
 
 void MainWindow::loadFolder(){
@@ -36,7 +107,7 @@ void MainWindow::loadFolderWithRegen(){
 }
 
 void MainWindow::loadFolderWith(bool regen){
-    QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home/crunch/music", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString folderPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if(!folderPath.size())
     {
         cout << "Invalid folder" << endl;
@@ -52,5 +123,10 @@ void MainWindow::loadFolderWith(bool regen){
             musicModel->add(mf);
         }
     }
+
+    withKeywordsModel.setStringList(musicModel->getKeywords());
+    updateFilter();
+
+    ui->musicView->resizeColumnsToContents();
     ui->musicView->reset();
 }

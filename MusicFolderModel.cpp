@@ -1,9 +1,8 @@
 #include "MusicFolderModel.hpp"
-
+#include "Utility.hpp"
+#include <QSet>
 #include <iostream>
 using namespace std;
-
-enum { COLUMN_PATH, COLUMN_UUID, COLUMN_DURATION, COLUMN_RATING, COLUMN_KEYWORDS, COLUMN_COUNT, COLUMN_MAX=COLUMN_COUNT-1};
 
 MusicFolderModel::MusicFolderModel(QObject *parent) :
     QAbstractTableModel(parent) {
@@ -11,6 +10,18 @@ MusicFolderModel::MusicFolderModel(QObject *parent) :
 
 MusicFolderModel::~MusicFolderModel(){
     clear();
+}
+
+QStringList MusicFolderModel::getKeywords(){
+    QStringList keywords;
+    for(QVector<MusicFile*>::ConstIterator ci = music.begin(); ci != music.end() ; ci++){
+        vector<string> currentKeywords;
+        Common::split((*ci)->getKeywords(), " ", currentKeywords);
+        for(vector<string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
+            keywords.append(QString::fromStdString(*si));
+        }
+    }
+    return keywords.toSet().toList();
 }
 
 void MusicFolderModel::clear(){

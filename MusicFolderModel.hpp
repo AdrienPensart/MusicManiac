@@ -12,6 +12,7 @@ class MusicFolderModel : public QAbstractTableModel
 
     public:
 
+        enum { COLUMN_PATH, COLUMN_UUID, COLUMN_DURATION, COLUMN_RATING, COLUMN_KEYWORDS, COLUMN_COUNT, COLUMN_MAX=COLUMN_COUNT-1};
         explicit MusicFolderModel(QObject *parent = 0);
         virtual ~MusicFolderModel();
 
@@ -24,6 +25,7 @@ class MusicFolderModel : public QAbstractTableModel
 
         void add(MusicFile*mf);
         void clear();
+        QStringList getKeywords();
 
     private:
 
