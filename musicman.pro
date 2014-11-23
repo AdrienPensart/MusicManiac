@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     MusicDebugger.cpp \
     PlaylistGenerator.cpp \
     Uuid.cpp \
-    QCustomSortFilterProxyModel.cpp
+    CustomSortFilterProxyModel.cpp
 
 HEADERS  += \
     MusicFile.hpp \
@@ -37,6 +37,6 @@ HEADERS  += \
     PlaylistGenerator.hpp \
     Utility.hpp \
     Uuid.hpp \
-    QCustomSortFilterProxyModel.hpp
+    CustomSortFilterProxyModel.hpp
 
 FORMS    += mainwindow.ui

@@ -1,25 +1,30 @@
-#include "QCustomSortFilterProxyModel.hpp"
+#include "CustomSortFilterProxyModel.hpp"
 #include "MusicFolderModel.hpp"
 #include <iostream>
 using namespace std;
 
-QCustomSortFilterProxyModel::QCustomSortFilterProxyModel(QStringListModel& _without, QStringListModel& _with, QObject * parent)
-    : QSortFilterProxyModel(parent), without(_without), with(_with)
+CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _without, QStringListModel& _with, QObject * parent)
+    : QSortFilterProxyModel(parent), rating(0), without(_without), with(_with)
 {
 }
 
-void QCustomSortFilterProxyModel::refilter(){
+void CustomSortFilterProxyModel::refilter(){
     setFilterFixedString("no-op");
 }
 
-bool QCustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
+void CustomSortFilterProxyModel::ratingChanged(double _rating){
+    rating = _rating;
+    refilter();
+}
+
+bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
     QAbstractItemModel * model = sourceModel();
 
     QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
     QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
 
-    QString path = model->data(path_index, Qt::DisplayRole).toString();
-    QString keywords = model->data(keywords_index, Qt::DisplayRole).toString();
+    QString path = model->data(path_index).toString();
+    QString keywords = model->data(keywords_index).toString();
     cout << "For " << path.toStdString() << endl;
 
     foreach(QString keyword, without.stringList()){
@@ -38,6 +43,13 @@ bool QCustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelI
         } else {
             cout << keywords.toStdString() << " contains a with keyword : " << keyword.toStdString() << endl;
         }
+    }
+
+    QModelIndex rating_index = model->index(sourceRow, MusicFolderModel::COLUMN_RATING, sourceParent);
+    double current = model->data(rating_index).toDouble();
+    if(current < rating){
+        cout << "INVALID : rating is below" << endl;
+        return false;
     }
 
     cout << keywords.toStdString() << " is a valid track" << endl << endl;

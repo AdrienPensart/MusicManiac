@@ -3,17 +3,28 @@
 
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
+#include <QDoubleSpinBox>
 
-class QCustomSortFilterProxyModel : public QSortFilterProxyModel
+class CustomSortFilterProxyModel : public QSortFilterProxyModel
 {
+    Q_OBJECT
+
     public:
 
-        QCustomSortFilterProxyModel(QStringListModel& without, QStringListModel& with, QObject * parent=0);
+        explicit CustomSortFilterProxyModel(QStringListModel& without, QStringListModel& with, QObject * parent=0);
         void refilter();
+
+    public slots:
+
+        void ratingChanged(double);
 
     protected:
 
         virtual bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const;
+
+    private:
+
+        double rating;
         QStringListModel& without;
         QStringListModel& with;
 };

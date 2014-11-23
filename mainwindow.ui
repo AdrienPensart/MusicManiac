@@ -173,12 +173,12 @@
           <item>
            <widget class="QLabel" name="ratingLabel">
             <property name="text">
-             <string>Rating above : </string>
+             <string>Minimum Rating : </string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBox">
+           <widget class="QDoubleSpinBox" name="ratingSpinBox">
             <property name="decimals">
              <number>1</number>
             </property>

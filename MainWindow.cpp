@@ -20,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
     connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
 
-    musicProxyModel = new QCustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
+    musicProxyModel = new CustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
+    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
+
     withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
     availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);
     withKeywordsSelection = new QItemSelectionModel(&withKeywordsModel);

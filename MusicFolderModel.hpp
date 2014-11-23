@@ -30,7 +30,7 @@ class MusicFolderModel : public QAbstractTableModel
     private:
 
         MusicFile * musicAt(int offset) const;
-        QString infoAtColumn(MusicFile * ptr, int offset) const;
+        QVariant infoAtColumn(MusicFile * ptr, int offset) const;
 
         QVector<MusicFile*> music;
 };

@@ -132,7 +132,7 @@ QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
-QString MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
+QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
 {
     if(!mf){
         return "Undefined";
@@ -149,7 +149,7 @@ QString MusicFolderModel::infoAtColumn(MusicFile * mf, int offset) const
             return mf->getDuration().c_str();
             break;
         case COLUMN_RATING:
-            return QString::number(mf->getRating());
+            return mf->getRating();
             break;
         case COLUMN_KEYWORDS:
             return mf->getKeywords().c_str();
