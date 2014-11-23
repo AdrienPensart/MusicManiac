@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     musicProxyModel = new CustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
     connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
+    connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
+    connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
 
     withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
     availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);

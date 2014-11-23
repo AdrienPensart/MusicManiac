@@ -16,6 +16,8 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel
 
     public slots:
 
+        void minDurationChanged(QString);
+        void maxDurationChanged(QString);
         void ratingChanged(double);
 
     protected:
@@ -25,6 +27,8 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel
     private:
 
         double rating;
+        QString minDuration;
+        QString maxDuration;
         QStringListModel& without;
         QStringListModel& with;
 };

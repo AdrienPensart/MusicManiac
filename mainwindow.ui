@@ -145,26 +145,37 @@
           <item>
            <widget class="QLabel" name="minDurationLabel">
             <property name="text">
-             <string>Minimum duration : </string>
+             <string>Min duration : </string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="minDurationEdit"/>
+           <widget class="QLineEdit" name="minDurationEdit">
+            <property name="text">
+             <string>00:00</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="maxDurationLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
           <item>
            <widget class="QLabel" name="maxDurationLabel">
             <property name="text">
-             <string>Maximum duration : </string>
+             <string>Max duration : </string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="maxDurationEdit"/>
+           <widget class="QLineEdit" name="maxDurationEdit">
+            <property name="text">
+             <string>100:00</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
