@@ -8,7 +8,7 @@ class MP3File : public MusicFile
 {
     public:
 
-        MP3File(std::string filepath, TagLib::MPEG::File * mp3, bool regen=false);
+        MP3File(std::string filepath, TagLib::MPEG::File * mp3);
         virtual void setKeywords(std::string);
         virtual void setRating(double);
 

@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+#include <taglib/id3v2tag.h>
+
 #include "MusicFileFactory.hpp"
 #include "MP3File.hpp"
 #include "FLACFile.hpp"
@@ -41,7 +43,16 @@ MusicFile * MusicFileFactory::factory(){
                 cout << "Tag invalid for " << iterator.filePath().toStdString() << endl;
                 continue;
             }
-            return new MP3File(iterator.filePath().toStdString(), mp3, regen);
+
+            if(regen){
+                tag->removeFrames("UFID");
+                mp3->save();
+
+                // reopen file
+                delete mp3;
+                mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
+            }
+            return new MP3File(iterator.filePath().toStdString(), mp3);
         }
         else if(iterator.filePath().endsWith(".flac")){
             TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator.filePath().toStdString().c_str());

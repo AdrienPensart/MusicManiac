@@ -23,6 +23,7 @@ class MusicFile
 
     protected:
 
+        void touch();
         virtual void setKeywords(std::string, bool erase);
         virtual void setRating(double, bool erase);
         virtual void setUUID(std::string, bool erase);

@@ -38,8 +38,16 @@ MusicFile::~MusicFile(){
 void MusicFile::save(){
     if(modified){
         cout << "Saving file " << filepath << endl;
-        file->save();
+        if(!file->save()){
+            cout << "Failed.";
+        } else {
+            modified = false;
+        }
     }
+}
+
+void MusicFile::touch(){
+    modified = true;
 }
 
 bool MusicFile::isModified(){
@@ -58,7 +66,7 @@ void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
         modified |= erase;
         rating = _rating;
-        cout << "Setting rating : " << " modified ? : " << modified << endl;
+        cout << "Setting rating : " << rating << " modified ? : " << modified << endl;
     }
 }
 
