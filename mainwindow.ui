@@ -13,6 +13,17 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>musicman.ico</normaloff>
+    <normalon>musicman.ico</normalon>musicman.ico</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>16</width>
+    <height>16</height>
+   </size>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Expanding">

@@ -40,3 +40,6 @@ HEADERS  += \
     CustomSortFilterProxyModel.hpp
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    images.qrc

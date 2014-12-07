@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
     ui->setupUi(this);
+
+    setWindowIcon(QIcon(":/musicman.ico"));
     connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
     connect(ui->actionRegen_UUID, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
     connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
