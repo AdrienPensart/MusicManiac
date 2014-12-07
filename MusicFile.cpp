@@ -64,6 +64,10 @@ string MusicFile::getDuration() const {
 }
 
 void MusicFile::setRating(double _rating, bool erase){
+    if(_rating < 0 || _rating > 5){
+        _rating = 0;
+    }
+
     if(rating != _rating){
         modified |= erase;
         rating = _rating;

@@ -20,8 +20,8 @@ MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
         string ratingStr = list[0].to8Bit(true);
         Common::fromString(ratingStr, rating);
         rating *= 5;
-        MusicFile::setRating(rating, false);
     }
+    MusicFile::setRating(rating, false);
 
     MusicFile::setKeywords(mp3->ID3v2Tag()->comment().to8Bit(true).c_str(), false);
 

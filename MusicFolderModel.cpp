@@ -20,8 +20,10 @@ QStringList MusicFolderModel::getKeywords(){
         for(vector<string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
             keywords.append(QString::fromStdString(*si));
         }
-    }
-    return keywords.toSet().toList();
+    }    
+    QStringList sorted = keywords.toSet().toList();
+    sorted.sort();
+    return sorted;
 }
 
 void MusicFolderModel::clear(){
