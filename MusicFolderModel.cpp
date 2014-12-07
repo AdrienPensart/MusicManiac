@@ -1,5 +1,5 @@
 #include "MusicFolderModel.hpp"
-#include "Utility.hpp"
+#include <common/Utility.hpp>
 #include <QSet>
 #include <iostream>
 using namespace std;
@@ -20,7 +20,7 @@ QStringList MusicFolderModel::getKeywords(){
         for(vector<string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
             keywords.append(QString::fromStdString(*si));
         }
-    }    
+    }
     QStringList sorted = keywords.toSet().toList();
     sorted.sort();
     return sorted;

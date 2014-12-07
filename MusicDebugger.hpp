@@ -3,7 +3,7 @@
 
 #include <string>
 #include <taglib/tdebuglistener.h>
-#include "Singleton.hpp"
+#include <common/Singleton.hpp>
 
 class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugListener
 {

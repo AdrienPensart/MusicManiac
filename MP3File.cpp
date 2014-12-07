@@ -3,7 +3,7 @@
 using namespace std;
 
 #include "Uuid.hpp"
-#include "Utility.hpp"
+#include <common/Utility.hpp>
 #include "MP3File.hpp"
 
 #include <taglib/tpropertymap.h>

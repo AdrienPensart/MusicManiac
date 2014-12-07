@@ -1,5 +1,5 @@
 #include "PlaylistGenerator.hpp"
-#include "Utility.hpp"
+#include <common/Utility.hpp>
 
 #include <fstream>
 using namespace std;
