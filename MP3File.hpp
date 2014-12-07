@@ -1,5 +1,4 @@
-#ifndef MP3FILE_HPP
-#define MP3FILE_HPP
+#pragma once
 
 #include "MusicFile.hpp"
 #include <taglib/mpegfile.h>
@@ -16,5 +15,3 @@ class MP3File : public MusicFile
 
         TagLib::MPEG::File * mp3;
 };
-
-#endif // MP3FILE_HPP

@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QStringListModel>
@@ -52,5 +51,3 @@ private:
     Ui::MainWindow * ui;
     QString basefolder;
 };
-
-#endif // MAINWINDOW_H

@@ -1,5 +1,4 @@
-#ifndef MUSICFILEFACTORY_H
-#define MUSICFILEFACTORY_H
+#pragma once
 
 #include <QDirIterator>
 #include "MusicFile.hpp"
@@ -18,5 +17,3 @@ class MusicFileFactory
         QDirIterator iterator;
         bool regen;
 };
-
-#endif // MUSICFILEFACTORY_H

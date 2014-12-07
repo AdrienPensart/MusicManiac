@@ -1,8 +1,5 @@
 #include "FLACFile.hpp"
 
-#include <iostream>
-using namespace std;
-
 #include <common/Utility.hpp>
 #include "Uuid.hpp"
 
@@ -10,15 +7,15 @@ using namespace std;
 #include <taglib/tstringlist.h>
 #include <taglib/tpropertymap.h>
 
-FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac, bool regen)
+FLACFile::FLACFile(std::string filepath, TagLib::FLAC::File * _flac, bool regen)
     : MusicFile(filepath, _flac), flac(_flac) {
     double rating = 0;
     if(!flac->xiphComment()->contains("FMPS_RATING")){
-        cout << "No rating in file " << filepath << endl;
+        LOG << "No rating in file " + filepath;
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["FMPS_RATING"];
         if(list.size()){
-            string ratingStr = list[0].to8Bit(true);
+            std::string ratingStr = list[0].to8Bit(true);
             Common::fromString(ratingStr, rating);
             rating *= 5;
 
@@ -27,9 +24,9 @@ FLACFile::FLACFile(string filepath, TagLib::FLAC::File * _flac, bool regen)
     MusicFile::setRating(rating, false);
 
     if(regen || !flac->xiphComment()->contains("UFID")){
-        string uuid = newUUID();
+        std::string uuid = newUUID();
         flac->xiphComment()->addField("UFID", uuid.c_str());
-        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid << endl;
+        LOG << "No UFID frame for " + getFilepath() + " generating one : " + uuid;
         MusicFile::setUUID(uuid, true);
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["UFID"];
@@ -50,7 +47,7 @@ void FLACFile::setRating(double _rating){
     MusicFile::setRating(_rating, true);
 }
 
-void FLACFile::setKeywords(string _keywords){
+void FLACFile::setKeywords(std::string _keywords){
     flac->xiphComment()->setComment(_keywords.c_str());
     MusicFile::setKeywords(_keywords, true);
 }

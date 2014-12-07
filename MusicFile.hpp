@@ -1,9 +1,10 @@
-#ifndef MUSICFILE_HPP
-#define MUSICFILE_HPP
+#pragma once
 
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
 #include <string>
+
+#include <log/Log.hpp>
 
 class MusicFile
 {
@@ -38,5 +39,3 @@ class MusicFile
         std::string uuid;
         std::string duration;
 };
-
-#endif // MUSICFILE_HPP

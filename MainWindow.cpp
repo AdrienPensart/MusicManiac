@@ -1,6 +1,3 @@
-#include <iostream>
-using namespace std;
-
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -55,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow(){
     delete ui;
-    cout << "MainWindow destructor" << endl;
+    LOG << "MainWindow destructor";
 }
 
 void MainWindow::generatePlaylist(){
@@ -121,7 +118,7 @@ void MainWindow::loadFolderWith(bool regen){
     basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if(!basefolder.size())
     {
-        cout << "Invalid folder" << endl;
+        LOG << "Invalid folder";
         return;
     }
 

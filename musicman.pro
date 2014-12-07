@@ -32,10 +32,7 @@ HEADERS  += \
     FLACFile.hpp \
     MusicFileFactory.hpp \
     MusicDebugger.hpp \
-    NonCopyable.hpp \
-    Singleton.hpp \
     PlaylistGenerator.hpp \
-    Utility.hpp \
     Uuid.hpp \
     CustomSortFilterProxyModel.hpp
 

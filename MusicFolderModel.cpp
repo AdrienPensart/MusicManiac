@@ -1,8 +1,6 @@
 #include "MusicFolderModel.hpp"
 #include <common/Utility.hpp>
 #include <QSet>
-#include <iostream>
-using namespace std;
 
 MusicFolderModel::MusicFolderModel(QObject *parent) :
     QAbstractTableModel(parent) {
@@ -15,9 +13,9 @@ MusicFolderModel::~MusicFolderModel(){
 QStringList MusicFolderModel::getKeywords(){
     QStringList keywords;
     for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
-        vector<string> currentKeywords;
+        std::vector<std::string> currentKeywords;
         Common::split((*ci)->getKeywords(), " ", currentKeywords);
-        for(vector<string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
+        for(std::vector<std::string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
             keywords.append(QString::fromStdString(*si));
         }
     }
@@ -28,7 +26,7 @@ QStringList MusicFolderModel::getKeywords(){
 
 void MusicFolderModel::clear(){
     beginResetModel();
-    cout << "Clearing music folder" << endl;
+    LOG << "Clearing music folder";
     for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
         delete *ci;
     }
@@ -93,7 +91,7 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
 
 bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & value, int role){
     if (index.isValid() && role == Qt::EditRole){
-        cout << "Setting data : " << value.toString().toStdString() << endl;
+        LOG << "Setting data : " + value.toString().toStdString();
         MusicFile * rowMusic = musicAt(index.row());
         if(rowMusic){
             switch(index.column()){

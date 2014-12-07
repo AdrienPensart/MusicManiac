@@ -1,7 +1,5 @@
 #include "MusicDebugger.hpp"
 
-#include <iostream>
-
 MusicDebugger::MusicDebugger(){
     TagLib::setDebugListener(this);
 }

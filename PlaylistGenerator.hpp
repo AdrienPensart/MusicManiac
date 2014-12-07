@@ -1,5 +1,4 @@
-#ifndef PLAYLISTGENERATOR_HPP
-#define PLAYLISTGENERATOR_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -18,5 +17,3 @@ class PlaylistGenerator
         std::string basefolder;
         std::vector<MusicFile *> musics;
 };
-
-#endif // PLAYLISTGENERATOR_HPP

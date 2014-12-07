@@ -1,6 +1,3 @@
-#include <iostream>
-using namespace std;
-
 #include <taglib/id3v2tag.h>
 
 #include "MusicFileFactory.hpp"
@@ -29,18 +26,18 @@ MusicFile * MusicFileFactory::factory(){
         if(iterator.filePath().endsWith(".mp3")){
             TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
             if(!mp3->audioProperties()){
-                cout << "No audio property for " << iterator.filePath().toStdString() << endl;
+                LOG << "No audio property for " + iterator.filePath().toStdString();
                 continue;
             }
 
             if(!mp3->hasID3v2Tag()){
-                cout << "No ID3v2 Tag present for " << iterator.filePath().toStdString() << endl;
+                LOG << "No ID3v2 Tag present for " + iterator.filePath().toStdString();
                 continue;
             }
 
             TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
             if(!tag){
-                cout << "Tag invalid for " << iterator.filePath().toStdString() << endl;
+                LOG << "Tag invalid for " + iterator.filePath().toStdString();
                 continue;
             }
 
@@ -57,23 +54,23 @@ MusicFile * MusicFileFactory::factory(){
         else if(iterator.filePath().endsWith(".flac")){
             TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator.filePath().toStdString().c_str());
             if(!flac->audioProperties()){
-                cout << "No audio property for " << iterator.filePath().toStdString() << endl;
+                LOG << "No audio property for " + iterator.filePath().toStdString();
                 continue;
             }
 
             if(!flac->hasXiphComment()){
-                cout << "No XiphComment present for " << iterator.filePath().toStdString() << endl;
+                LOG << "No XiphComment present for " + iterator.filePath().toStdString();
                 continue;
             }
 
             TagLib::Ogg::XiphComment * tag = flac->xiphComment();
             if(!tag){
-                cout << "Tag invalid for " << iterator.filePath().toStdString() << endl;
+                LOG << "Tag invalid for " + iterator.filePath().toStdString();
                 continue;
             }
             return new FLACFile(iterator.filePath().toStdString(), flac, regen);
         } else {
-            cout << "Music file not supported " << iterator.filePath().toStdString() << endl;
+            LOG << "Music file not supported " + iterator.filePath().toStdString();
         }
     }
     return 0;

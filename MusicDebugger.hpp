@@ -1,5 +1,4 @@
-#ifndef MUSICDEBUGGER_HPP
-#define MUSICDEBUGGER_HPP
+#pragma once
 
 #include <string>
 #include <taglib/tdebuglistener.h>
@@ -23,5 +22,3 @@ class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugList
 
         std::string currentMusic;
 };
-
-#endif // MUSICDEBUGGER_HPP

@@ -1,10 +1,9 @@
 #include "MusicFile.hpp"
 #include <cmath>
 #include <cstdio>
-#include <iostream>
-using namespace std;
+#include <string>
 
-MusicFile::MusicFile(string _filepath, TagLib::File * _file)
+MusicFile::MusicFile(std::string _filepath, TagLib::File * _file)
     :filepath(_filepath), file(_file), modified(false), rating(0){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
@@ -25,9 +24,9 @@ MusicFile::MusicFile(string _filepath, TagLib::File * _file)
              snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
         }
         duration = buffer;
-        cout << filepath << ", duration : " << duration << endl;
+        LOG << filepath + ", duration : " + duration;
     } else {
-        cout << filepath << ", no duration" << endl;
+        LOG << filepath + ", no duration";
     }
 }
 
@@ -38,9 +37,9 @@ MusicFile::~MusicFile(){
 
 void MusicFile::save(){
     if(modified){
-        cout << "saving " << filepath << endl;
+        LOG << "saving " + filepath;
         if(!file->save()){
-            cout << "Failed." << endl;
+            LOG << "Failed.";
         } else {
             modified = false;
         }
@@ -55,11 +54,11 @@ bool MusicFile::isModified(){
     return modified;
 }
 
-string MusicFile::getFilepath() const {
+std::string MusicFile::getFilepath() const {
     return filepath;
 }
 
-string MusicFile::getDuration() const {
+std::string MusicFile::getDuration() const {
     return duration;
 }
 
@@ -71,23 +70,23 @@ void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
         modified |= erase;
         rating = _rating;
-        cout << filepath << ", setting rating : " << rating << " modified ? : " << modified << endl;
+        LOG << filepath + ", setting rating : " + Common::toString(rating) + " modified ? : " + Common::toString(modified);
     }
 }
 
-void MusicFile::setUUID(string _uuid, bool erase){
+void MusicFile::setUUID(std::string _uuid, bool erase){
     if(uuid != _uuid){
         modified |= erase;
         uuid = _uuid;
-        cout << filepath << ", setting UUID " << uuid << " modified ? : " << modified << endl;
+        LOG << filepath + ", setting UUID " + uuid + " modified ? : " + Common::toString(modified);
     }
 }
 
-void MusicFile::setKeywords(string _keywords, bool erase){
+void MusicFile::setKeywords(std::string _keywords, bool erase){
     if(keywords != _keywords){
         modified |= erase;
         keywords = _keywords;
-        cout << filepath << ", setting keywords : " << keywords << " modified ? : " << modified << endl;
+        LOG << filepath + ", setting keywords : " + keywords + " modified ? : " + Common::toString(modified);
     }
 }
 
@@ -95,10 +94,10 @@ double MusicFile::getRating() const {
     return rating;
 }
 
-string MusicFile::getUUID() const {
+std::string MusicFile::getUUID() const {
     return uuid;
 }
 
-string MusicFile::getKeywords() const {
+std::string MusicFile::getKeywords() const {
     return keywords;
 }

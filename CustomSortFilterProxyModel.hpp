@@ -1,5 +1,4 @@
-#ifndef QCUSTOMSORTFILTERPROXYMODEL_HPP
-#define QCUSTOMSORTFILTERPROXYMODEL_HPP
+#pragma once
 
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
@@ -32,5 +31,3 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel
         QStringListModel& without;
         QStringListModel& with;
 };
-
-#endif // QCUSTOMSORTFILTERPROXYMODEL_HPP

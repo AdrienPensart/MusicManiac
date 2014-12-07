@@ -1,7 +1,5 @@
 #include "CustomSortFilterProxyModel.hpp"
 #include "MusicFolderModel.hpp"
-#include <iostream>
-using namespace std;
 
 CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _without, QStringListModel& _with, QObject * parent)
     : QSortFilterProxyModel(parent), rating(0), minDuration("00:00"), maxDuration("100:00"), without(_without), with(_with)
@@ -35,14 +33,12 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
     QString keywords = model->data(keywords_index).toString();
     foreach(QString keyword, without.stringList()){
         if(keywords.contains(keyword)){
-            cout << path.toStdString() << " : without keywords constraint" << endl;
             return false;
         }
     }
 
     foreach(QString keyword, with.stringList()){
         if(!keywords.contains(keyword)){
-            cout << path.toStdString() << " : with keywords constraint" << endl;
             return false;
         }
     }
@@ -50,7 +46,6 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
     QModelIndex rating_index = model->index(sourceRow, MusicFolderModel::COLUMN_RATING, sourceParent);
     double currentRating = model->data(rating_index).toDouble();
     if(currentRating < rating){
-        cout << path.toStdString() << " : rating constraint" << endl;
         return false;
     }
 
@@ -70,10 +65,7 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
     unsigned int max = tempMaxDuration.toUInt();
 
     if(min > current || max < current){
-        cout << "min : " << min << ", current : " << current << ", max : " << max << endl;
-        cout << path.toStdString() << " : duration constraint" << endl;
         return false;
     }
-    cout << path.toStdString() << " is in the list" << endl;
     return true;
 }

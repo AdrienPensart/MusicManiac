@@ -1,5 +1,4 @@
-#ifndef MUSICFOLDERMODEL_HPP
-#define MUSICFOLDERMODEL_HPP
+#pragma once
 
 #include <QAbstractTableModel>
 #include <QVector>
@@ -32,5 +31,3 @@ class MusicFolderModel : public QAbstractTableModel
         QVariant infoAtColumn(MusicFile * ptr, int row) const;
         QVector<MusicFile*> musics;
 };
-
-#endif // MUSICFOLDERMODEL_HPP

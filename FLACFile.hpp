@@ -1,5 +1,4 @@
-#ifndef FLACFILE_H
-#define FLACFILE_H
+#pragma once
 
 #include "MusicFile.hpp"
 #include <taglib/flacfile.h>
@@ -16,5 +15,3 @@ class FLACFile : public MusicFile
 
         TagLib::FLAC::File * flac;
 };
-
-#endif // FLACFILE_H
