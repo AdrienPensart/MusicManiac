@@ -5,7 +5,7 @@
 using namespace std;
 
 MusicFile::MusicFile(string _filepath, TagLib::File * _file)
-    :filepath(_filepath), file(_file), modified(false){
+    :filepath(_filepath), file(_file), modified(false), rating(0){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
         int totalSeconds;

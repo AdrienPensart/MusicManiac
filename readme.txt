@@ -1,6 +1,5 @@
 todo :
 
-playlist view
-regenerate playlists
-manual playlist
+regenerate playlists by UUID
 "and" with keywords support
+integrate logging library
