@@ -4,3 +4,6 @@
 [submodule "log"]
 	path = log
 	url = git@bitbucket.org:crunchengine/log.git
+[submodule "network"]
+	path = network
+	url = git@bitbucket.org:crunchengine/network.git
