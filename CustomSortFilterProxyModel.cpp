@@ -29,16 +29,20 @@ void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration){
 
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
     QAbstractItemModel * model = sourceModel();
+    QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
+    QString path = model->data(path_index).toString();
     QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
     QString keywords = model->data(keywords_index).toString();
     foreach(QString keyword, without.stringList()){
         if(keywords.contains(keyword)){
+            cout << path.toStdString() << " : without keywords constraint" << endl;
             return false;
         }
     }
 
     foreach(QString keyword, with.stringList()){
         if(!keywords.contains(keyword)){
+            cout << path.toStdString() << " : with keywords constraint" << endl;
             return false;
         }
     }
@@ -46,13 +50,30 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
     QModelIndex rating_index = model->index(sourceRow, MusicFolderModel::COLUMN_RATING, sourceParent);
     double currentRating = model->data(rating_index).toDouble();
     if(currentRating < rating){
+        cout << path.toStdString() << " : rating constraint" << endl;
         return false;
     }
 
     QModelIndex duration_index = model->index(sourceRow, MusicFolderModel::COLUMN_DURATION, sourceParent);
     QString currentDuration = model->data(duration_index).toString();
-    if(minDuration > currentDuration || maxDuration < currentDuration){
+
+    QString tempCurrentDuration = currentDuration;
+    tempCurrentDuration.remove(':');
+    unsigned int current = tempCurrentDuration.toUInt();
+
+    QString tempMinDuration = minDuration;
+    tempMinDuration.remove(':');
+    unsigned int min = tempMinDuration.toUInt();
+
+    QString tempMaxDuration = maxDuration;
+    tempMaxDuration.remove(':');
+    unsigned int max = tempMaxDuration.toUInt();
+
+    if(min > current || max < current){
+        cout << "min : " << min << ", current : " << current << ", max : " << max << endl;
+        cout << path.toStdString() << " : duration constraint" << endl;
         return false;
     }
+    cout << path.toStdString() << " is in the list" << endl;
     return true;
 }

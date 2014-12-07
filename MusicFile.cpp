@@ -25,8 +25,9 @@ MusicFile::MusicFile(string _filepath, TagLib::File * _file)
              snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
         }
         duration = buffer;
+        cout << filepath << ", duration : " << duration << endl;
     } else {
-        cout << "No duration properties for " << filepath << endl;
+        cout << filepath << ", no duration" << endl;
     }
 }
 
@@ -37,9 +38,9 @@ MusicFile::~MusicFile(){
 
 void MusicFile::save(){
     if(modified){
-        cout << "Saving file " << filepath << endl;
+        cout << "saving " << filepath << endl;
         if(!file->save()){
-            cout << "Failed.";
+            cout << "Failed." << endl;
         } else {
             modified = false;
         }
@@ -66,7 +67,7 @@ void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
         modified |= erase;
         rating = _rating;
-        cout << "Setting rating : " << rating << " modified ? : " << modified << endl;
+        cout << filepath << ", setting rating : " << rating << " modified ? : " << modified << endl;
     }
 }
 
@@ -74,7 +75,7 @@ void MusicFile::setUUID(string _uuid, bool erase){
     if(uuid != _uuid){
         modified |= erase;
         uuid = _uuid;
-        cout << "Setting UUID " << uuid << " modified ? : " << modified << endl;
+        cout << filepath << ", setting UUID " << uuid << " modified ? : " << modified << endl;
     }
 }
 
@@ -82,7 +83,7 @@ void MusicFile::setKeywords(string _keywords, bool erase){
     if(keywords != _keywords){
         modified |= erase;
         keywords = _keywords;
-        cout << "Setting keywords : " << keywords << " modified ? : " << modified << endl;
+        cout << filepath << ", setting keywords : " << keywords << " modified ? : " << modified << endl;
     }
 }
 

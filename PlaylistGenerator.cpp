@@ -27,6 +27,7 @@ void PlaylistGenerator::save(std::string filepath){
     // m3u playlist
     string m3u = filepath+".m3u";
     ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
+    m3u_file << "#EXTM3U\n";
     for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++){
         string s = (*i)->getFilepath();
         s.erase(0, basefolder.size()+1);

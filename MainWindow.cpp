@@ -69,7 +69,7 @@ void MainWindow::generatePlaylist(){
         return;
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("name"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("basename"));
     if(fileName.size()){
         pg.save(fileName.toStdString());
     }
@@ -133,6 +133,9 @@ void MainWindow::loadFolderWith(bool regen){
         }
     }
 
+    QStringList empty;
+    withoutKeywordsModel.setStringList(empty);
+    withKeywordsModel.setStringList(empty);
     availableKeywordsModel.setStringList(musicModel->getKeywords());
     ui->musicView->resizeColumnsToContents();
     ui->musicView->reset();
