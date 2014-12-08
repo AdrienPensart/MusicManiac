@@ -31,6 +31,7 @@ private slots:
     void availableToWithout();
     void availableToWith();
     void withToAvailable();
+    void refreshPlaylist();
 
 private:
 

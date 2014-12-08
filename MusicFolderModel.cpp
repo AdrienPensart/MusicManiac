@@ -12,7 +12,7 @@ MusicFolderModel::~MusicFolderModel(){
 
 QStringList MusicFolderModel::getKeywords(){
     QStringList keywords;
-    for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
+    for(std::vector<MusicFile*>::const_iterator ci = musics.begin(); ci != musics.end() ; ci++){
         std::vector<std::string> currentKeywords;
         Common::split((*ci)->getKeywords(), " ", currentKeywords);
         for(std::vector<std::string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++){
@@ -24,10 +24,14 @@ QStringList MusicFolderModel::getKeywords(){
     return sorted;
 }
 
+const std::vector<MusicFile*>& MusicFolderModel::getMusics() const {
+    return musics;
+}
+
 void MusicFolderModel::clear(){
     beginResetModel();
     LOG << "Clearing music folder";
-    for(QVector<MusicFile*>::ConstIterator ci = musics.begin(); ci != musics.end() ; ci++){
+    for(std::vector<MusicFile*>::const_iterator ci = musics.begin(); ci != musics.end() ; ci++){
         delete *ci;
     }
     musics.clear();
@@ -44,7 +48,7 @@ int MusicFolderModel::columnCount(const QModelIndex& /* parent */) const {
 
 void MusicFolderModel::add(MusicFile*mf) {
     beginInsertRows(QModelIndex(), musics.size(), musics.size());
-    musics.append(mf);
+    musics.push_back(mf);
     endInsertRows();
 }
 

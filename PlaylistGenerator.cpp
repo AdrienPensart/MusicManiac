@@ -5,12 +5,10 @@
 using namespace std;
 
 PlaylistGenerator::PlaylistGenerator(string _basefolder)
-    : basefolder(_basefolder)
-{
+    : basefolder(_basefolder) {
 }
 
-void PlaylistGenerator::add(MusicFile * music)
-{
+void PlaylistGenerator::add(MusicFile * music) {
     musics.push_back(music);
 }
 
@@ -34,4 +32,30 @@ void PlaylistGenerator::save(std::string filepath){
         m3u_file << s << '\n';
     }
     m3u_file.close();
+}
+
+PlaylistRefresher::PlaylistRefresher(string _basefolder, string _uuids, const std::vector<MusicFile*>& _sources)
+    : PlaylistGenerator(_basefolder), uuids(_uuids), sources(_sources){
+}
+
+void PlaylistRefresher::save(std::string filepath){
+    ifstream uuids_file(uuids.c_str());
+    std::string line;
+    while(std::getline(uuids_file, line)){
+        bool found = false;
+        for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
+            string uuid = (*i)->getUUID();
+            if(uuid == line){
+                add(*i);
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            LOG << "Warning, playlist altered, music was not found for UUID : " + line;
+        }
+    }
+    uuids_file.close();
+
+    PlaylistGenerator::save(filepath);
 }

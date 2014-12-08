@@ -242,6 +242,7 @@
     </property>
     <addaction name="actionOpen_Folder"/>
     <addaction name="actionRegen_UUID"/>
+    <addaction name="actionRefresh_Playlist"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -271,6 +272,11 @@
    </property>
    <property name="text">
     <string>And support</string>
+   </property>
+  </action>
+  <action name="actionRefresh_Playlist">
+   <property name="text">
+    <string>Refresh Playlist</string>
    </property>
   </action>
  </widget>

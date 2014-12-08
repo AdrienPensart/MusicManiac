@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include <QVector>
+#include <vector>
 
 #include "MusicFile.hpp"
 
@@ -22,6 +22,7 @@ class MusicFolderModel : public QAbstractTableModel
         Qt::ItemFlags flags(const QModelIndex &index) const;
         bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
         MusicFile * musicAt(int row) const;
+        const std::vector<MusicFile*>& getMusics() const;
         void add(MusicFile*mf);
         void clear();
         QStringList getKeywords();
@@ -29,5 +30,5 @@ class MusicFolderModel : public QAbstractTableModel
     private:
 
         QVariant infoAtColumn(MusicFile * ptr, int row) const;
-        QVector<MusicFile*> musics;
+        std::vector<MusicFile*> musics;
 };

@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon(":/musicman.ico"));
     connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
     connect(ui->actionRegen_UUID, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
+    connect(ui->actionRefresh_Playlist, SIGNAL(triggered()), this, SLOT(refreshPlaylist()));
     connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
     connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
     connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
@@ -53,6 +54,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow(){
     delete ui;
     LOG << "MainWindow destructor";
+}
+
+void MainWindow::refreshPlaylist(){
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("UUID Playlist (*.music)"));
+    if(fileName.size()){
+        PlaylistRefresher pg(basefolder.toStdString(), fileName.toStdString(), musicModel->getMusics());
+        fileName.remove(".music");
+        pg.save(fileName.toStdString());
+    }
 }
 
 void MainWindow::generatePlaylist(){
