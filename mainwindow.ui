@@ -243,7 +243,14 @@
     <addaction name="actionOpen_Folder"/>
     <addaction name="actionRegen_UUID"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionAnd_support"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
   </widget>
   <action name="actionOpen_Folder">
    <property name="text">
@@ -263,6 +270,14 @@
   <action name="actionRegen_UUID">
    <property name="text">
     <string>Open Folder (regen UUID)</string>
+   </property>
+  </action>
+  <action name="actionAnd_support">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>And support</string>
    </property>
   </action>
  </widget>

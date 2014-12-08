@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->generatePlaylistButton, SIGNAL(clicked()), this, SLOT(generatePlaylist()));
 
     musicProxyModel = new CustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
+    connect(ui->actionAnd_support, SIGNAL(toggled(bool)), musicProxyModel, SLOT(toggleAndSupport(bool)));
     connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
     connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
     connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));

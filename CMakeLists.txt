@@ -39,5 +39,5 @@ add_subdirectory(network)
 add_subdirectory(log)
 
 add_executable(musicman ${SRC_FILES} ${UI_HEADERS})
-target_link_libraries(musicman Qt5::Widgets uuid tag)
+target_link_libraries(musicman Qt5::Widgets uuid tag system network log)
 

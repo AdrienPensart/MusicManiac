@@ -1,7 +1,3 @@
-#include <uuid/uuid.h>
-#include <iostream>
-using namespace std;
-
 #include "Uuid.hpp"
 #include <common/Utility.hpp>
 #include "MP3File.hpp"
@@ -11,13 +7,13 @@ using namespace std;
 #include <taglib/uniquefileidentifierframe.h>
 #include <taglib/textidentificationframe.h>
 
-MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
+MP3File::MP3File(std::string filepath, TagLib::MPEG::File * _mp3)
     : MusicFile(filepath, _mp3), mp3(_mp3)
 {
     double rating = 0;
     TagLib::StringList list = mp3->properties()["FMPS_RATING"];
     if(list.size() == 1){
-        string ratingStr = list[0].to8Bit(true);
+        std::string ratingStr = list[0].to8Bit(true);
         Common::fromString(ratingStr, rating);
         rating *= 5;
     }
@@ -28,16 +24,15 @@ MP3File::MP3File(string filepath, TagLib::MPEG::File * _mp3)
     // use first frame
     const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();
     TagLib::ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
-    string uuid = newUUID();
+    std::string uuid = newUUID();
     if(ufidIter == frames.end()){
-        cout << "No UFID frame for " << getFilepath() << " generating one " << uuid << endl;
+        LOG << "No UFID frame for " + getFilepath() + " generating one " + uuid;
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.c_str());
         mp3->ID3v2Tag()->addFrame(ufid);
         MusicFile::setUUID(uuid, true);
     } else {
-        cout << "UFID exists" << endl;
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = (TagLib::ID3v2::UniqueFileIdentifierFrame *)ufidIter->second.front();
-        uuid = string(ufid->identifier().data(), 36);
+        uuid = std::string(ufid->identifier().data(), 36);
         MusicFile::setUUID(uuid, false);
     }
 }
@@ -50,7 +45,7 @@ void MP3File::setRating(double _rating){
     }
 }
 
-void MP3File::setKeywords(string _keywords){
+void MP3File::setKeywords(std::string _keywords){
     MusicFile::setKeywords(_keywords, true);
     mp3->ID3v2Tag()->setComment(_keywords.c_str());
 }

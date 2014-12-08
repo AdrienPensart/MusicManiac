@@ -2,8 +2,13 @@
 #include "MusicFolderModel.hpp"
 
 CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _without, QStringListModel& _with, QObject * parent)
-    : QSortFilterProxyModel(parent), rating(0), minDuration("00:00"), maxDuration("100:00"), without(_without), with(_with)
+    : QSortFilterProxyModel(parent), andSupport(false), rating(0), minDuration("00:00"), maxDuration("100:00"), without(_without), with(_with)
 {
+}
+
+void CustomSortFilterProxyModel::toggleAndSupport(bool enabled){
+    andSupport = enabled;
+    refilter();
 }
 
 void CustomSortFilterProxyModel::refilter(){
@@ -27,8 +32,8 @@ void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration){
 
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
     QAbstractItemModel * model = sourceModel();
-    QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
-    QString path = model->data(path_index).toString();
+    //QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
+    //QString path = model->data(path_index).toString();
     QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
     QString keywords = model->data(keywords_index).toString();
     foreach(QString keyword, without.stringList()){
@@ -37,8 +42,13 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
         }
     }
 
+    bool foundOne = false;
     foreach(QString keyword, with.stringList()){
-        if(!keywords.contains(keyword)){
+        foundOne = keywords.contains(keyword);
+        if(foundOne && andSupport){
+            break;
+        }
+        if(!foundOne) {
             return false;
         }
     }
