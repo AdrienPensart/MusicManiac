@@ -158,6 +158,12 @@ void MainWindow::loadFolderWith(bool regen){
             musicModel->add(mf);
         }
     }
+    std::vector<std::string> playlists = mff.getPlaylists();
+    for(std::vector<std::string>::iterator i = playlists.begin(); i != playlists.end(); i++){
+        PlaylistGenerator pg;
+        pg.setBasefolder(basefolder.toStdString());
+        pg.refresh(*i, musicModel->getMusics());
+    }
 
     QStringList empty;
     withoutKeywordsModel.setStringList(empty);
