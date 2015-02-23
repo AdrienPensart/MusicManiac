@@ -3,6 +3,7 @@
 
 #include "ui_mainwindow.h"
 
+#include "common/Utility.hpp"
 #include "MainWindow.hpp"
 #include "MusicFileFactory.hpp"
 #include "MusicFolderModel.hpp"
@@ -59,14 +60,30 @@ MainWindow::~MainWindow(){
 void MainWindow::refreshPlaylist(){
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("UUID Playlist (*.music)"));
     if(fileName.size()){
-        PlaylistRefresher pg(basefolder.toStdString(), fileName.toStdString(), musicModel->getMusics());
+        PlaylistRefresher pr(fileName.toStdString(), musicModel->getMusics());
+        pr.setBasefolder(basefolder.toStdString());
         fileName.remove(".music");
-        pg.save(fileName.toStdString());
+        pr.save(fileName.toStdString());
     }
 }
 
 void MainWindow::generatePlaylist(){
-    PlaylistGenerator pg(basefolder.toStdString());
+    PlaylistGenerator pg;
+    pg.setBasefolder(basefolder.toStdString());
+    pg.setRating(Common::toString(ui->ratingSpinBox->value()));
+    pg.setMaxDuration(ui->maxDurationEdit->text().toStdString());
+    pg.setMinDuration(ui->minDurationEdit->text().toStdString());
+    std::vector<std::string> keywords;
+    foreach( QString str, withKeywordsModel.stringList()) {
+        keywords.push_back(str.toStdString());
+    }
+    pg.setWith(keywords);
+    keywords.clear();
+    foreach( QString str, withoutKeywordsModel.stringList()) {
+        keywords.push_back(str.toStdString());
+    }
+    pg.setWithout(keywords);
+
     for(int i = 0; i < musicProxyModel->rowCount(); i++){
         QModelIndex index = musicProxyModel->index(i,0);
         QModelIndex index2 = musicProxyModel->mapToSource(index);

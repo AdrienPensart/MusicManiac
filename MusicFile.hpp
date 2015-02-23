@@ -13,6 +13,7 @@ class MusicFile
         MusicFile(std::string filepath, TagLib::File *);
         virtual ~MusicFile();
         std::string getDuration() const;
+        unsigned int getDurationInSeconds() const;
         std::string getFilepath() const;
         double getRating() const;
         std::string getUUID() const;
@@ -31,6 +32,7 @@ class MusicFile
 
     private:
 
+        int totalSeconds;
         std::string filepath;
         TagLib::File * file;
         bool modified;

@@ -15,6 +15,10 @@ bool MusicFileFactory::valid(){
     return iterator.hasNext();
 }
 
+const std::vector<std::string>& MusicFileFactory::getPlaylists(){
+    return playlists;
+}
+
 MusicFile * MusicFileFactory::factory(){
     while(iterator.hasNext()){
         iterator.next();
@@ -69,6 +73,8 @@ MusicFile * MusicFileFactory::factory(){
                 continue;
             }
             return new FLACFile(iterator.filePath().toStdString(), flac, regen);
+        } else if(iterator.filePath().endsWith(".m3u")){
+            playlists.push_back(iterator.filePath().toStdString());
         } else {
             LOG << "Music file not supported " + iterator.filePath().toStdString();
         }

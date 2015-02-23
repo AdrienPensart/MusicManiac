@@ -4,10 +4,9 @@
 #include <string>
 
 MusicFile::MusicFile(std::string _filepath, TagLib::File * _file)
-    :filepath(_filepath), file(_file), modified(false), rating(0){
+    :totalSeconds(-1), filepath(_filepath), file(_file), modified(false), rating(0){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
-        int totalSeconds;
         int seconds;
         int minutes;
         int hours;
@@ -60,6 +59,10 @@ std::string MusicFile::getFilepath() const {
 
 std::string MusicFile::getDuration() const {
     return duration;
+}
+
+unsigned int MusicFile::getDurationInSeconds() const {
+    return totalSeconds;
 }
 
 void MusicFile::setRating(double _rating, bool erase){
