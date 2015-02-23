@@ -75,7 +75,7 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
         return QVariant();
     }
 
-    if (index.row() >= musics.size()){
+    if (index.row() >= (int)musics.size()){
         return QVariant();
     }
     /*

@@ -17,6 +17,7 @@ class PlaylistGenerator
         void setMinDuration(const std::string& _minDuration);
         void setWith(const std::vector<std::string>& _with);
         void setWithout(const std::vector<std::string>& _without);
+        void refresh(std::string filepath, const std::vector<MusicFile *>& sources);
 
     private:
 
@@ -27,17 +28,4 @@ class PlaylistGenerator
         std::vector<std::string> with;
         std::string basefolder;
         std::vector<MusicFile *> musics;
-};
-
-class PlaylistRefresher : public PlaylistGenerator
-{
-    public:
-
-        PlaylistRefresher(std::string uuid_playlist, const std::vector<MusicFile*>& musics);
-        virtual void save(std::string filepath);
-
-    private:
-
-        std::string uuids;
-        const std::vector<MusicFile*>& sources;
 };

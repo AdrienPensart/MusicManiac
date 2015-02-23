@@ -58,12 +58,11 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::refreshPlaylist(){
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("UUID Playlist (*.music)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("Playlist (*.m3u)"));
     if(fileName.size()){
-        PlaylistRefresher pr(fileName.toStdString(), musicModel->getMusics());
-        pr.setBasefolder(basefolder.toStdString());
-        fileName.remove(".music");
-        pr.save(fileName.toStdString());
+        PlaylistGenerator pg;
+        pg.setBasefolder(basefolder.toStdString());
+        pg.refresh(fileName.toStdString(), musicModel->getMusics());
     }
 }
 
@@ -95,7 +94,7 @@ void MainWindow::generatePlaylist(){
         return;
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("basename"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("Playlist (*.m3u)"));
     if(fileName.size()){
         pg.save(fileName.toStdString());
     }
