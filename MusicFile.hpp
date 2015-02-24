@@ -2,6 +2,7 @@
 
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
+#include <vector>
 #include <string>
 
 #include <log/Log.hpp>
@@ -18,6 +19,7 @@ class MusicFile
         double getRating() const;
         std::string getUUID() const;
         std::string getKeywords() const;
+        std::vector<std::string> getSplittedKeywords() const;
         bool isModified();
         virtual void setRating(double)=0;
         virtual void setKeywords(std::string)=0;

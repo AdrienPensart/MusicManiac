@@ -102,6 +102,61 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
     Common::split(withLine[1], ",", with);
     LOG << "Getting with keywords " + withLine[1];
 
+    // filtering
+    std::vector<MusicFile *> filtered;
+    for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
+        bool cont = true;
+        std::vector<std::string> splittedKeywords = (*i)->getSplittedKeywords();
+        for(std::vector<std::string>::iterator j = without.begin(); j != without.end() && cont; j++){
+            for(std::vector<std::string>::iterator h = splittedKeywords.begin() ; h != splittedKeywords.end() && cont; h++){
+                if (*j == *h){
+                    LOG << (*i)->getFilepath() + " : is in without exclusion, *j = "+(*j)+ " with iter = "+(*h);
+                    cont = false;
+                }
+            }
+        }
+
+        for(std::vector<std::string>::iterator j = with.begin(); j != with.end() && cont; j++){
+            if (std::find(splittedKeywords.begin(), splittedKeywords.end(), *j) == with.end()){
+                LOG << (*i)->getFilepath() + " : is not in with keywords";
+                cont = false;
+            }
+        }
+
+        double vrating;
+        Common::fromString(rating, vrating);
+        if((*i)->getRating() < vrating && cont){
+            LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
+            cont = false;
+        }
+
+        unsigned int currentDuration = (*i)->getDurationInSeconds();
+        std::string tempMinDuration = minDuration;
+        tempMinDuration.erase(std::remove(tempMinDuration.begin(), tempMinDuration.end(), ':'), tempMinDuration.end());
+        unsigned int min;
+        Common::fromString(tempMinDuration, min);
+
+        std::string tempMaxDuration = maxDuration;
+        tempMaxDuration.erase(std::remove(tempMaxDuration.begin(), tempMaxDuration.end(), ':'), tempMaxDuration.end());
+        unsigned int max;
+        Common::fromString(tempMaxDuration, max);
+
+        if(min > currentDuration || max < currentDuration){
+            cont = false;
+            LOG << (*i)->getFilepath() +
+               " is not in duration sequence : min = " + Common::toString(min) +
+               " and max = " + Common::toString(max) +
+               " and current = " + Common::toString(currentDuration);
+        }
+
+        if(cont){
+            LOG << "ADDING : " + (*i)->getFilepath();
+            filtered.push_back(*i);
+        }
+    }
+
+    LOG << "Final filtered size " + Common::toString(filtered.size());
+    //  checking existing lines with UUID still exists
     const std::string prefix = "#EXTREM:uuid ";
     while(std::getline(playlist, line)){
         if(line.substr(0, prefix.size()) != prefix) {
@@ -110,7 +165,7 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         line = line.substr(prefix.size());
         LOG << "Reading UUID : " + line;
         bool found = false;
-        for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
+        for(std::vector<MusicFile *>::const_iterator i = filtered.begin(); i != filtered.end(); i++){
             string uuid = (*i)->getUUID();
             if(uuid == line){
                 add(*i);

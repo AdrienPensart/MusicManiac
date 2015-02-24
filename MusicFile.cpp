@@ -1,4 +1,5 @@
 #include "MusicFile.hpp"
+#include "common/Utility.hpp"
 #include <cmath>
 #include <cstdio>
 #include <string>
@@ -103,4 +104,10 @@ std::string MusicFile::getUUID() const {
 
 std::string MusicFile::getKeywords() const {
     return keywords;
+}
+
+std::vector<std::string> MusicFile::getSplittedKeywords() const {
+    std::vector<std::string> results;
+    Common::split(keywords, " ", results);
+    return results;
 }
