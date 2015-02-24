@@ -18,6 +18,7 @@ class PlaylistGenerator
         void setWith(const std::vector<std::string>& _with);
         void setWithout(const std::vector<std::string>& _without);
         void refresh(std::string filepath, const std::vector<MusicFile *>& sources);
+        void validate(std::string filepath, const std::vector<MusicFile *>& sources);
 
     private:
 

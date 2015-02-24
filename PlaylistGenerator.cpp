@@ -103,7 +103,6 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
     LOG << "Getting with keywords " + withLine[1];
 
     // filtering
-    std::vector<MusicFile *> filtered;
     for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
         bool cont = true;
         std::vector<std::string> splittedKeywords = (*i)->getSplittedKeywords();
@@ -151,11 +150,47 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
 
         if(cont){
             LOG << "ADDING : " + (*i)->getFilepath();
-            filtered.push_back(*i);
+            add(*i);
         }
     }
+    save(filepath);
+}
 
-    LOG << "Final filtered size " + Common::toString(filtered.size());
+void PlaylistGenerator::validate(std::string filepath, const std::vector<MusicFile *>& sources){
+    ifstream playlist(filepath.c_str());
+    std::string line;
+    std::getline(playlist, line); // consume #EXTM3U
+
+    std::vector<std::string> ratingLine;
+    std::getline(playlist, line); // consume #EXTREM:rating
+    Common::split(line, " ", ratingLine);
+    rating = ratingLine[1];
+    LOG << "Getting rating " + rating;
+
+    std::vector<std::string> minDurationLine;
+    std::getline(playlist, line); // consume #EXTREM:minDuration
+    Common::split(line, " ", minDurationLine);
+    minDuration = minDurationLine[1];
+    LOG << "Getting min duration " + minDuration;
+
+    std::vector<std::string> maxDurationLine;
+    std::getline(playlist, line); // consume #EXTREM:maxDuration
+    Common::split(line, " ", maxDurationLine);
+    maxDuration = maxDurationLine[1];
+    LOG << "Getting max duration " + maxDuration;
+
+    std::vector<std::string> withoutLine;
+    std::getline(playlist, line); // consume #EXTREM:without
+    Common::split(line, " ", withoutLine);
+    Common::split(withoutLine[1], ",", without);
+    LOG << "Getting without keywords " + withoutLine[1];
+
+    std::vector<std::string> withLine;
+    std::getline(playlist, line); // consume #EXTREM:with
+    Common::split(line, " ", withLine);
+    Common::split(withLine[1], ",", with);
+    LOG << "Getting with keywords " + withLine[1];
+
     //  checking existing lines with UUID still exists
     const std::string prefix = "#EXTREM:uuid ";
     while(std::getline(playlist, line)){
@@ -165,7 +200,7 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         line = line.substr(prefix.size());
         LOG << "Reading UUID : " + line;
         bool found = false;
-        for(std::vector<MusicFile *>::const_iterator i = filtered.begin(); i != filtered.end(); i++){
+        for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
             string uuid = (*i)->getUUID();
             if(uuid == line){
                 add(*i);
@@ -179,5 +214,4 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         }
     }
     playlist.close();
-    save(filepath);
 }

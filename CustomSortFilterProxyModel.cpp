@@ -27,7 +27,7 @@ void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration){
 
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
     QAbstractItemModel * model = sourceModel();
-    QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
+    //QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
     //QString path = model->data(path_index).toString();
     QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
     QString keywords = model->data(keywords_index).toString();
