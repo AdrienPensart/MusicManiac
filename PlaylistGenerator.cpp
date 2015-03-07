@@ -22,7 +22,11 @@ void PlaylistGenerator::add(MusicFile * music) {
 }
 
 void PlaylistGenerator::save(std::string filepath){
+    if(filepath.size() >= 4 && filepath.substr(filepath.size()-4) != ".m3u"){
+        filepath += ".m3u";
+    }
     string m3u = filepath;
+
     ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
     m3u_file << "#EXTM3U\n";
     m3u_file << "#EXTREM:rating " << rating << '\n';
