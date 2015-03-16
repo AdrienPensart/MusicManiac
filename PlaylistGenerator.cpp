@@ -6,10 +6,9 @@
 #include <iterator>
 using namespace std;
 
-string implode(const std::vector<std::string> strings){
-    const char* const delim = ",";
+string implode(const std::vector<std::string>& strings, const std::string& delim = ","){
     std::ostringstream imploded;
-    std::copy(strings.begin(), strings.end(), std::ostream_iterator<std::string>(imploded, delim));
+    std::copy(strings.begin(), strings.end(), std::ostream_iterator<std::string>(imploded, delim.c_str()));
     std::string str = imploded.str();
     return str.substr(0, str.size()-1);
 }
@@ -45,6 +44,10 @@ void PlaylistGenerator::save(std::string filepath){
     m3u_file.close();
 }
 
+std::string PlaylistGenerator::getName(){
+    return implode(with, "_");
+}
+
 void PlaylistGenerator::setBasefolder(std::string _basefolder){
     basefolder = _basefolder;
 }
@@ -70,41 +73,49 @@ void PlaylistGenerator::setWithout(const std::vector<std::string>& _without){
 }
 
 void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFile *>& sources){
-    LOG << "Refreshing playlist " + filepath;
+    //LOG << "Refreshing playlist " + filepath;
 
     ifstream playlist(filepath.c_str());
     std::string line;
     std::getline(playlist, line); // consume #EXTM3U
+    if(line != "#EXTM3U"){
+        //LOG << "Unsupported playlist (no extm3u)";
+        return;
+    }
 
     std::vector<std::string> ratingLine;
     std::getline(playlist, line); // consume #EXTREM:rating
+    if(line.find_first_of("#EXTREM:rating") == string::npos){
+        //LOG << "Unsupported playlist (no rating)";
+        return;
+    }
     Common::split(line, " ", ratingLine);
     rating = ratingLine[1];
-    LOG << "Getting rating " + rating;
+    //LOG << "Getting rating " + rating;
 
     std::vector<std::string> minDurationLine;
     std::getline(playlist, line); // consume #EXTREM:minDuration
     Common::split(line, " ", minDurationLine);
     minDuration = minDurationLine[1];
-    LOG << "Getting min duration " + minDuration;
+    //LOG << "Getting min duration " + minDuration;
 
     std::vector<std::string> maxDurationLine;
     std::getline(playlist, line); // consume #EXTREM:maxDuration
     Common::split(line, " ", maxDurationLine);
     maxDuration = maxDurationLine[1];
-    LOG << "Getting max duration " + maxDuration;
+    //LOG << "Getting max duration " + maxDuration;
 
     std::vector<std::string> withoutLine;
     std::getline(playlist, line); // consume #EXTREM:without
     Common::split(line, " ", withoutLine);
     Common::split(withoutLine[1], ",", without);
-    LOG << "Getting without keywords " + withoutLine[1];
+    //LOG << "Getting without keywords " + withoutLine[1];
 
     std::vector<std::string> withLine;
     std::getline(playlist, line); // consume #EXTREM:with
     Common::split(line, " ", withLine);
     Common::split(withLine[1], ",", with);
-    LOG << "Getting with keywords " + withLine[1];
+    //LOG << "Getting with keywords " + withLine[1];
 
     // filtering
     for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
@@ -113,7 +124,7 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         for(std::vector<std::string>::iterator j = without.begin(); j != without.end() && cont; j++){
             for(std::vector<std::string>::iterator h = splittedKeywords.begin() ; h != splittedKeywords.end() && cont; h++){
                 if (*j == *h){
-                    LOG << (*i)->getFilepath() + " : is in without exclusion, *j = "+(*j)+ " with iter = "+(*h);
+                    //LOG << (*i)->getFilepath() + " : is in without exclusion, *j = "+(*j)+ " with iter = "+(*h);
                     cont = false;
                 }
             }
@@ -121,7 +132,7 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
 
         for(std::vector<std::string>::iterator j = with.begin(); j != with.end() && cont; j++){
             if (std::find(splittedKeywords.begin(), splittedKeywords.end(), *j) == with.end()){
-                LOG << (*i)->getFilepath() + " : is not in with keywords";
+                //LOG << (*i)->getFilepath() + " : is not in with keywords";
                 cont = false;
             }
         }
@@ -129,7 +140,7 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         double vrating;
         Common::fromString(rating, vrating);
         if((*i)->getRating() < vrating && cont){
-            LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
+            //LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
             cont = false;
         }
 
@@ -146,14 +157,16 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
 
         if(min > currentDuration || max < currentDuration){
             cont = false;
+            /*
             LOG << (*i)->getFilepath() +
                " is not in duration sequence : min = " + Common::toString(min) +
                " and max = " + Common::toString(max) +
                " and current = " + Common::toString(currentDuration);
+            */
         }
 
         if(cont){
-            LOG << "ADDING : " + (*i)->getFilepath();
+            //LOG << "ADDING : " + (*i)->getFilepath();
             add(*i);
         }
     }
@@ -169,31 +182,31 @@ void PlaylistGenerator::validate(std::string filepath, const std::vector<MusicFi
     std::getline(playlist, line); // consume #EXTREM:rating
     Common::split(line, " ", ratingLine);
     rating = ratingLine[1];
-    LOG << "Getting rating " + rating;
+    //LOG << "Getting rating " + rating;
 
     std::vector<std::string> minDurationLine;
     std::getline(playlist, line); // consume #EXTREM:minDuration
     Common::split(line, " ", minDurationLine);
     minDuration = minDurationLine[1];
-    LOG << "Getting min duration " + minDuration;
+    //LOG << "Getting min duration " + minDuration;
 
     std::vector<std::string> maxDurationLine;
     std::getline(playlist, line); // consume #EXTREM:maxDuration
     Common::split(line, " ", maxDurationLine);
     maxDuration = maxDurationLine[1];
-    LOG << "Getting max duration " + maxDuration;
+    //LOG << "Getting max duration " + maxDuration;
 
     std::vector<std::string> withoutLine;
     std::getline(playlist, line); // consume #EXTREM:without
     Common::split(line, " ", withoutLine);
     Common::split(withoutLine[1], ",", without);
-    LOG << "Getting without keywords " + withoutLine[1];
+    //LOG << "Getting without keywords " + withoutLine[1];
 
     std::vector<std::string> withLine;
     std::getline(playlist, line); // consume #EXTREM:with
     Common::split(line, " ", withLine);
     Common::split(withLine[1], ",", with);
-    LOG << "Getting with keywords " + withLine[1];
+    //LOG << "Getting with keywords " + withLine[1];
 
     //  checking existing lines with UUID still exists
     const std::string prefix = "#EXTREM:uuid ";
@@ -202,19 +215,19 @@ void PlaylistGenerator::validate(std::string filepath, const std::vector<MusicFi
             continue;
         }
         line = line.substr(prefix.size());
-        LOG << "Reading UUID : " + line;
+        //LOG << "Reading UUID : " + line;
         bool found = false;
         for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
             string uuid = (*i)->getUUID();
             if(uuid == line){
                 add(*i);
-                LOG << "Music with UUID " + uuid + " found in library";
+                //LOG << "Music with UUID " + uuid + " found in library";
                 found = true;
                 break;
             }
         }
         if(!found){
-            LOG << "Warning, playlist altered, music was not found for UUID : " + line;
+            //LOG << "Warning, playlist altered, music was not found for UUID : " + line;
         }
     }
     playlist.close();

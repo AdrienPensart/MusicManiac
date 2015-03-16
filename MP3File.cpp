@@ -26,7 +26,7 @@ MP3File::MP3File(std::string filepath, TagLib::MPEG::File * _mp3)
     TagLib::ID3v2::FrameListMap::ConstIterator ufidIter = frames.find("UFID");
     std::string uuid = newUUID();
     if(ufidIter == frames.end()){
-        LOG << "No UFID frame for " + getFilepath() + " generating one " + uuid;
+        //LOG << "No UFID frame for " + getFilepath() + " generating one " + uuid;
         TagLib::ID3v2::UniqueFileIdentifierFrame * ufid = new TagLib::ID3v2::UniqueFileIdentifierFrame("braincraft", uuid.c_str());
         mp3->ID3v2Tag()->addFrame(ufid);
         MusicFile::setUUID(uuid, true);

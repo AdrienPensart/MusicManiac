@@ -11,7 +11,7 @@ FLACFile::FLACFile(std::string filepath, TagLib::FLAC::File * _flac, bool regen)
     : MusicFile(filepath, _flac), flac(_flac) {
     double rating = 0;
     if(!flac->xiphComment()->contains("FMPS_RATING")){
-        LOG << "No rating in file " + filepath;
+        //LOG << "No rating in file " + filepath;
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["FMPS_RATING"];
         if(list.size()){
@@ -26,7 +26,7 @@ FLACFile::FLACFile(std::string filepath, TagLib::FLAC::File * _flac, bool regen)
     if(regen || !flac->xiphComment()->contains("UFID")){
         std::string uuid = newUUID();
         flac->xiphComment()->addField("UFID", uuid.c_str());
-        LOG << "No UFID frame for " + getFilepath() + " generating one : " + uuid;
+        //LOG << "No UFID frame for " + getFilepath() + " generating one : " + uuid;
         MusicFile::setUUID(uuid, true);
     } else {
         TagLib::StringList list = flac->xiphComment()->properties()["UFID"];

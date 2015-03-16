@@ -24,9 +24,9 @@ MusicFile::MusicFile(std::string _filepath, TagLib::File * _file)
              snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
         }
         duration = buffer;
-        LOG << filepath + ", duration : " + duration;
+        //LOG << filepath + ", duration : " + duration;
     } else {
-        LOG << filepath + ", no duration";
+        //LOG << filepath + ", no duration";
     }
 }
 
@@ -74,7 +74,7 @@ void MusicFile::setRating(double _rating, bool erase){
     if(rating != _rating){
         modified |= erase;
         rating = _rating;
-        LOG << filepath + ", setting rating : " + Common::toString(rating) + " modified ? : " + Common::toString(modified);
+        //LOG << filepath + ", setting rating : " + Common::toString(rating) + " modified ? : " + Common::toString(modified);
     }
 }
 
@@ -82,7 +82,7 @@ void MusicFile::setUUID(std::string _uuid, bool erase){
     if(uuid != _uuid){
         modified |= erase;
         uuid = _uuid;
-        LOG << filepath + ", setting UUID " + uuid + " modified ? : " + Common::toString(modified);
+        //LOG << filepath + ", setting UUID " + uuid + " modified ? : " + Common::toString(modified);
     }
 }
 
@@ -90,7 +90,7 @@ void MusicFile::setKeywords(std::string _keywords, bool erase){
     if(keywords != _keywords){
         modified |= erase;
         keywords = _keywords;
-        LOG << filepath + ", setting keywords : " + keywords + " modified ? : " + Common::toString(modified);
+        //LOG << filepath + ", setting keywords : " + keywords + " modified ? : " + Common::toString(modified);
     }
 }
 

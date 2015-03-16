@@ -1,5 +1,6 @@
-#include <QFileDialog>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QProgressDialog>
 
 #include "ui_mainwindow.h"
 
@@ -54,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow(){
     delete ui;
-    LOG << "MainWindow destructor";
 }
 
 void MainWindow::refreshPlaylist(){
@@ -94,7 +94,13 @@ void MainWindow::generatePlaylist(){
         return;
     }
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefolder, tr("Playlist (*.m3u)"));
+    std::string filename = pg.getName();
+    if(!filename.size()){
+        filename = "all";
+    }
+
+    QString basefilename = basefolder + "//" + filename.c_str();
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefilename, tr("Playlist (*.m3u)"));
     if(fileName.size()){
         pg.save(fileName.toStdString());
     }
@@ -143,26 +149,36 @@ void MainWindow::loadFolderWithRegen(){
 
 void MainWindow::loadFolderWith(bool regen){
     basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if(!basefolder.size())
-    {
+    if(!basefolder.size()){
         LOG << "Invalid folder";
         return;
     }
 
+
     musicModel->clear();
     MusicFileFactory mff(basefolder, regen);
+    QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
+    progress.setWindowModality(Qt::WindowModal);
+
     while(mff.valid()){
+        if (progress.wasCanceled()){
+            break;
+        }
         MusicFile * mf = 0;
         mf = mff.factory();
         if(mf){
             musicModel->add(mf);
         }
+        progress.setValue(mff.getReadCount());
     }
-    std::vector<std::string> playlists = mff.getPlaylists();
-    for(std::vector<std::string>::iterator i = playlists.begin(); i != playlists.end(); i++){
-        PlaylistGenerator pg;
-        pg.setBasefolder(basefolder.toStdString());
-        pg.refresh(*i, musicModel->getMusics());
+
+    if (!progress.wasCanceled()){
+        std::vector<std::string> playlists = mff.getPlaylists();
+        for(std::vector<std::string>::iterator i = playlists.begin(); i != playlists.end(); i++){
+            PlaylistGenerator pg;
+            pg.setBasefolder(basefolder.toStdString());
+            pg.refresh(*i, musicModel->getMusics());
+        }
     }
 
     QStringList empty;

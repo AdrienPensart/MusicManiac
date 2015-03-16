@@ -5,10 +5,37 @@
 #include "FLACFile.hpp"
 #include "MusicDebugger.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/lambda/bind.hpp>
+
 MusicFileFactory::MusicFileFactory(QString folder, bool _regen) :
-    music(folder), iterator(music.absolutePath(), QDirIterator::Subdirectories),
+    iterator(folder, QDirIterator::Subdirectories),
     regen(_regen)
 {
+    readCount = 0;
+    totalCount = dir.count();
+    using namespace boost::filesystem;
+    using namespace boost::lambda;
+
+    LOG << "Counting files in " + folder.toStdString();
+    path the_path(folder.toStdString());
+    for(recursive_directory_iterator it(folder.toStdString()); it != recursive_directory_iterator(); ++it)
+    {
+       totalCount++;
+    } 
+    LOG << "Total count of files : " + Common::toString(totalCount);
+}
+        
+int MusicFileFactory::getTotalCount(){
+    return totalCount;
+}
+
+int MusicFileFactory::getReadCount(){
+    return readCount;
+}
+
+double MusicFileFactory::progression(){
+    return (double)readCount / (double)totalCount;
 }
 
 bool MusicFileFactory::valid(){
@@ -22,6 +49,7 @@ const std::vector<std::string>& MusicFileFactory::getPlaylists(){
 MusicFile * MusicFileFactory::factory(){
     while(iterator.hasNext()){
         iterator.next();
+        readCount++;
         if(iterator.fileInfo().isDir()){
             continue;
         }
@@ -76,7 +104,7 @@ MusicFile * MusicFileFactory::factory(){
         } else if(iterator.filePath().endsWith(".m3u")){
             playlists.push_back(iterator.filePath().toStdString());
         } else {
-            LOG << "Music file not supported " + iterator.filePath().toStdString();
+            //LOG << "Music file not supported " + iterator.filePath().toStdString();
         }
     }
     return 0;
