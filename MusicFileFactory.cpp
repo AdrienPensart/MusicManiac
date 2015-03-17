@@ -6,6 +6,7 @@
 #include "MusicDebugger.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/lambda/bind.hpp>
 using namespace boost::filesystem;
 using namespace boost::lambda;
 
@@ -52,7 +53,7 @@ MusicFile * MusicFileFactory::factory(){
     if(!valid()){
         return 0;
     }
-    
+
     readCount++;
     MusicDebugger::instance().setCurrentMusic(iterator->path().native());
     MusicFile * mf = 0;

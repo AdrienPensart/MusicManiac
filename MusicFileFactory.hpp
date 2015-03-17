@@ -5,7 +5,7 @@
 #include "MusicFile.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/lambda/bind.hpp>
+// #include <boost/lambda/bind.hpp>
 
 class MusicFileFactory
 {
