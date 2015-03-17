@@ -29,7 +29,9 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Widgets)
 file(GLOB SRC_FILES *.cpp *.hpp)
 file(GLOB UI_FILES *.ui)
+file(GLOB RES_FILES *.qrc)
 QT5_WRAP_UI(UI_HEADERS ${UI_FILES})
+QT5_ADD_RESOURCES(RESOURCES_RCC ${RES_FILES})
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "Debug mode enabled")
@@ -45,6 +47,6 @@ add_subdirectory(system)
 add_subdirectory(network)
 add_subdirectory(log)
 
-add_executable(musicman ${SRC_FILES} ${UI_HEADERS})
+add_executable(musicman ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
 target_link_libraries(musicman Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
 
