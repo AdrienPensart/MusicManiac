@@ -5,27 +5,29 @@
 #include "FLACFile.hpp"
 #include "MusicDebugger.hpp"
 
-#include <boost/filesystem.hpp>
-#include <boost/lambda/bind.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+using namespace boost::filesystem;
+using namespace boost::lambda;
 
-MusicFileFactory::MusicFileFactory(QString folder, bool _regen) :
-    iterator(folder, QDirIterator::Subdirectories),
-    regen(_regen)
+MusicFileFactory::MusicFileFactory(const std::string& _folder, bool _regen) :
+    folder(_folder),
+    iterator(_folder),
+    regen(_regen),
+    totalCount(0),
+    readCount(0)
 {
-    readCount = 0;
-    totalCount = dir.count();
-    using namespace boost::filesystem;
-    using namespace boost::lambda;
-
-    LOG << "Counting files in " + folder.toStdString();
-    path the_path(folder.toStdString());
-    for(recursive_directory_iterator it(folder.toStdString()); it != recursive_directory_iterator(); ++it)
-    {
-       totalCount++;
-    } 
-    LOG << "Total count of files : " + Common::toString(totalCount);
+    LOG << "Constructing directory " + folder;
+    try{
+        for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it)
+        {
+           totalCount++;
+        }
+        LOG << "Total count of files in " + folder + " : " + Common::toString(totalCount);
+    } catch (boost::filesystem::filesystem_error& fex) {
+        LOG << "Exception " + std::string(fex.what());
+    }
 }
-        
+
 int MusicFileFactory::getTotalCount(){
     return totalCount;
 }
@@ -39,7 +41,7 @@ double MusicFileFactory::progression(){
 }
 
 bool MusicFileFactory::valid(){
-    return iterator.hasNext();
+    return iterator != recursive_directory_iterator();
 }
 
 const std::vector<std::string>& MusicFileFactory::getPlaylists(){
@@ -47,65 +49,52 @@ const std::vector<std::string>& MusicFileFactory::getPlaylists(){
 }
 
 MusicFile * MusicFileFactory::factory(){
-    while(iterator.hasNext()){
-        iterator.next();
-        readCount++;
-        if(iterator.fileInfo().isDir()){
-            continue;
-        }
-        MusicDebugger::instance().setCurrentMusic(iterator.filePath().toStdString());
-
-        if(iterator.filePath().endsWith(".mp3")){
-            TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
-            if(!mp3->audioProperties()){
-                LOG << "No audio property for " + iterator.filePath().toStdString();
-                continue;
-            }
-
-            if(!mp3->hasID3v2Tag()){
-                LOG << "No ID3v2 Tag present for " + iterator.filePath().toStdString();
-                continue;
-            }
-
+    if(!valid()){
+        return 0;
+    }
+    
+    readCount++;
+    MusicDebugger::instance().setCurrentMusic(iterator->path().native());
+    MusicFile * mf = 0;
+    if(boost::algorithm::ends_with(iterator->path().native(), ".mp3")){
+        TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator->path().c_str());
+        if(!mp3->audioProperties()){
+            LOG << "No audio property";
+        } else if(!mp3->hasID3v2Tag()){
+            LOG << "No ID3v2 Tag present";
+        } else {
             TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
             if(!tag){
-                LOG << "Tag invalid for " + iterator.filePath().toStdString();
-                continue;
-            }
-
-            if(regen){
+                LOG << "Tag invalid";
+            } else if(regen){
                 tag->removeFrames("UFID");
                 mp3->save();
-
                 // reopen file
                 delete mp3;
-                mp3 = new TagLib::MPEG::File(iterator.filePath().toStdString().c_str());
+                mp3 = new TagLib::MPEG::File(iterator->path().c_str());
             }
-            return new MP3File(iterator.filePath().toStdString(), mp3);
-        }
-        else if(iterator.filePath().endsWith(".flac")){
-            TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator.filePath().toStdString().c_str());
-            if(!flac->audioProperties()){
-                LOG << "No audio property for " + iterator.filePath().toStdString();
-                continue;
-            }
-
-            if(!flac->hasXiphComment()){
-                LOG << "No XiphComment present for " + iterator.filePath().toStdString();
-                continue;
-            }
-
-            TagLib::Ogg::XiphComment * tag = flac->xiphComment();
-            if(!tag){
-                LOG << "Tag invalid for " + iterator.filePath().toStdString();
-                continue;
-            }
-            return new FLACFile(iterator.filePath().toStdString(), flac, regen);
-        } else if(iterator.filePath().endsWith(".m3u")){
-            playlists.push_back(iterator.filePath().toStdString());
-        } else {
-            //LOG << "Music file not supported " + iterator.filePath().toStdString();
+            mf = new MP3File(iterator->path().native(), mp3);
         }
     }
-    return 0;
+    else if(boost::algorithm::ends_with(iterator->path().native(), ".flac")){
+        TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator->path().c_str());
+        if(!flac->audioProperties()){
+            LOG << "No audio property";
+        } else if(!flac->hasXiphComment()){
+            LOG << "No XiphComment present";
+        } else {
+            TagLib::Ogg::XiphComment * tag = flac->xiphComment();
+            if(!tag){
+                LOG << "Tag invalid";
+            } else {
+                mf = new FLACFile(iterator->path().native(), flac, regen);
+            }
+        }
+    } else if(boost::algorithm::ends_with(iterator->path().native(), ".m3u")){
+        playlists.push_back(iterator->path().native());
+    } else {
+        //LOG << "Music file not supported " + iterator.filePath().toStdString();
+    }
+    ++iterator;
+    return mf;
 }

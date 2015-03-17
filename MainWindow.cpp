@@ -156,20 +156,24 @@ void MainWindow::loadFolderWith(bool regen){
 
 
     musicModel->clear();
-    MusicFileFactory mff(basefolder, regen);
+    MusicFileFactory mff(basefolder.toStdString(), regen);
     QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
     progress.setWindowModality(Qt::WindowModal);
 
-    while(mff.valid()){
-        if (progress.wasCanceled()){
-            break;
+    try {
+        while(mff.valid()){
+            if (progress.wasCanceled()){
+                break;
+            }
+            MusicFile * mf = mff.factory();
+            if(mf){
+                musicModel->add(mf);
+            }
+            progress.setValue(mff.getReadCount());
         }
-        MusicFile * mf = 0;
-        mf = mff.factory();
-        if(mf){
-            musicModel->add(mf);
-        }
-        progress.setValue(mff.getReadCount());
+    } catch (boost::filesystem::filesystem_error& fex) {
+        LOG << "Exception " + std::string(fex.what());
+        progress.cancel();
     }
 
     if (!progress.wasCanceled()){

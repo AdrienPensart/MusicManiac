@@ -2,14 +2,16 @@
 
 #include <vector>
 #include <string>
-#include <QDirIterator>
 #include "MusicFile.hpp"
+
+#include <boost/filesystem.hpp>
+#include <boost/lambda/bind.hpp>
 
 class MusicFileFactory
 {
     public:
 
-        MusicFileFactory(QString folder, bool regen=false);
+        MusicFileFactory(const std::string& folder, bool regen=false);
         MusicFile * factory();
         const std::vector<std::string>& getPlaylists();
         bool valid();
@@ -19,10 +21,10 @@ class MusicFileFactory
 
     private:
 
+        boost::filesystem::recursive_directory_iterator iterator;
+        const std::string folder;
         unsigned int totalCount;
         unsigned int readCount;
         std::vector<std::string> playlists;
-        QDir dir;
-        QDirIterator iterator;
         bool regen;
 };
