@@ -86,6 +86,14 @@ void MusicFile::setUUID(std::string _uuid, bool erase){
     }
 }
 
+void MusicFile::setArtist(std::string _artist, bool erase){
+    if(artist != _artist){
+        modified |= erase;
+        artist = _artist;
+        //LOG << filepath + ", setting artist " + artist + " modified ? : " + Common::toString(modified);
+    }
+}
+
 void MusicFile::setKeywords(std::string _keywords, bool erase){
     if(keywords != _keywords){
         modified |= erase;
@@ -104,6 +112,10 @@ std::string MusicFile::getUUID() const {
 
 std::string MusicFile::getKeywords() const {
     return keywords;
+}
+
+std::string MusicFile::getArtist() const {
+    return artist;
 }
 
 std::vector<std::string> MusicFile::getSplittedKeywords() const {

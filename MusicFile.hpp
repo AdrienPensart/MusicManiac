@@ -19,6 +19,7 @@ class MusicFile
         double getRating() const;
         std::string getUUID() const;
         std::string getKeywords() const;
+        std::string getArtist() const;
         std::vector<std::string> getSplittedKeywords() const;
         bool isModified();
         virtual void setRating(double)=0;
@@ -31,6 +32,7 @@ class MusicFile
         virtual void setKeywords(std::string, bool erase);
         virtual void setRating(double, bool erase);
         virtual void setUUID(std::string, bool erase);
+        virtual void setArtist(std::string, bool erase);
 
     private:
 
@@ -39,6 +41,7 @@ class MusicFile
         TagLib::File * file;
         bool modified;
         double rating;
+        std::string artist;
         std::string keywords;
         std::string uuid;
         std::string duration;

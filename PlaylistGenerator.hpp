@@ -17,8 +17,9 @@ class PlaylistGenerator
         void setMinDuration(const std::string& _minDuration);
         void setWith(const std::vector<std::string>& _with);
         void setWithout(const std::vector<std::string>& _without);
+        void setArtists(const std::vector<std::string>& _artists);
         void refresh(std::string filepath, const std::vector<MusicFile *>& sources);
-        void validate(std::string filepath, const std::vector<MusicFile *>& sources);
+        //void validate(std::string filepath, const std::vector<MusicFile *>& sources);
         std::string getName();
 
     private:
@@ -26,6 +27,7 @@ class PlaylistGenerator
         std::string rating;
         std::string minDuration;
         std::string maxDuration;
+        std::vector<std::string> artists;
         std::vector<std::string> without;
         std::vector<std::string> with;
         std::string basefolder;

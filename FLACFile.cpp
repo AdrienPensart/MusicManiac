@@ -22,6 +22,7 @@ FLACFile::FLACFile(std::string filepath, TagLib::FLAC::File * _flac, bool regen)
         }
     }
     MusicFile::setRating(rating, false);
+    MusicFile::setArtist(flac->xiphComment()->artist().to8Bit(true).c_str(), false);
 
     if(regen || !flac->xiphComment()->contains("UFID")){
         std::string uuid = newUUID();

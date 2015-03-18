@@ -1,8 +1,15 @@
 #include "CustomSortFilterProxyModel.hpp"
 #include "MusicFolderModel.hpp"
 
-CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _without, QStringListModel& _with, QObject * parent)
-    : QSortFilterProxyModel(parent), rating(0), minDuration("00:00"), maxDuration("100:00"), without(_without), with(_with)
+CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _artists, QStringListModel& _without, QStringListModel& _with, QObject * parent)
+    :
+    QSortFilterProxyModel(parent),
+    rating(0),
+    minDuration("00:00"),
+    maxDuration("100:00"),
+    artists(_artists),
+    without(_without),
+    with(_with)
 {
 }
 
@@ -27,8 +34,13 @@ void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration){
 
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
     QAbstractItemModel * model = sourceModel();
-    //QModelIndex path_index = model->index(sourceRow, MusicFolderModel::COLUMN_PATH, sourceParent);
-    //QString path = model->data(path_index).toString();
+
+    QModelIndex artist_index = model->index(sourceRow, MusicFolderModel::COLUMN_ARTIST, sourceParent);
+    QString currentArtist = model->data(artist_index).toString();
+    if(artists.stringList().size() && !artists.stringList().contains(currentArtist)){
+        return false;
+    }
+
     QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
     QString keywords = model->data(keywords_index).toString();
     foreach(QString keyword, without.stringList()){

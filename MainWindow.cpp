@@ -24,24 +24,34 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
     connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
     connect(ui->generatePlaylistButton, SIGNAL(clicked()), this, SLOT(generatePlaylist()));
+    connect(ui->inArtistButton, SIGNAL(clicked()), this, SLOT(selectArtist()));
+    connect(ui->outArtistButton, SIGNAL(clicked()), this, SLOT(deselectArtist()));
 
-    musicProxyModel = new CustomSortFilterProxyModel(withoutKeywordsModel, withKeywordsModel, this);
+    musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
+
     connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
     connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
     connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
 
     withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
-    availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);
-    withKeywordsSelection = new QItemSelectionModel(&withKeywordsModel);
-
     ui->withoutKeywordsView->setModel(&withoutKeywordsModel);
     ui->withoutKeywordsView->setSelectionModel(withoutKeywordsSelection);
 
+    availableKeywordsSelection = new QItemSelectionModel(&availableKeywordsModel);
     ui->availableKeywordsView->setModel(&availableKeywordsModel);
     ui->availableKeywordsView->setSelectionModel(availableKeywordsSelection);
 
+    withKeywordsSelection = new QItemSelectionModel(&withKeywordsModel);
     ui->withKeywordsView->setModel(&withKeywordsModel);
     ui->withKeywordsView->setSelectionModel(withKeywordsSelection);
+
+    availableArtistsSelection = new QItemSelectionModel(&availableArtistsModel);
+    ui->availableArtistView->setModel(&availableArtistsModel);
+    ui->availableArtistView->setSelectionModel(availableArtistsSelection);
+
+    selectedArtistsSelection = new QItemSelectionModel(&selectedArtistsModel);
+    ui->selectedArtistView->setModel(&selectedArtistsModel);
+    ui->selectedArtistView->setSelectionModel(selectedArtistsSelection);
 
     musicModel = new MusicFolderModel(this);
     musicProxyModel->setSourceModel(musicModel);
@@ -72,11 +82,18 @@ void MainWindow::generatePlaylist(){
     pg.setRating(Common::toString(ui->ratingSpinBox->value()));
     pg.setMaxDuration(ui->maxDurationEdit->text().toStdString());
     pg.setMinDuration(ui->minDurationEdit->text().toStdString());
+    std::vector<std::string> artists;
+    foreach( QString str, withKeywordsModel.stringList()) {
+        artists.push_back(str.toStdString());
+    }
+    pg.setArtists(artists);
+
     std::vector<std::string> keywords;
     foreach( QString str, withKeywordsModel.stringList()) {
         keywords.push_back(str.toStdString());
     }
     pg.setWith(keywords);
+
     keywords.clear();
     foreach( QString str, withoutKeywordsModel.stringList()) {
         keywords.push_back(str.toStdString());
@@ -123,6 +140,14 @@ void MainWindow::selectionToModel(
     musicProxyModel->refilter();
 }
 
+void MainWindow::selectArtist(){
+    selectionToModel(availableArtistsSelection, selectedArtistsSelection, availableArtistsModel, selectedArtistsModel);
+}
+
+void MainWindow::deselectArtist(){
+    selectionToModel(selectedArtistsSelection, availableArtistsSelection, selectedArtistsModel, availableArtistsModel);
+}
+
 void MainWindow::withoutToAvailable(){
     selectionToModel(withoutKeywordsSelection, availableKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);
 }
@@ -154,12 +179,12 @@ void MainWindow::loadFolderWith(bool regen){
         return;
     }
 
-
     musicModel->clear();
     MusicFileFactory mff(basefolder.toStdString(), regen);
     QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
     progress.setWindowModality(Qt::WindowModal);
 
+    ui->musicView->setUpdatesEnabled(false);
     try {
         while(mff.valid()){
             if (progress.wasCanceled()){
@@ -175,6 +200,7 @@ void MainWindow::loadFolderWith(bool regen){
         LOG << "Exception " + std::string(fex.what());
         progress.cancel();
     }
+    ui->musicView->setUpdatesEnabled(true);
 
     if (!progress.wasCanceled()){
         std::vector<std::string> playlists = mff.getPlaylists();
@@ -188,6 +214,9 @@ void MainWindow::loadFolderWith(bool regen){
     QStringList empty;
     withoutKeywordsModel.setStringList(empty);
     withKeywordsModel.setStringList(empty);
+    selectedArtistsModel.setStringList(empty);
+
+    availableArtistsModel.setStringList(musicModel->getArtists());
     availableKeywordsModel.setStringList(musicModel->getKeywords());
     ui->musicView->resizeColumnsToContents();
     ui->musicView->reset();

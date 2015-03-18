@@ -24,6 +24,16 @@ QStringList MusicFolderModel::getKeywords(){
     return sorted;
 }
 
+QStringList MusicFolderModel::getArtists(){
+    QStringList artists;
+    for(std::vector<MusicFile*>::const_iterator ci = musics.begin(); ci != musics.end() ; ci++){
+        artists.append(QString::fromStdString((*ci)->getArtist()));
+    }
+    QStringList sorted = artists.toSet().toList();
+    sorted.sort();
+    return sorted;
+}
+
 const std::vector<MusicFile*>& MusicFolderModel::getMusics() const {
     return musics;
 }
@@ -119,6 +129,9 @@ QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, 
             case COLUMN_PATH:
                 return tr("Path");
                 break;
+            case COLUMN_ARTIST:
+                return tr("Artist");
+                break;
             case COLUMN_UUID:
                 return tr("UUID");
                 break;
@@ -145,6 +158,9 @@ QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int row) const
     switch(row){
         case COLUMN_PATH:
             return mf->getFilepath().c_str();
+            break;
+        case COLUMN_ARTIST:
+            return mf->getArtist().c_str();
             break;
         case COLUMN_UUID:
             return mf->getUUID().c_str();

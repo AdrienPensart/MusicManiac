@@ -20,6 +20,7 @@ MP3File::MP3File(std::string filepath, TagLib::MPEG::File * _mp3)
     MusicFile::setRating(rating, false);
 
     MusicFile::setKeywords(mp3->ID3v2Tag()->comment().to8Bit(true).c_str(), false);
+    MusicFile::setArtist(mp3->ID3v2Tag()->artist().to8Bit(true).c_str(), false);
 
     // use first frame
     const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();

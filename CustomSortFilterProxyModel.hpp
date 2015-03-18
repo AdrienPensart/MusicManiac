@@ -10,7 +10,7 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel
 
     public:
 
-        explicit CustomSortFilterProxyModel(QStringListModel& without, QStringListModel& with, QObject * parent=0);
+        explicit CustomSortFilterProxyModel(QStringListModel& artists, QStringListModel& without, QStringListModel& with, QObject * parent=0);
         void refilter();
 
     public slots:
@@ -28,6 +28,7 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel
         double rating;
         QString minDuration;
         QString maxDuration;
+        QStringListModel& artists;
         QStringListModel& without;
         QStringListModel& with;
 };

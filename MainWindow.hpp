@@ -32,6 +32,8 @@ private slots:
     void availableToWith();
     void withToAvailable();
     void refreshPlaylist();
+    void selectArtist();
+    void deselectArtist();
 
 private:
 
@@ -41,13 +43,20 @@ private:
     MusicFolderModel * musicModel;
     CustomSortFilterProxyModel * musicProxyModel;
 
+    QItemSelectionModel * withoutKeywordsSelection;
     QStringListModel withoutKeywordsModel;
+
+    QItemSelectionModel * availableKeywordsSelection;
     QStringListModel availableKeywordsModel;
+
+    QItemSelectionModel * withKeywordsSelection;
     QStringListModel withKeywordsModel;
 
-    QItemSelectionModel * withoutKeywordsSelection;
-    QItemSelectionModel * availableKeywordsSelection;
-    QItemSelectionModel * withKeywordsSelection;
+    QItemSelectionModel * availableArtistsSelection;
+    QStringListModel availableArtistsModel;
+
+    QItemSelectionModel * selectedArtistsSelection;
+    QStringListModel selectedArtistsModel;
 
     Ui::MainWindow * ui;
     QString basefolder;

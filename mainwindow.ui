@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>469</height>
+    <width>648</width>
+    <height>488</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -225,6 +225,82 @@
       </item>
      </layout>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="artistLayout">
+      <item>
+       <layout class="QVBoxLayout" name="availableArtistLayout">
+        <item>
+         <widget class="QLabel" name="availableArtistLabel">
+          <property name="text">
+           <string>Available artists : </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="availableArtistView">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="artistButtonsLayout">
+        <item>
+         <widget class="QPushButton" name="inArtistButton">
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="outArtistButton">
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="selectedArtistLayout">
+        <item>
+         <widget class="QLabel" name="selectedArtistLabel">
+          <property name="text">
+           <string>Selected artists : </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="selectedArtistView">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -232,7 +308,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>614</width>
+     <width>648</width>
      <height>19</height>
     </rect>
    </property>
