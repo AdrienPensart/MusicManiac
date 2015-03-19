@@ -8,7 +8,6 @@ class PlaylistGenerator
 {
     public:
 
-        PlaylistGenerator();
         void add(MusicFile * file);
         virtual void save(std::string filepath);
         void setBasefolder(std::string _basefolder);

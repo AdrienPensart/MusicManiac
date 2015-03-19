@@ -83,7 +83,7 @@ void MainWindow::generatePlaylist(){
     pg.setMaxDuration(ui->maxDurationEdit->text().toStdString());
     pg.setMinDuration(ui->minDurationEdit->text().toStdString());
     std::vector<std::string> artists;
-    foreach( QString str, withKeywordsModel.stringList()) {
+    foreach( QString str, selectedArtistsModel.stringList()) {
         artists.push_back(str.toStdString());
     }
     pg.setArtists(artists);
@@ -214,9 +214,9 @@ void MainWindow::loadFolderWith(bool regen){
     QStringList empty;
     withoutKeywordsModel.setStringList(empty);
     withKeywordsModel.setStringList(empty);
-    selectedArtistsModel.setStringList(empty);
+    availableArtistsModel.setStringList(empty);
 
-    availableArtistsModel.setStringList(musicModel->getArtists());
+    selectedArtistsModel.setStringList(musicModel->getArtists());
     availableKeywordsModel.setStringList(musicModel->getKeywords());
     ui->musicView->resizeColumnsToContents();
     ui->musicView->reset();

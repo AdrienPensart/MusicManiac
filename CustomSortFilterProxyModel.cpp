@@ -37,7 +37,7 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
 
     QModelIndex artist_index = model->index(sourceRow, MusicFolderModel::COLUMN_ARTIST, sourceParent);
     QString currentArtist = model->data(artist_index).toString();
-    if(artists.stringList().size() && !artists.stringList().contains(currentArtist)){
+    if(!artists.stringList().contains(currentArtist)){
         return false;
     }
 
