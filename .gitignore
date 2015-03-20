@@ -4,6 +4,7 @@ ui_*.h
 moc_*.cpp
 *.pro.user
 qrc_images.cpp
+CMakeLists.txt.user
 Makefile
 build/*
 !build/
