@@ -11,12 +11,12 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MusicMan</string>
+   <string>MusicManiac</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>musicman.ico</normaloff>
-    <normalon>musicman.ico</normalon>musicman.ico</iconset>
+    <normaloff>musicmaniac.ico</normaloff>
+    <normalon>musicmaniac.ico</normalon>musicmaniac.ico</iconset>
   </property>
   <property name="iconSize">
    <size>

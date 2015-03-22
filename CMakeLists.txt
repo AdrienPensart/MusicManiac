@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-# innocence is entirely in C++ (or almost) !
-project(musicman CXX)
+project(musicmaniac CXX)
 
 FIND_PATH(UUID_INCLUDE_DIR uuid/uuid.h)
 FIND_LIBRARY(UUID_LIBRARY NAMES uuid PATH)
@@ -47,6 +46,6 @@ add_subdirectory(system)
 add_subdirectory(network)
 add_subdirectory(log)
 
-add_executable(musicman ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
-target_link_libraries(musicman Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
+add_executable(musicmaniac ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
+target_link_libraries(musicmaniac Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
 

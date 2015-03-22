@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow){
     ui->setupUi(this);
 
-    setWindowIcon(QIcon(":/musicman.ico"));
+    setWindowIcon(QIcon(":/musicmaniac.ico"));
     connect(ui->actionOpen_Folder, SIGNAL(triggered()), this, SLOT(loadFolder()));
     connect(ui->actionRegen_UUID, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
     connect(ui->actionRefresh_Playlist, SIGNAL(triggered()), this, SLOT(refreshPlaylist()));
