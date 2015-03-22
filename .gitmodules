@@ -1,0 +1,15 @@
+[submodule "src/taglib"]
+	path = src/taglib
+	url = https://github.com/taglib/taglib.git
+[submodule "src/common"]
+	path = src/common
+	url = git@github.com:AdrienPensart/common.git
+[submodule "src/network"]
+	path = src/network
+	url = git@github.com:AdrienPensart/network.git
+[submodule "src/log"]
+	path = src/log
+	url = git@github.com:AdrienPensart/log.git
+[submodule "src/system"]
+	path = src/system
+	url = git@github.com:AdrienPensart/system.git
