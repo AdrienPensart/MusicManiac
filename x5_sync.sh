@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 2 ];
-    then echo "usage: ./sync.sh folder_to_scan destination_folder"
+    then echo "usage: ./x5_sync.sh folder_to_scan x5_fiio_folder"
     exit
 fi
 
@@ -18,6 +18,8 @@ for i in $(find $1 -name "best.m3u" -o -name "all.m3u" ) ; do
     echo "Basefolder = $basefolder and artist = $artist"
     echo "Destination = $destination"
     rsync -h --progress -v --update --files-from=$i $1 $2
+    cp $basefolder/*.m3u $2/$artist
+    sed --in-place '/^#EXTREM/ d' $2/$artist/*.m3u
 done
 IFS=$SAVEIFS
 
