@@ -52,7 +52,7 @@ void PlaylistGenerator::save(std::string filepath){
 }
 
 void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFile *>& sources){
-    //LOG << "Refreshing playlist " + filepath;
+    LOG << "Refreshing playlist " + filepath;
 
     ifstream playlist(filepath.c_str());
     std::string header;
@@ -80,6 +80,8 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
         return;
     }
     rating = ratingLine.substr(RATING.size());
+    double vrating;
+    Common::fromString(rating, vrating);
     LOG << "Getting rating : " + rating;
 
     std::string minDurationLine;
@@ -121,55 +123,44 @@ void PlaylistGenerator::refresh(std::string filepath, const std::vector<MusicFil
     // filtering
     for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++){
         bool cont = true;
-
         if (std::find(artists.begin(), artists.end(), (*i)->getArtist()) == artists.end()){
-            LOG << (*i)->getArtist() + " : is not in artists list : " + implode(artists);
+            //LOG << (*i)->getArtist() + " : is not in artists list : " + implode(artists);
             cont = false;
         }
 
-        std::vector<std::string> splittedKeywords = (*i)->getSplittedKeywords();
-        for(std::vector<std::string>::iterator j = without.begin(); j != without.end() && cont; j++){
-            for(std::vector<std::string>::iterator h = splittedKeywords.begin() ; h != splittedKeywords.end() && cont; h++){
-                if (*j == *h){
-                    LOG << (*i)->getFilepath() + " : is in without exclusion, *j = "+(*j)+ " with iter = "+(*h);
-                    cont = false;
-                }
-            }
+        const std::vector<std::string> splittedKeywords = (*i)->getSplittedKeywords();
+        if(cont){
+            cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), without.begin(), without.end()) == splittedKeywords.end();
         }
 
-        for(std::vector<std::string>::iterator j = with.begin(); j != with.end() && cont; j++){
-            if (std::find(splittedKeywords.begin(), splittedKeywords.end(), *j) == with.end()){
-                LOG << (*i)->getFilepath() + " : is not in with keywords";
-                cont = false;
-            }
+        if(with.size() && cont){
+            cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), with.begin(), with.end()) != splittedKeywords.end();
         }
 
-        double vrating;
-        Common::fromString(rating, vrating);
         if((*i)->getRating() < vrating && cont){
-            LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
+            //LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
             cont = false;
         }
 
         unsigned int currentDuration = (*i)->getDurationInSeconds();
         std::string tempMinDuration = minDuration;
         tempMinDuration.erase(std::remove(tempMinDuration.begin(), tempMinDuration.end(), ':'), tempMinDuration.end());
-        unsigned int min;
+        unsigned int min = 0;
         Common::fromString(tempMinDuration, min);
 
         std::string tempMaxDuration = maxDuration;
         tempMaxDuration.erase(std::remove(tempMaxDuration.begin(), tempMaxDuration.end(), ':'), tempMaxDuration.end());
-        unsigned int max;
+        unsigned int max = 0;
         Common::fromString(tempMaxDuration, max);
 
         if(min > currentDuration || max < currentDuration){
             cont = false;
-
+            /*
             LOG << (*i)->getFilepath() +
                " is not in duration sequence : min = " + Common::toString(min) +
                " and max = " + Common::toString(max) +
                " and current = " + Common::toString(currentDuration);
-
+            */
         }
 
         if(cont){

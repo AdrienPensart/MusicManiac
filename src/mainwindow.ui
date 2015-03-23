@@ -34,6 +34,12 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTableView" name="musicView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="showDropIndicator" stdset="0">
        <bool>false</bool>
       </property>
@@ -223,79 +229,79 @@
         </item>
        </layout>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="artistLayout">
       <item>
-       <layout class="QVBoxLayout" name="availableArtistLayout">
+       <layout class="QHBoxLayout" name="artistLayout">
         <item>
-         <widget class="QLabel" name="availableArtistLabel">
-          <property name="text">
-           <string>Available artists : </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="availableArtistLayout">
+          <item>
+           <widget class="QLabel" name="availableArtistLabel">
+            <property name="text">
+             <string>Available artists : </string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="availableArtistView">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QListView" name="availableArtistView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::ExtendedSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="artistButtonsLayout">
-        <item>
-         <widget class="QPushButton" name="inArtistButton">
-          <property name="text">
-           <string>&gt;</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="artistButtonsLayout">
+          <item>
+           <widget class="QPushButton" name="inArtistButton">
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="outArtistButton">
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="outArtistButton">
-          <property name="text">
-           <string>&lt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="selectedArtistLayout">
-        <item>
-         <widget class="QLabel" name="selectedArtistLabel">
-          <property name="text">
-           <string>Selected artists : </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListView" name="selectedArtistView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::ExtendedSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="selectedArtistLayout">
+          <item>
+           <widget class="QLabel" name="selectedArtistLabel">
+            <property name="text">
+             <string>Selected artists : </string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="selectedArtistView">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
