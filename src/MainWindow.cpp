@@ -55,9 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     musicModel = new MusicFolderModel(this);
     musicProxyModel->setSourceModel(musicModel);
+    ui->playlistView->setModel(&playlistModel);
     ui->musicView->setModel(musicProxyModel);
     ui->musicView->setSortingEnabled(true);
-    ui->musicView->sortByColumn(MusicFolderModel::COLUMN_PATH, Qt::AscendingOrder);
+    ui->musicView->sortByColumn(MusicFolderModel::COLUMN_ARTIST, Qt::AscendingOrder);
     ui->musicView->horizontalHeader()->setStretchLastSection(true);
     musicProxyModel->setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
     musicProxyModel->setDynamicSortFilter(true);
@@ -202,14 +203,17 @@ void MainWindow::loadFolderWith(bool regen){
     }
     ui->musicView->setUpdatesEnabled(true);
 
+    QStringList playlistList;
     if (!progress.wasCanceled()){
         std::vector<std::string> playlists = mff.getPlaylists();
         for(std::vector<std::string>::iterator i = playlists.begin(); i != playlists.end(); i++){
             PlaylistGenerator pg;
             pg.setBasefolder(basefolder.toStdString());
             pg.refresh(*i, musicModel->getMusics());
+            playlistList.append(i->c_str());
         }
     }
+    playlistModel.setStringList(playlistList);
 
     QStringList empty;
     withoutKeywordsModel.setStringList(empty);

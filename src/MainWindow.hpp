@@ -58,6 +58,7 @@ private:
     QItemSelectionModel * selectedArtistsSelection;
     QStringListModel selectedArtistsModel;
 
+    QStringListModel playlistModel;
     Ui::MainWindow * ui;
     QString basefolder;
 };

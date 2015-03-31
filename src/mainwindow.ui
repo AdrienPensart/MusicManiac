@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
+    <width>930</width>
     <height>488</height>
    </rect>
   </property>
@@ -33,26 +33,33 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTableView" name="musicView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="showDropIndicator" stdset="0">
-       <bool>false</bool>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-      <property name="sortingEnabled">
-       <bool>false</bool>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="viewLayout">
+      <item>
+       <widget class="QListView" name="playlistView"/>
+      </item>
+      <item>
+       <widget class="QTableView" name="musicView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="sortingEnabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="playlistLayout">
@@ -314,7 +321,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>648</width>
+     <width>930</width>
      <height>19</height>
     </rect>
    </property>

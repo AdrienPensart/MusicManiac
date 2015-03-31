@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <string>
 
-MusicFile::MusicFile(std::string _filepath, TagLib::File * _file)
+MusicFile::MusicFile(const std::string& _filepath, TagLib::File * _file)
     :totalSeconds(-1), filepath(_filepath), file(_file), modified(false), rating(0){
     TagLib::AudioProperties * properties = file->audioProperties();
     if(properties){
@@ -54,8 +54,16 @@ bool MusicFile::isModified(){
     return modified;
 }
 
+std::string MusicFile::getPath() const {
+    return filepath.substr(0,filepath.find_last_of("/\\"));
+}
+
 std::string MusicFile::getFilepath() const {
     return filepath;
+}
+
+std::string MusicFile::getFilename() const {
+    return filepath.substr(filepath.find_last_of("/\\") + 1);
 }
 
 std::string MusicFile::getDuration() const {

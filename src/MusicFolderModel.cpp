@@ -126,14 +126,11 @@ bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & valu
 QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch(section) {
-            case COLUMN_PATH:
-                return tr("Path");
+            case COLUMN_FILENAME:
+                return tr("Filename");
                 break;
             case COLUMN_ARTIST:
                 return tr("Artist");
-                break;
-            case COLUMN_UUID:
-                return tr("UUID");
                 break;
             case COLUMN_DURATION:
                 return tr("Duration");
@@ -156,14 +153,11 @@ QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int row) const
     }
 
     switch(row){
-        case COLUMN_PATH:
-            return mf->getFilepath().c_str();
+        case COLUMN_FILENAME:
+            return mf->getFilename().c_str();
             break;
         case COLUMN_ARTIST:
             return mf->getArtist().c_str();
-            break;
-        case COLUMN_UUID:
-            return mf->getUUID().c_str();
             break;
         case COLUMN_DURATION:
             return mf->getDuration().c_str();
