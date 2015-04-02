@@ -8,7 +8,7 @@
 #include "MainWindow.hpp"
 #include "MusicFileFactory.hpp"
 #include "MusicFolderModel.hpp"
-#include "PlaylistGenerator.hpp"
+#include "Playlist.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->generatePlaylistButton, SIGNAL(clicked()), this, SLOT(generatePlaylist()));
     connect(ui->inArtistButton, SIGNAL(clicked()), this, SLOT(selectArtist()));
     connect(ui->outArtistButton, SIGNAL(clicked()), this, SLOT(deselectArtist()));
+    connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
 
     musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
 
@@ -69,66 +70,64 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::refreshPlaylist(){
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("Playlist (*.m3u)"));
-    if(fileName.size()){
-        PlaylistGenerator pg;
-        pg.setBasefolder(basefolder.toStdString());
-        pg.refresh(fileName.toStdString(), musicModel->getMusics());
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open Music"), QDir::homePath(), tr("Playlist (*.m3u)"));
+    if(filePath.size()){
+        Playlist playlist(filePath.toStdString());
+        playlist.load();
+        playlist.refresh(musicModel->getMusics());
     }
 }
 
 void MainWindow::generatePlaylist(){
-    PlaylistGenerator pg;
-    pg.setBasefolder(basefolder.toStdString());
-    pg.setRating(Common::toString(ui->ratingSpinBox->value()));
-    pg.setMaxDuration(ui->maxDurationEdit->text().toStdString());
-    pg.setMinDuration(ui->minDurationEdit->text().toStdString());
-    std::vector<std::string> artists;
-    foreach( QString str, selectedArtistsModel.stringList()) {
-        artists.push_back(str.toStdString());
-    }
-    pg.setArtists(artists);
-
-    std::vector<std::string> keywords;
-    foreach( QString str, withKeywordsModel.stringList()) {
-        keywords.push_back(str.toStdString());
-    }
-    pg.setWith(keywords);
-
-    keywords.clear();
-    foreach( QString str, withoutKeywordsModel.stringList()) {
-        keywords.push_back(str.toStdString());
-    }
-    pg.setWithout(keywords);
-
-    for(int i = 0; i < musicProxyModel->rowCount(); i++){
-        QModelIndex index = musicProxyModel->index(i,0);
-        QModelIndex index2 = musicProxyModel->mapToSource(index);
-        pg.add(musicModel->musicAt(index2.row()));
-    }
-
     if(!basefolder.size()){
         QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
         return;
     }
 
-    std::string filename = pg.getName();
+    QString filename = withKeywordsModel.stringList().join('_');
     if(!filename.size()){
         filename = "all";
     }
-
-    QString basefilename = basefolder + "//" + filename.c_str();
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), basefilename, tr("Playlist (*.m3u)"));
-    if(fileName.size()){
-        pg.save(fileName.toStdString());
+    QString filePath = basefolder + "//" + filename;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
+    if(!fileName.size()){
+        return;
     }
+    QString finalPath = basefolder + "//" + fileName;
+    LOG << "Final path : " + finalPath.toStdString();
+    Playlist playlist(finalPath.toStdString());
+
+    playlist.setRating(ui->ratingSpinBox->value());
+    playlist.setMaxDuration(ui->maxDurationEdit->text().toStdString());
+    playlist.setMinDuration(ui->minDurationEdit->text().toStdString());
+    std::vector<std::string> artists;
+    foreach( QString str, selectedArtistsModel.stringList()) {
+        artists.push_back(str.toStdString());
+    }
+    playlist.setArtists(artists);
+
+    std::vector<std::string> keywords;
+    foreach(QString str, withKeywordsModel.stringList()) {
+        keywords.push_back(str.toStdString());
+    }
+    playlist.setWith(keywords);
+
+    keywords.clear();
+    foreach(QString str, withoutKeywordsModel.stringList()) {
+        keywords.push_back(str.toStdString());
+    }
+    playlist.setWithout(keywords);
+
+    for(int i = 0; i < musicProxyModel->rowCount(); i++){
+        QModelIndex index = musicProxyModel->index(i,0);
+        QModelIndex index2 = musicProxyModel->mapToSource(index);
+        playlist.add(musicModel->musicAt(index2.row()));
+    }
+
+    playlist.save();
 }
 
-void MainWindow::selectionToModel(
-        QItemSelectionModel * sourceSelection,
-        QItemSelectionModel * /*destinationSelection*/,
-        QStringListModel& sourceModel,
-        QStringListModel& destinationModel){
+void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QStringListModel& sourceModel, QStringListModel& destinationModel){
     QModelIndexList indexes = sourceSelection->selection().indexes();
     QStringList list = destinationModel.stringList();
     while(indexes.size()) {
@@ -142,27 +141,37 @@ void MainWindow::selectionToModel(
 }
 
 void MainWindow::selectArtist(){
-    selectionToModel(availableArtistsSelection, selectedArtistsSelection, availableArtistsModel, selectedArtistsModel);
+    selectionToModel(availableArtistsSelection, availableArtistsModel, selectedArtistsModel);
 }
 
 void MainWindow::deselectArtist(){
-    selectionToModel(selectedArtistsSelection, availableArtistsSelection, selectedArtistsModel, availableArtistsModel);
+    selectionToModel(selectedArtistsSelection, selectedArtistsModel, availableArtistsModel);
 }
 
 void MainWindow::withoutToAvailable(){
-    selectionToModel(withoutKeywordsSelection, availableKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);
+    selectionToModel(withoutKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);
 }
 
 void MainWindow::availableToWithout(){
-    selectionToModel(availableKeywordsSelection, withoutKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);
+    selectionToModel(availableKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);
 }
 
 void MainWindow::availableToWith(){
-    selectionToModel(availableKeywordsSelection, withKeywordsSelection, availableKeywordsModel, withKeywordsModel);
+    selectionToModel(availableKeywordsSelection, availableKeywordsModel, withKeywordsModel);
 }
 
 void MainWindow::withToAvailable(){
-    selectionToModel(withKeywordsSelection, availableKeywordsSelection, withKeywordsModel, availableKeywordsModel);
+    selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);
+}
+
+void MainWindow::loadPlaylist(QModelIndex index){
+    QString playlistFilepath = playlistModel.itemData(index).first().toString();
+    LOG << playlistFilepath.toStdString();
+    Playlist playlist(playlistFilepath.toStdString());
+    playlist.load();
+    ui->ratingSpinBox->setValue(playlist.getRating());
+    ui->maxDurationEdit->setText(playlist.getMaxDuration().c_str());
+    ui->minDurationEdit->setText(playlist.getMinDuration().c_str());
 }
 
 void MainWindow::loadFolder(){
@@ -207,9 +216,9 @@ void MainWindow::loadFolderWith(bool regen){
     if (!progress.wasCanceled()){
         std::vector<std::string> playlists = mff.getPlaylists();
         for(std::vector<std::string>::iterator i = playlists.begin(); i != playlists.end(); i++){
-            PlaylistGenerator pg;
-            pg.setBasefolder(basefolder.toStdString());
-            pg.refresh(*i, musicModel->getMusics());
+            Playlist playlist(*i);
+            playlist.load();
+            playlist.refresh(musicModel->getMusics());
             playlistList.append(i->c_str());
         }
     }

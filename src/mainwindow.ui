@@ -35,7 +35,14 @@
     <item>
      <layout class="QHBoxLayout" name="viewLayout">
       <item>
-       <widget class="QListView" name="playlistView"/>
+       <widget class="QListView" name="playlistView">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QTableView" name="musicView">

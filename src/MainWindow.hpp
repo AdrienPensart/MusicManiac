@@ -34,11 +34,12 @@ private slots:
     void refreshPlaylist();
     void selectArtist();
     void deselectArtist();
+    void loadPlaylist(QModelIndex);
 
 private:
 
     void updateFilter();
-    void selectionToModel(QItemSelectionModel *, QItemSelectionModel *, QStringListModel&, QStringListModel&);
+    void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
     void loadFolderWith(bool regen);
     MusicFolderModel * musicModel;
     CustomSortFilterProxyModel * musicProxyModel;

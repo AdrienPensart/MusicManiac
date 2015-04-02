@@ -4,31 +4,34 @@
 #include <string>
 #include "MusicFile.hpp"
 
-class PlaylistGenerator
+class Playlist
 {
     public:
 
+        Playlist(std::string filepath);
         void add(MusicFile * file);
-        virtual void save(std::string filepath);
-        void setBasefolder(std::string _basefolder);
-        void setRating(const std::string& _rating);
+        void load();
+        void refresh(const std::vector<MusicFile *>& sources);
+        void save();
+
+        double getRating();
+        void setRating(double _rating);
+        std::string getMaxDuration();
         void setMaxDuration(const std::string& _maxDuration);
+        std::string getMinDuration();
         void setMinDuration(const std::string& _minDuration);
         void setWith(const std::vector<std::string>& _with);
         void setWithout(const std::vector<std::string>& _without);
         void setArtists(const std::vector<std::string>& _artists);
-        void refresh(std::string filepath, const std::vector<MusicFile *>& sources);
-        //void validate(std::string filepath, const std::vector<MusicFile *>& sources);
-        std::string getName();
 
     private:
 
-        std::string rating;
+        std::string filepath;
+        double rating;
         std::string minDuration;
         std::string maxDuration;
         std::vector<std::string> artists;
         std::vector<std::string> without;
         std::vector<std::string> with;
-        std::string basefolder;
         std::vector<MusicFile *> musics;
 };
