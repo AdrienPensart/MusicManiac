@@ -4,31 +4,30 @@
 #include <QStringListModel>
 #include <QDoubleSpinBox>
 
-class CustomSortFilterProxyModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
+class CustomSortFilterProxyModel : public QSortFilterProxyModel {
+		Q_OBJECT
 
-    public:
+	public:
 
-        explicit CustomSortFilterProxyModel(QStringListModel& artists, QStringListModel& without, QStringListModel& with, QObject * parent=0);
-        void refilter();
+		explicit CustomSortFilterProxyModel(QStringListModel& artists, QStringListModel& without, QStringListModel& with, QObject * parent=0);
+		void refilter();
 
-    public slots:
+	public slots:
 
-        void minDurationChanged(QString);
-        void maxDurationChanged(QString);
-        void ratingChanged(double);
+		void minDurationChanged(QString);
+		void maxDurationChanged(QString);
+		void ratingChanged(double);
 
-    protected:
+	protected:
 
-        virtual bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const;
+		virtual bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const;
 
-    private:
+	private:
 
-        double rating;
-        QString minDuration;
-        QString maxDuration;
-        QStringListModel& artists;
-        QStringListModel& without;
-        QStringListModel& with;
+		double rating;
+		QString minDuration;
+		QString maxDuration;
+		QStringListModel& artists;
+		QStringListModel& without;
+		QStringListModel& with;
 };

@@ -7,59 +7,58 @@
 #include "CustomSortFilterProxyModel.hpp"
 
 namespace Ui {
-    class MainWindow;
+	class MainWindow;
 }
 
 class MusicFile;
 class MusicFolderModel;
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+		Q_OBJECT
 
-public:
+	public:
 
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+		explicit MainWindow(QWidget *parent = 0);
+		~MainWindow();
 
-private slots:
+	private slots:
 
-    void generatePlaylist();
-    void loadFolder();
-    void loadFolderWithRegen();
-    void withoutToAvailable();
-    void availableToWithout();
-    void availableToWith();
-    void withToAvailable();
-    void refreshPlaylist();
-    void selectArtist();
-    void deselectArtist();
-    void loadPlaylist(QModelIndex);
+		void generatePlaylist();
+		void loadFolder();
+		void loadFolderWithRegen();
+		void withoutToAvailable();
+		void availableToWithout();
+		void availableToWith();
+		void withToAvailable();
+		void refreshPlaylist();
+		void selectArtist();
+		void deselectArtist();
+		void loadPlaylist(QModelIndex);
 
-private:
+	private:
 
-    void updateFilter();
-    void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
-    void loadFolderWith(bool regen);
-    MusicFolderModel * musicModel;
-    CustomSortFilterProxyModel * musicProxyModel;
+		void updateFilter();
+		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
+		void loadFolderWith(bool regen);
+		MusicFolderModel * musicModel;
+		CustomSortFilterProxyModel * musicProxyModel;
 
-    QItemSelectionModel * withoutKeywordsSelection;
-    QStringListModel withoutKeywordsModel;
+		QItemSelectionModel * withoutKeywordsSelection;
+		QStringListModel withoutKeywordsModel;
 
-    QItemSelectionModel * availableKeywordsSelection;
-    QStringListModel availableKeywordsModel;
+		QItemSelectionModel * availableKeywordsSelection;
+		QStringListModel availableKeywordsModel;
 
-    QItemSelectionModel * withKeywordsSelection;
-    QStringListModel withKeywordsModel;
+		QItemSelectionModel * withKeywordsSelection;
+		QStringListModel withKeywordsModel;
 
-    QItemSelectionModel * availableArtistsSelection;
-    QStringListModel availableArtistsModel;
+		QItemSelectionModel * availableArtistsSelection;
+		QStringListModel availableArtistsModel;
 
-    QItemSelectionModel * selectedArtistsSelection;
-    QStringListModel selectedArtistsModel;
+		QItemSelectionModel * selectedArtistsSelection;
+		QStringListModel selectedArtistsModel;
 
-    QStringListModel playlistModel;
-    Ui::MainWindow * ui;
-    QString basefolder;
+		QStringListModel playlistModel;
+		Ui::MainWindow * ui;
+		QString basefolder;
 };
