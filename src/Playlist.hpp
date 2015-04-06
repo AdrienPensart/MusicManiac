@@ -19,8 +19,11 @@ class Playlist {
 		void setMaxDuration(const std::string& _maxDuration);
 		std::string getMinDuration();
 		void setMinDuration(const std::string& _minDuration);
+        const std::vector<std::string>& getWith();
 		void setWith(const std::vector<std::string>& _with);
+        const std::vector<std::string>& getWithout();
 		void setWithout(const std::vector<std::string>& _without);
+        const std::vector<std::string>& getArtists();
 		void setArtists(const std::vector<std::string>& _artists);
 
 	private:

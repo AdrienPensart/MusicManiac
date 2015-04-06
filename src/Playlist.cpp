@@ -194,6 +194,10 @@ void Playlist::setMaxDuration(const std::string& _maxDuration) {
 	maxDuration = _maxDuration;
 }
 
+const std::vector<std::string>& Playlist::getArtists(){
+    return artists;
+}
+
 void Playlist::setArtists(const std::vector<std::string>& _artists) {
 	artists = _artists;
 }
@@ -206,8 +210,16 @@ void Playlist::setMinDuration(const std::string& _minDuration) {
 	minDuration = _minDuration;
 }
 
+const std::vector<std::string>& Playlist::getWith(){
+    return with;
+}
+
 void Playlist::setWith(const std::vector<std::string>& _with) {
 	with = _with;
+}
+
+const std::vector<std::string>& Playlist::getWithout(){
+    return without;
 }
 
 void Playlist::setWithout(const std::vector<std::string>& _without) {

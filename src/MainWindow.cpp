@@ -10,6 +10,24 @@
 #include "MusicFolderModel.hpp"
 #include "Playlist.hpp"
 
+QStringList vectorToStringList(const std::vector<std::string> input){
+    QStringList output;
+    for(std::vector<std::string>::const_iterator iter = input.begin();
+        iter != input.end();
+        iter++) {
+        output.append(iter->c_str());
+    }
+    return output;
+}
+
+std::vector<std::string> stringListToVector(const QStringList& input){
+    std::vector<std::string> output;
+    foreach(QString str, input) {
+        output.push_back(str.toStdString());
+    }
+    return output;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow) {
@@ -27,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->inArtistButton, SIGNAL(clicked()), this, SLOT(selectArtist()));
 	connect(ui->outArtistButton, SIGNAL(clicked()), this, SLOT(deselectArtist()));
 	connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
+    connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(reset()));
 
 	musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
 
@@ -100,30 +119,15 @@ void MainWindow::generatePlaylist() {
 	playlist.setRating(ui->ratingSpinBox->value());
 	playlist.setMaxDuration(ui->maxDurationEdit->text().toStdString());
 	playlist.setMinDuration(ui->minDurationEdit->text().toStdString());
-	std::vector<std::string> artists;
-	foreach( QString str, selectedArtistsModel.stringList()) {
-		artists.push_back(str.toStdString());
-	}
-	playlist.setArtists(artists);
-
-	std::vector<std::string> keywords;
-	foreach(QString str, withKeywordsModel.stringList()) {
-		keywords.push_back(str.toStdString());
-	}
-	playlist.setWith(keywords);
-
-	keywords.clear();
-	foreach(QString str, withoutKeywordsModel.stringList()) {
-		keywords.push_back(str.toStdString());
-	}
-	playlist.setWithout(keywords);
+    playlist.setArtists(stringListToVector(selectedArtistsModel.stringList()));
+    playlist.setWith(stringListToVector(withKeywordsModel.stringList()));
+    playlist.setWithout(stringListToVector(withoutKeywordsModel.stringList()));
 
 	for(int i = 0; i < musicProxyModel->rowCount(); i++) {
 		QModelIndex index = musicProxyModel->index(i,0);
 		QModelIndex index2 = musicProxyModel->mapToSource(index);
 		playlist.add(musicModel->musicAt(index2.row()));
 	}
-
 	playlist.save();
 }
 
@@ -172,6 +176,27 @@ void MainWindow::loadPlaylist(QModelIndex index) {
 	ui->ratingSpinBox->setValue(playlist.getRating());
 	ui->maxDurationEdit->setText(playlist.getMaxDuration().c_str());
 	ui->minDurationEdit->setText(playlist.getMinDuration().c_str());
+
+    QStringList empty;
+    availableKeywordsModel.setStringList(empty);
+    availableArtistsModel.setStringList(empty);
+    selectedArtistsModel.setStringList(vectorToStringList(playlist.getArtists()));
+    withKeywordsModel.setStringList(vectorToStringList(playlist.getWith()));
+    withoutKeywordsModel.setStringList(vectorToStringList(playlist.getWithout()));
+    musicProxyModel->refilter();
+}
+
+void MainWindow::reset(){
+    QStringList empty;
+    withoutKeywordsModel.setStringList(empty);
+    withKeywordsModel.setStringList(empty);
+    availableArtistsModel.setStringList(empty);
+
+    selectedArtistsModel.setStringList(musicModel->getArtists());
+    availableKeywordsModel.setStringList(musicModel->getKeywords());
+    ui->musicView->resizeColumnsToContents();
+    ui->musicView->reset();
+    musicProxyModel->refilter();
 }
 
 void MainWindow::loadFolder() {
@@ -223,15 +248,5 @@ void MainWindow::loadFolderWith(bool regen) {
 		}
 	}
 	playlistModel.setStringList(playlistList);
-
-	QStringList empty;
-	withoutKeywordsModel.setStringList(empty);
-	withKeywordsModel.setStringList(empty);
-	availableArtistsModel.setStringList(empty);
-
-	selectedArtistsModel.setStringList(musicModel->getArtists());
-	availableKeywordsModel.setStringList(musicModel->getKeywords());
-	ui->musicView->resizeColumnsToContents();
-	ui->musicView->reset();
-	musicProxyModel->refilter();
+    reset();
 }

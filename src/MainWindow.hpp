@@ -34,6 +34,7 @@ class MainWindow : public QMainWindow {
 		void selectArtist();
 		void deselectArtist();
 		void loadPlaylist(QModelIndex);
+        void reset();
 
 	private:
 
@@ -44,7 +45,7 @@ class MainWindow : public QMainWindow {
 		CustomSortFilterProxyModel * musicProxyModel;
 
 		QItemSelectionModel * withoutKeywordsSelection;
-		QStringListModel withoutKeywordsModel;
+        QStringListModel withoutKeywordsModel;
 
 		QItemSelectionModel * availableKeywordsSelection;
 		QStringListModel availableKeywordsModel;

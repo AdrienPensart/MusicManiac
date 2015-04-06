@@ -235,11 +235,22 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="generatePlaylistButton">
-          <property name="text">
-           <string>Generate Playlist</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="resetButton">
+            <property name="text">
+             <string>Reset</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="generatePlaylistButton">
+            <property name="text">
+             <string>Generate Playlist</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
