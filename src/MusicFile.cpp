@@ -102,6 +102,14 @@ void MusicFile::setArtist(std::string _artist, bool erase) {
 	}
 }
 
+void MusicFile::setGenre(std::string _genre, bool erase) {
+	if(genre != _genre) {
+		modified |= erase;
+		genre = _genre;
+		//LOG << filepath + ", setting genre " + genre + " modified ? : " + Common::toString(modified);
+	}
+}
+
 void MusicFile::setKeywords(std::string _keywords, bool erase) {
 	if(keywords != _keywords) {
 		modified |= erase;
@@ -124,6 +132,10 @@ std::string MusicFile::getKeywords() const {
 
 std::string MusicFile::getArtist() const {
 	return artist;
+}
+
+std::string MusicFile::getGenre() const {
+	return genre;
 }
 
 std::vector<std::string> MusicFile::getSplittedKeywords() const {

@@ -2,13 +2,13 @@
 #include <common/Utility.hpp>
 
 #include <fstream>
-#include <sstream>
-#include <iterator>
 using namespace std;
 
 const std::string HEADER = "#EXTM3U";
 const std::string MUSICMANIAC = "#EXTREM:musicmaniac";
+const std::string ENDHEADER = "#EXTREM:endheader";
 const std::string ARTISTS = "#EXTREM:artists:";
+const std::string GENRES = "#EXTREM:genres:";
 const std::string RATING = "#EXTREM:rating:";
 const std::string MIN_DURATION = "#EXTREM:minDuration:";
 const std::string MAX_DURATION = "#EXTREM:maxDuration:";
@@ -17,15 +17,12 @@ const std::string WITH = "#EXTREM:with:";
 const std::string INF = "#EXTINF: ";
 const std::string UUID = "#EXTREM:uuid ";
 
-string implode(const std::vector<std::string>& strings, const std::string& delim = ",") {
-	std::ostringstream imploded;
-	std::copy(strings.begin(), strings.end(), std::ostream_iterator<std::string>(imploded, delim.c_str()));
-	std::string str = imploded.str();
-	return str.substr(0, str.size()-1);
+Playlist::Playlist(const std::string& _filepath) :
+	filepath(_filepath) {
 }
 
-Playlist::Playlist(std::string _filepath) :
-	filepath(_filepath) {
+std::string Playlist::getFilepath()const {
+	return filepath;
 }
 
 void Playlist::load() {
@@ -39,59 +36,35 @@ void Playlist::load() {
 		return;
 	}
 
-	std::string artistsLine;
-	std::getline(playlist, artistsLine);
-	if(artistsLine.find_first_of(ARTISTS) == string::npos) {
-		LOG << "Invalid playlist : no artists";
-		return;
+	std::string line;
+	while(line != ENDHEADER) {
+		std::getline(playlist, line);
+		LOG << line;
+		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
+			Common::split(line.substr(ARTISTS.size()), ",", artists);
+			LOG << "Getting artists : " + Common::implode(artists);
+		} else if(!line.compare(0, GENRES.length(), GENRES)) {
+			Common::split(line.substr(GENRES.size()), ",", genres);
+			LOG << "Getting genres : " + Common::implode(genres);
+		} else if(!line.compare(0, RATING.length(), RATING)) {
+			Common::fromString(line.substr(RATING.size()), rating);
+			LOG << "Getting rating : " + Common::toString(rating);
+		} else if(!line.compare(0, MIN_DURATION.length(), MIN_DURATION)) {
+			minDuration = line.substr(MIN_DURATION.size());
+			LOG << "Getting min duration : " + minDuration;
+		} else if(!line.compare(0, MAX_DURATION.length(), MAX_DURATION)) {
+			maxDuration = line.substr(MAX_DURATION.size());
+			LOG << "Getting max duration : " + maxDuration;
+		} else if(!line.compare(0, WITHOUT.length(), WITHOUT)) {
+			Common::split(line.substr(WITHOUT.size()), ",", without);
+			LOG << "Getting without keywords : " + Common::implode(without);
+		} else if(!line.compare(0, WITH.length(), WITH)) {
+			Common::split(line.substr(WITH.size()), ",", with);
+			LOG << "Getting with keywords : " + Common::implode(with);
+		} else {
+			LOG << "Unrecognized setting : " + line;
+		}
 	}
-	Common::split(artistsLine.substr(ARTISTS.size()), ",", artists);
-	LOG << "Getting artists : " + implode(artists);
-
-	std::string ratingLine;
-	std::getline(playlist, ratingLine);
-	if(ratingLine.find_first_of(RATING) == std::string::npos) {
-		LOG << "Invalid playlist : no rating";
-		return;
-	}
-	Common::fromString(ratingLine.substr(RATING.size()), rating);
-	LOG << "Getting rating : " + Common::toString(rating);
-
-	std::string minDurationLine;
-	std::getline(playlist, minDurationLine);
-	if(minDurationLine.find_first_of(MIN_DURATION) == std::string::npos) {
-		LOG << "Invalid playlist : no min duration";
-		return;
-	}
-	minDuration = minDurationLine.substr(MIN_DURATION.size());
-	LOG << "Getting min duration : " + minDuration;
-
-	std::string maxDurationLine;
-	std::getline(playlist, maxDurationLine);
-	if(maxDurationLine.find_first_of(MAX_DURATION) == std::string::npos) {
-		LOG << "Invalid playlist : no max duration";
-		return;
-	}
-	maxDuration = maxDurationLine.substr(MAX_DURATION.size());
-	LOG << "Getting max duration : " + maxDuration;
-
-	std::string withoutLine;
-	std::getline(playlist, withoutLine);
-	if(withoutLine.find_first_of(WITHOUT) == std::string::npos) {
-		LOG << "Invalid playlist : no without keywords";
-		return;
-	}
-	Common::split(withoutLine.substr(WITHOUT.size()), ",", without);
-	LOG << "Getting without keywords : " + implode(without);
-
-	std::string withLine;
-	std::getline(playlist, withLine);
-	if(withLine.find_first_of(WITH) == std::string::npos) {
-		LOG << "Invalid playlist : no with keywords";
-		return;
-	}
-	Common::split(withLine.substr(WITH.size()), ",", with);
-	LOG << "Getting with keywords : " + implode(with);
 }
 
 void Playlist::save() {
@@ -104,12 +77,14 @@ void Playlist::save() {
 	ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
 	m3u_file << HEADER << '\n';
 	m3u_file << MUSICMANIAC << '\n';
-	m3u_file << ARTISTS << implode(artists) << '\n';
+	m3u_file << ARTISTS << Common::implode(artists) << '\n';
+	m3u_file << GENRES << Common::implode(genres) << '\n';
 	m3u_file << RATING << rating << '\n';
 	m3u_file << MIN_DURATION << minDuration << '\n';
 	m3u_file << MAX_DURATION << maxDuration << '\n';
-	m3u_file << WITHOUT << implode(without) << '\n';
-	m3u_file << WITH << implode(with) << '\n';
+	m3u_file << WITHOUT << Common::implode(without) << '\n';
+	m3u_file << WITH << Common::implode(with) << '\n';
+	m3u_file << ENDHEADER << '\n';
 
 	for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++) {
 		string filepath = (*i)->getFilepath();
@@ -194,8 +169,8 @@ void Playlist::setMaxDuration(const std::string& _maxDuration) {
 	maxDuration = _maxDuration;
 }
 
-const std::vector<std::string>& Playlist::getArtists(){
-    return artists;
+const std::vector<std::string>& Playlist::getArtists() {
+	return artists;
 }
 
 void Playlist::setArtists(const std::vector<std::string>& _artists) {
@@ -210,18 +185,26 @@ void Playlist::setMinDuration(const std::string& _minDuration) {
 	minDuration = _minDuration;
 }
 
-const std::vector<std::string>& Playlist::getWith(){
-    return with;
+const std::vector<std::string>& Playlist::getWith() {
+	return with;
 }
 
 void Playlist::setWith(const std::vector<std::string>& _with) {
 	with = _with;
 }
 
-const std::vector<std::string>& Playlist::getWithout(){
-    return without;
+const std::vector<std::string>& Playlist::getWithout() {
+	return without;
 }
 
 void Playlist::setWithout(const std::vector<std::string>& _without) {
 	without = _without;
+}
+
+const std::vector<std::string>& Playlist::getGenres() {
+	return genres;
+}
+
+void Playlist::setGenres(const std::vector<std::string>& _genres) {
+	genres = _genres;
 }

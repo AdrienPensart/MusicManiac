@@ -43,7 +43,7 @@ bool MusicFileFactory::valid() {
 	return iterator != recursive_directory_iterator();
 }
 
-const std::vector<std::string>& MusicFileFactory::getPlaylists() {
+const std::vector<Playlist *>& MusicFileFactory::getPlaylists() {
 	return playlists;
 }
 
@@ -89,7 +89,7 @@ MusicFile * MusicFileFactory::factory() {
 			}
 		}
 	} else if(boost::algorithm::ends_with(iterator->path().native(), ".m3u")) {
-		playlists.push_back(iterator->path().native());
+		playlists.push_back(new Playlist(iterator->path().native()));
 	} else {
 		//LOG << "Music file not supported " + iterator.filePath().toStdString();
 	}

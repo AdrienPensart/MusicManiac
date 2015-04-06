@@ -9,6 +9,7 @@ class MP3File : public MusicFile {
 		MP3File(std::string filepath, TagLib::MPEG::File * mp3);
 		virtual void setKeywords(std::string);
 		virtual void setRating(double);
+		virtual void setGenre(std::string);
 
 	private:
 

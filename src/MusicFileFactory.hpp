@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "MusicFile.hpp"
+#include "Playlist.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -11,7 +12,7 @@ class MusicFileFactory {
 
 		MusicFileFactory(const std::string& folder, bool regen=false);
 		MusicFile * factory();
-		const std::vector<std::string>& getPlaylists();
+		const std::vector<Playlist *>& getPlaylists();
 		bool valid();
 		double progression();
 		int getTotalCount();
@@ -23,6 +24,6 @@ class MusicFileFactory {
 		const std::string folder;
 		unsigned int totalCount;
 		unsigned int readCount;
-		std::vector<std::string> playlists;
+		std::vector<Playlist*> playlists;
 		bool regen;
 };

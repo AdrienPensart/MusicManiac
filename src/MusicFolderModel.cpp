@@ -34,6 +34,16 @@ QStringList MusicFolderModel::getArtists() {
 	return sorted;
 }
 
+QStringList MusicFolderModel::getGenres() {
+	QStringList genres;
+	for(std::vector<MusicFile*>::const_iterator ci = musics.begin(); ci != musics.end() ; ci++) {
+		genres.append(QString::fromStdString((*ci)->getGenre()));
+	}
+	QStringList sorted = genres.toSet().toList();
+	sorted.sort();
+	return sorted;
+}
+
 const std::vector<MusicFile*>& MusicFolderModel::getMusics() const {
 	return musics;
 }
@@ -89,13 +99,13 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
 	}
 	/*
 	if(role == Qt::TextAlignmentRole) {
-	    return int(Qt::AlignHCenter | Qt::AlignVCenter);
+		return int(Qt::AlignHCenter | Qt::AlignVCenter);
 	}
 	*/
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole) {
 		MusicFile * rowMusic = musicAt(index.row());
-		if(rowMusic != 0) {
+		if(rowMusic) {
 			return infoAtColumn(rowMusic, index.column());
 		}
 	}
@@ -108,12 +118,15 @@ bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & valu
 		MusicFile * rowMusic = musicAt(index.row());
 		if(rowMusic) {
 			switch(index.column()) {
-			case COLUMN_RATING:
-				rowMusic->setRating(value.toDouble());
-				break;
-			case COLUMN_KEYWORDS:
-				rowMusic->setKeywords(value.toString().toStdString());
-				break;
+				case COLUMN_RATING:
+					rowMusic->setRating(value.toDouble());
+					break;
+				case COLUMN_KEYWORDS:
+					rowMusic->setKeywords(value.toString().toStdString());
+					break;
+				case COLUMN_GENRE:
+					rowMusic->setGenre(value.toString().toStdString());
+					break;
 			}
 			emit dataChanged(index, index);
 			return true;
@@ -125,21 +138,24 @@ bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & valu
 QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, int role) const {
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
-		case COLUMN_FILENAME:
-			return tr("Filename");
-			break;
-		case COLUMN_ARTIST:
-			return tr("Artist");
-			break;
-		case COLUMN_DURATION:
-			return tr("Duration");
-			break;
-		case COLUMN_RATING:
-			return tr("Rating");
-			break;
-		case COLUMN_KEYWORDS:
-			return tr("Keywords");
-			break;
+			case COLUMN_FILENAME:
+				return tr("Filename");
+				break;
+			case COLUMN_ARTIST:
+				return tr("Artist");
+				break;
+			case COLUMN_GENRE:
+				return tr("Genre");
+				break;
+			case COLUMN_DURATION:
+				return tr("Duration");
+				break;
+			case COLUMN_RATING:
+				return tr("Rating");
+				break;
+			case COLUMN_KEYWORDS:
+				return tr("Keywords");
+				break;
 		}
 	}
 	return QVariant();
@@ -151,23 +167,26 @@ QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int row) const {
 	}
 
 	switch(row) {
-	case COLUMN_FILENAME:
-		return mf->getFilename().c_str();
-		break;
-	case COLUMN_ARTIST:
-		return mf->getArtist().c_str();
-		break;
-	case COLUMN_DURATION:
-		return mf->getDuration().c_str();
-		break;
-	case COLUMN_RATING:
-		return mf->getRating();
-		break;
-	case COLUMN_KEYWORDS:
-		return mf->getKeywords().c_str();
-		break;
-	default:
-		return tr("Undefined");
+		case COLUMN_FILENAME:
+			return mf->getFilename().c_str();
+			break;
+		case COLUMN_ARTIST:
+			return mf->getArtist().c_str();
+			break;
+		case COLUMN_GENRE:
+			return mf->getGenre().c_str();
+			break;
+		case COLUMN_DURATION:
+			return mf->getDuration().c_str();
+			break;
+		case COLUMN_RATING:
+			return mf->getRating();
+			break;
+		case COLUMN_KEYWORDS:
+			return mf->getKeywords().c_str();
+			break;
+		default:
+			return tr("Undefined");
 	}
 	return "Undefined";
 }

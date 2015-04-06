@@ -5,7 +5,7 @@
 It's a little graphical interface to manage a big, ordered, detailed discography. Such as Buckethead one.
 If you don't know who is Buckethead just go to http://youtube.com !
 
-Some features : 
+Some features :
 
 * Supports FLAC and MP3 metadatas : artist, comment, duration, UUID, rating
 * Generate M3U playlists with informations based of metadatas
@@ -56,6 +56,4 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 
 ## ToDo
 
-- rsync window and execution
-- loaded playlists view and refresh button
-
+- playlist view

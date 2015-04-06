@@ -6,12 +6,14 @@
 
 #include "CustomSortFilterProxyModel.hpp"
 
+
 namespace Ui {
 	class MainWindow;
 }
 
 class MusicFile;
 class MusicFolderModel;
+class PlaylistModel;
 
 class MainWindow : public QMainWindow {
 		Q_OBJECT
@@ -23,6 +25,8 @@ class MainWindow : public QMainWindow {
 
 	private slots:
 
+		void about();
+		void aboutQt();
 		void generatePlaylist();
 		void loadFolder();
 		void loadFolderWithRegen();
@@ -30,11 +34,12 @@ class MainWindow : public QMainWindow {
 		void availableToWithout();
 		void availableToWith();
 		void withToAvailable();
-		void refreshPlaylist();
 		void selectArtist();
 		void deselectArtist();
+		void selectGenre();
+		void deselectGenre();
 		void loadPlaylist(QModelIndex);
-        void reset();
+		void reset();
 
 	private:
 
@@ -43,9 +48,9 @@ class MainWindow : public QMainWindow {
 		void loadFolderWith(bool regen);
 		MusicFolderModel * musicModel;
 		CustomSortFilterProxyModel * musicProxyModel;
-
+		const QStringList empty;
 		QItemSelectionModel * withoutKeywordsSelection;
-        QStringListModel withoutKeywordsModel;
+		QStringListModel withoutKeywordsModel;
 
 		QItemSelectionModel * availableKeywordsSelection;
 		QStringListModel availableKeywordsModel;
@@ -59,7 +64,13 @@ class MainWindow : public QMainWindow {
 		QItemSelectionModel * selectedArtistsSelection;
 		QStringListModel selectedArtistsModel;
 
-		QStringListModel playlistModel;
+		QItemSelectionModel * availableGenresSelection;
+		QStringListModel availableGenresModel;
+
+		QItemSelectionModel * selectedGenresSelection;
+		QStringListModel selectedGenresModel;
+
+		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
 };

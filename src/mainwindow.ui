@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>930</width>
-    <height>488</height>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,11 +31,11 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <layout class="QHBoxLayout" name="viewLayout">
+     <layout class="QHBoxLayout" name="musicLayout">
       <item>
-       <widget class="QListView" name="playlistView">
+       <widget class="QTableView" name="playlistView">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
@@ -69,7 +69,74 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="playlistLayout">
+     <layout class="QHBoxLayout" name="settingsLayout">
+      <item>
+       <layout class="QHBoxLayout" name="ratingLayout">
+        <item>
+         <widget class="QLabel" name="ratingLabel">
+          <property name="text">
+           <string>Minimum rating : </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="ratingSpinBox">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="maxDurationLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <item>
+         <widget class="QLabel" name="maxDurationLabel">
+          <property name="text">
+           <string>Max duration : </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="maxDurationEdit">
+          <property name="text">
+           <string>100:00</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="minDurationLayout">
+        <item>
+         <widget class="QLabel" name="minDurationLabel">
+          <property name="text">
+           <string>Min duration : </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="minDurationEdit">
+          <property name="text">
+           <string>00:00</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="keywordsLayout">
       <item>
        <layout class="QVBoxLayout" name="withoutKeywordsLayout">
         <item>
@@ -170,96 +237,11 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="playlistSettingsLayout">
-        <item>
-         <layout class="QHBoxLayout" name="minDurationLayout">
-          <item>
-           <widget class="QLabel" name="minDurationLabel">
-            <property name="text">
-             <string>Min duration : </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="minDurationEdit">
-            <property name="text">
-             <string>00:00</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="maxDurationLayout">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetDefaultConstraint</enum>
-          </property>
-          <item>
-           <widget class="QLabel" name="maxDurationLabel">
-            <property name="text">
-             <string>Max duration : </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="maxDurationEdit">
-            <property name="text">
-             <string>100:00</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="ratingLayout">
-          <item>
-           <widget class="QLabel" name="ratingLabel">
-            <property name="text">
-             <string>Minimum Rating : </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="ratingSpinBox">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>5.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="resetButton">
-            <property name="text">
-             <string>Reset</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="generatePlaylistButton">
-            <property name="text">
-             <string>Generate Playlist</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="artistLayout">
         <item>
-         <layout class="QVBoxLayout" name="availableArtistLayout">
+         <layout class="QVBoxLayout" name="availableArtistsLayout">
           <item>
-           <widget class="QLabel" name="availableArtistLabel">
+           <widget class="QLabel" name="availableArtistsLabel">
             <property name="text">
              <string>Available artists : </string>
             </property>
@@ -269,7 +251,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="availableArtistView">
+           <widget class="QListView" name="availableArtistsView">
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -302,9 +284,9 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="selectedArtistLayout">
+         <layout class="QVBoxLayout" name="selectedArtistsLayout">
           <item>
-           <widget class="QLabel" name="selectedArtistLabel">
+           <widget class="QLabel" name="selectedArtistsLabel">
             <property name="text">
              <string>Selected artists : </string>
             </property>
@@ -314,7 +296,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="selectedArtistView">
+           <widget class="QListView" name="selectedArtistsView">
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -327,6 +309,62 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="genresLayout">
+      <item>
+       <layout class="QVBoxLayout" name="availableGenresLayout">
+        <item>
+         <widget class="QLabel" name="availableGenresLabel">
+          <property name="text">
+           <string>Available genres : </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="availableGenresView"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="genreButtonsLayout">
+        <item>
+         <widget class="QPushButton" name="inGenreButton">
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="outGenreButton">
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="selectedGenresLabel">
+          <property name="text">
+           <string>Selected genres : </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="selectedGenresView"/>
         </item>
        </layout>
       </item>
@@ -347,13 +385,30 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen_Folder"/>
-    <addaction name="actionRegen_UUID"/>
-    <addaction name="actionRefresh_Playlist"/>
+    <addaction name="actionOpenFolder"/>
+    <addaction name="actionOpenRegenFolder"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuPlaylist">
+    <property name="title">
+     <string>Playlist</string>
+    </property>
+    <addaction name="actionGenerate"/>
+    <addaction name="actionReset"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionAboutQt"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuPlaylist"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="actionOpen_Folder">
+  <action name="actionOpenFolder">
    <property name="text">
     <string>Open Folder</string>
    </property>
@@ -368,7 +423,7 @@
     <string>Add missing FLAC UUID</string>
    </property>
   </action>
-  <action name="actionRegen_UUID">
+  <action name="actionOpenRegenFolder">
    <property name="text">
     <string>Open Folder (regen UUID)</string>
    </property>
@@ -386,8 +441,50 @@
     <string>Refresh Playlist</string>
    </property>
   </action>
+  <action name="actionGenerate">
+   <property name="text">
+    <string>Generate / Refresh</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>464</x>
+     <y>338</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
