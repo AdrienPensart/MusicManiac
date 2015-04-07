@@ -42,10 +42,11 @@ endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src)
-add_subdirectory(src/system)
+#add_subdirectory(src/system)
 add_subdirectory(src/network)
 add_subdirectory(src/log)
 
 add_executable(musicmaniac ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
-target_link_libraries(musicmaniac Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
+#target_link_libraries(musicmaniac Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
+target_link_libraries(musicmaniac Qt5::Widgets uuid tag network log ${Boost_LIBRARIES})
 

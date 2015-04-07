@@ -56,4 +56,3 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 
 ## ToDo
 
-- playlist view
