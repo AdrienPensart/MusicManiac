@@ -4,9 +4,3 @@
 [submodule "src/common"]
 	path = src/common
 	url = git@github.com:AdrienPensart/common.git
-[submodule "src/network"]
-	path = src/network
-	url = git@github.com:AdrienPensart/network.git
-[submodule "src/log"]
-	path = src/log
-	url = git@github.com:AdrienPensart/log.git

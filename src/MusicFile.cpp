@@ -24,9 +24,9 @@ MusicFile::MusicFile(const std::string& _filepath, TagLib::File * _file)
 			snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
 		}
 		duration = buffer;
-		//LOG << filepath + ", duration : " + duration;
+		// filepath + ", duration : " + duration;
 	} else {
-		//LOG << filepath + ", no duration";
+		// filepath + ", no duration";
 	}
 }
 
@@ -37,9 +37,9 @@ MusicFile::~MusicFile() {
 
 void MusicFile::save() {
 	if(modified) {
-		LOG << "saving " + filepath;
+		// "saving " + filepath;
 		if(!file->save()) {
-			LOG << "Failed.";
+			// "Failed.";
 		} else {
 			modified = false;
 		}
@@ -82,7 +82,7 @@ void MusicFile::setRating(double _rating, bool erase) {
 	if(rating != _rating) {
 		modified |= erase;
 		rating = _rating;
-		//LOG << filepath + ", setting rating : " + Common::toString(rating) + " modified ? : " + Common::toString(modified);
+		// filepath + ", setting rating : " + Common::toString(rating) + " modified ? : " + Common::toString(modified);
 	}
 }
 
@@ -90,7 +90,7 @@ void MusicFile::setUUID(std::string _uuid, bool erase) {
 	if(uuid != _uuid) {
 		modified |= erase;
 		uuid = _uuid;
-		//LOG << filepath + ", setting UUID " + uuid + " modified ? : " + Common::toString(modified);
+		// filepath + ", setting UUID " + uuid + " modified ? : " + Common::toString(modified);
 	}
 }
 
@@ -98,7 +98,7 @@ void MusicFile::setArtist(std::string _artist, bool erase) {
 	if(artist != _artist) {
 		modified |= erase;
 		artist = _artist;
-		//LOG << filepath + ", setting artist " + artist + " modified ? : " + Common::toString(modified);
+		// filepath + ", setting artist " + artist + " modified ? : " + Common::toString(modified);
 	}
 }
 
@@ -106,7 +106,7 @@ void MusicFile::setGenre(std::string _genre, bool erase) {
 	if(genre != _genre) {
 		modified |= erase;
 		genre = _genre;
-		//LOG << filepath + ", setting genre " + genre + " modified ? : " + Common::toString(modified);
+		// filepath + ", setting genre " + genre + " modified ? : " + Common::toString(modified);
 	}
 }
 
@@ -114,7 +114,7 @@ void MusicFile::setKeywords(std::string _keywords, bool erase) {
 	if(keywords != _keywords) {
 		modified |= erase;
 		keywords = _keywords;
-		//LOG << filepath + ", setting keywords : " + keywords + " modified ? : " + Common::toString(modified);
+		// filepath + ", setting keywords : " + keywords + " modified ? : " + Common::toString(modified);
 	}
 }
 

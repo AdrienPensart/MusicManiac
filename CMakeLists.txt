@@ -32,21 +32,9 @@ file(GLOB RES_FILES src/*.qrc)
 QT5_WRAP_UI(UI_HEADERS ${UI_FILES})
 QT5_ADD_RESOURCES(RESOURCES_RCC ${RES_FILES})
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-	message(STATUS "Debug mode enabled")
-	add_definitions(-DINNOCENCE_DEBUG)
-else()
-	message(STATUS "Release mode enabled")
-	add_definitions(-DINNOCENCE_DEBUG)
-endif()
-
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src)
-#add_subdirectory(src/system)
-add_subdirectory(src/network)
-add_subdirectory(src/log)
 
 add_executable(musicmaniac ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
-#target_link_libraries(musicmaniac Qt5::Widgets uuid tag system network log ${Boost_LIBRARIES})
-target_link_libraries(musicmaniac Qt5::Widgets uuid tag network log ${Boost_LIBRARIES})
+target_link_libraries(musicmaniac Qt5::Widgets uuid tag ${Boost_LIBRARIES})
 

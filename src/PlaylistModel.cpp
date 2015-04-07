@@ -1,4 +1,5 @@
 #include "PlaylistModel.hpp"
+#include "common/Utility.hpp"
 
 PlaylistModel::PlaylistModel(QObject *parent) :
 	QAbstractTableModel(parent) {
@@ -80,7 +81,7 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
 bool PlaylistModel::setData (const QModelIndex & index, const QVariant & value, int role) {
 	/*
 	if (index.isValid() && role == Qt::EditRole) {
-		LOG << "Setting data : " + value.toString().toStdString();
+		// "Setting data : " + value.toString().toStdString();
 		Playlist * rowMusic = musicAt(index.row());
 		if(rowMusic) {
 			switch(index.column()) {

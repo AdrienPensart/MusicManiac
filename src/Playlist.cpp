@@ -32,37 +32,37 @@ void Playlist::load() {
 	std::getline(playlist, header);
 	std::getline(playlist, musicmaniac);
 	if(header != HEADER || musicmaniac != MUSICMANIAC) {
-		LOG << "Not a MusicManiac playlist";
+		// "Not a MusicManiac playlist";
 		return;
 	}
 
 	std::string line;
 	while(line != ENDHEADER) {
 		std::getline(playlist, line);
-		LOG << line;
+		// line;
 		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
 			Common::split(line.substr(ARTISTS.size()), ",", artists);
-			LOG << "Getting artists : " + Common::implode(artists);
+			// "Getting artists : " + Common::implode(artists);
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
 			Common::split(line.substr(GENRES.size()), ",", genres);
-			LOG << "Getting genres : " + Common::implode(genres);
+			// "Getting genres : " + Common::implode(genres);
 		} else if(!line.compare(0, RATING.length(), RATING)) {
 			Common::fromString(line.substr(RATING.size()), rating);
-			LOG << "Getting rating : " + Common::toString(rating);
+			// "Getting rating : " + Common::toString(rating);
 		} else if(!line.compare(0, MIN_DURATION.length(), MIN_DURATION)) {
 			minDuration = line.substr(MIN_DURATION.size());
-			LOG << "Getting min duration : " + minDuration;
+			// "Getting min duration : " + minDuration;
 		} else if(!line.compare(0, MAX_DURATION.length(), MAX_DURATION)) {
 			maxDuration = line.substr(MAX_DURATION.size());
-			LOG << "Getting max duration : " + maxDuration;
+			// "Getting max duration : " + maxDuration;
 		} else if(!line.compare(0, WITHOUT.length(), WITHOUT)) {
 			Common::split(line.substr(WITHOUT.size()), ",", without);
-			LOG << "Getting without keywords : " + Common::implode(without);
+			// "Getting without keywords : " + Common::implode(without);
 		} else if(!line.compare(0, WITH.length(), WITH)) {
 			Common::split(line.substr(WITH.size()), ",", with);
-			LOG << "Getting with keywords : " + Common::implode(with);
+			// "Getting with keywords : " + Common::implode(with);
 		} else {
-			LOG << "Unrecognized setting : " + line;
+			// "Unrecognized setting : " + line;
 		}
 	}
 }
@@ -97,12 +97,12 @@ void Playlist::save() {
 }
 
 void Playlist::refresh( const std::vector<MusicFile *>& sources) {
-	LOG << "Refreshing playlist " + filepath;
+	// "Refreshing playlist " + filepath;
 	// filtering
 	for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++) {
 		bool cont = true;
 		if (std::find(artists.begin(), artists.end(), (*i)->getArtist()) == artists.end()) {
-			//LOG << (*i)->getArtist() + " : is not in artists list : " + implode(artists);
+			//// (*i)->getArtist() + " : is not in artists list : " + implode(artists);
 			cont = false;
 		}
 
@@ -116,7 +116,7 @@ void Playlist::refresh( const std::vector<MusicFile *>& sources) {
 		}
 
 		if((*i)->getRating() < rating && cont) {
-			//LOG << (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
+			//// (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
 			cont = false;
 		}
 
@@ -134,7 +134,7 @@ void Playlist::refresh( const std::vector<MusicFile *>& sources) {
 		if(min > currentDuration || max < currentDuration) {
 			cont = false;
 			/*
-			LOG << (*i)->getFilepath() +
+			// (*i)->getFilepath() +
 			   " is not in duration sequence : min = " + Common::toString(min) +
 			   " and max = " + Common::toString(max) +
 			   " and current = " + Common::toString(currentDuration);
@@ -142,7 +142,7 @@ void Playlist::refresh( const std::vector<MusicFile *>& sources) {
 		}
 
 		if(cont) {
-			LOG << "ADDING : " + (*i)->getFilepath();
+			// "ADDING : " + (*i)->getFilepath();
 			add(*i);
 		}
 	}

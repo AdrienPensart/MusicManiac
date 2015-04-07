@@ -50,7 +50,7 @@ const std::vector<MusicFile*>& MusicFolderModel::getMusics() const {
 
 void MusicFolderModel::clear() {
 	beginResetModel();
-	LOG << "Clearing music folder";
+	// "Clearing music folder";
 	for(std::vector<MusicFile*>::const_iterator ci = musics.begin(); ci != musics.end() ; ci++) {
 		delete *ci;
 	}
@@ -114,7 +114,7 @@ QVariant MusicFolderModel::data(const QModelIndex& index, int role) const {
 
 bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & value, int role) {
 	if (index.isValid() && role == Qt::EditRole) {
-		LOG << "Setting data : " + value.toString().toStdString();
+		// "Setting data : " + value.toString().toStdString();
 		MusicFile * rowMusic = musicAt(index.row());
 		if(rowMusic) {
 			switch(index.column()) {

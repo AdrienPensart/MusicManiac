@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 
-#include <log/Log.hpp>
-
 class MusicFile {
 	public:
 

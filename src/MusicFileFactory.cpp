@@ -16,14 +16,14 @@ MusicFileFactory::MusicFileFactory(const std::string& _folder, bool _regen) :
 	regen(_regen),
 	totalCount(0),
 	readCount(0) {
-	LOG << "Constructing directory " + folder;
+	// "Constructing directory " + folder;
 	try {
 		for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
 			totalCount++;
 		}
-		LOG << "Total count of files in " + folder + " : " + Common::toString(totalCount);
+		// "Total count of files in " + folder + " : " + Common::toString(totalCount);
 	} catch (boost::filesystem::filesystem_error& fex) {
-		LOG << "Exception " + std::string(fex.what());
+		// "Exception " + std::string(fex.what());
 	}
 }
 
@@ -58,13 +58,13 @@ MusicFile * MusicFileFactory::factory() {
 	if(boost::algorithm::ends_with(iterator->path().native(), ".mp3")) {
 		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator->path().c_str());
 		if(!mp3->audioProperties()) {
-			LOG << "No audio property";
+			// "No audio property";
 		} else if(!mp3->hasID3v2Tag()) {
-			LOG << "No ID3v2 Tag present";
+			// "No ID3v2 Tag present";
 		} else {
 			TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
 			if(!tag) {
-				LOG << "Tag invalid";
+				// "Tag invalid";
 			} else if(regen) {
 				tag->removeFrames("UFID");
 				mp3->save();
@@ -77,13 +77,13 @@ MusicFile * MusicFileFactory::factory() {
 	} else if(boost::algorithm::ends_with(iterator->path().native(), ".flac")) {
 		TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator->path().c_str());
 		if(!flac->audioProperties()) {
-			LOG << "No audio property";
+			// "No audio property";
 		} else if(!flac->hasXiphComment()) {
-			LOG << "No XiphComment present";
+			// "No XiphComment present";
 		} else {
 			TagLib::Ogg::XiphComment * tag = flac->xiphComment();
 			if(!tag) {
-				LOG << "Tag invalid";
+				// "Tag invalid";
 			} else {
 				mf = new FLACFile(iterator->path().native(), flac, regen);
 			}
@@ -91,7 +91,7 @@ MusicFile * MusicFileFactory::factory() {
 	} else if(boost::algorithm::ends_with(iterator->path().native(), ".m3u")) {
 		playlists.push_back(new Playlist(iterator->path().native()));
 	} else {
-		//LOG << "Music file not supported " + iterator.filePath().toStdString();
+		//// "Music file not supported " + iterator.filePath().toStdString();
 	}
 	++iterator;
 	return mf;

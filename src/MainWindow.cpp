@@ -114,7 +114,7 @@ void MainWindow::generatePlaylist() {
 		return;
 	}
 	QString finalPath = basefolder + "//" + fileName;
-	LOG << "Final path : " + finalPath.toStdString();
+	// "Final path : " + finalPath.toStdString();
 	Playlist playlist(finalPath.toStdString());
 
 	playlist.setRating(ui->ratingSpinBox->value());
@@ -179,7 +179,7 @@ void MainWindow::withToAvailable() {
 
 void MainWindow::loadPlaylist(QModelIndex index) {
 	QString playlistFilepath = playlistModel->itemData(index).first().toString();
-	LOG << playlistFilepath.toStdString();
+	// playlistFilepath.toStdString();
 	Playlist playlist(playlistFilepath.toStdString());
 	playlist.load();
 	ui->ratingSpinBox->setValue(playlist.getRating());
@@ -217,7 +217,7 @@ void MainWindow::loadFolderWithRegen() {
 void MainWindow::loadFolderWith(bool regen) {
 	basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	if(!basefolder.size()) {
-		LOG << "Invalid folder";
+		// "Invalid folder";
 		return;
 	}
 
@@ -239,7 +239,7 @@ void MainWindow::loadFolderWith(bool regen) {
 			progress.setValue(mff.getReadCount());
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
-		LOG << "Exception " + std::string(fex.what());
+		// "Exception " + std::string(fex.what());
 		progress.cancel();
 	}
 	ui->musicView->setUpdatesEnabled(true);
