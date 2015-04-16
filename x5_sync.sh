@@ -13,11 +13,9 @@ IFS=$(echo -en "\n\b")
 for i in $(find $1 -name "best.m3u" -o -name "all.m3u" ) ; do
     basefolder=$(dirname $i)
     artist=$(basename $basefolder)
-    destination=$2/$artist
     echo "i = $i"
     echo "Basefolder = $basefolder and artist = $artist"
-    echo "Destination = $destination"
-    #rsync -h --progress -v --update --files-from=$i $1 $2
+    sed "s|^$1/||g" $i | rsync -h --progress -v --update --files-from=- $1 $2
     cp $basefolder/*.m3u $2/$artist
     sed --in-place '/^#EXTREM/ d' $2/$artist/*.m3u
     sed --in-place -i "s|^$basefolder/||g" $2/$artist/*.m3u
