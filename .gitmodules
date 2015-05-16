@@ -4,6 +4,3 @@
 [submodule "src/common"]
 	path = src/common
 	url = git@github.com:AdrienPensart/common.git
-[submodule "src/inotify"]
-	path = src/inotify
-	url = git@github.com:erikzenker/Inotify.git
