@@ -11,6 +11,7 @@ class CustomSortFilterProxyModel : public QSortFilterProxyModel {
 
 		explicit CustomSortFilterProxyModel(QStringListModel& artists, QStringListModel& without, QStringListModel& with, QObject * parent=0);
 		void refilter();
+		QStringList getKeywords();
 
 	public slots:
 

@@ -40,6 +40,7 @@ class MainWindow : public QMainWindow {
 		void deselectGenre();
 		void loadPlaylist(QModelIndex);
 		void reset();
+		void rescanFolder(bool=false);
 
 	private:
 

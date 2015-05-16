@@ -142,7 +142,7 @@
         <item>
          <widget class="QLabel" name="wihtoutKeywordsLabel">
           <property name="text">
-           <string>Without : </string>
+           <string>Without keywords : </string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -181,7 +181,7 @@
         <item>
          <widget class="QLabel" name="availableKeywordsLabel">
           <property name="text">
-           <string>Available :</string>
+           <string>Available keywords :</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -220,7 +220,7 @@
         <item>
          <widget class="QLabel" name="withKeywordsLabel">
           <property name="text">
-           <string>With : </string>
+           <string>With keywords : </string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -235,6 +235,22 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <layout class="QHBoxLayout" name="artistLayout">
@@ -315,6 +331,22 @@
      </layout>
     </item>
     <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="genresLayout">
       <item>
        <layout class="QVBoxLayout" name="availableGenresLayout">
@@ -387,6 +419,7 @@
     </property>
     <addaction name="actionOpenFolder"/>
     <addaction name="actionOpenRegenFolder"/>
+    <addaction name="actionRescanFolder"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -464,6 +497,11 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionRescanFolder">
+   <property name="text">
+    <string>Rescan Folder</string>
    </property>
   </action>
  </widget>

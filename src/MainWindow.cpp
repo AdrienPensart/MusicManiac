@@ -1,6 +1,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QProgressDialog>
+#include <QDebug>
 
 #include "ui_mainwindow.h"
 
@@ -10,7 +11,7 @@
 #include "MusicFolderModel.hpp"
 #include "PlaylistModel.hpp"
 
-QStringList vectorToStringList(const std::vector<std::string> input) {
+QStringList vectorToStringList(const std::vector<std::string>& input) {
 	QStringList output;
 	for(std::vector<std::string>::const_iterator iter = input.begin(); iter != input.end(); iter++) {
 		output.append(iter->c_str());
@@ -36,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(about()));
 	connect(ui->actionOpenFolder, SIGNAL(triggered()), this, SLOT(loadFolder()));
 	connect(ui->actionOpenRegenFolder, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
+	connect(ui->actionRescanFolder, SIGNAL(triggered()), this, SLOT(rescanFolder()));
 	connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
 	connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
 	connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
@@ -186,12 +188,13 @@ void MainWindow::loadPlaylist(QModelIndex index) {
 	ui->maxDurationEdit->setText(playlist.getMaxDuration().c_str());
 	ui->minDurationEdit->setText(playlist.getMinDuration().c_str());
 
-	availableKeywordsModel.setStringList(empty);
 	availableArtistsModel.setStringList(empty);
 	selectedArtistsModel.setStringList(vectorToStringList(playlist.getArtists()));
+
 	withKeywordsModel.setStringList(vectorToStringList(playlist.getWith()));
 	withoutKeywordsModel.setStringList(vectorToStringList(playlist.getWithout()));
 	musicProxyModel->refilter();
+	availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
 }
 
 void MainWindow::reset() {
@@ -216,6 +219,10 @@ void MainWindow::loadFolderWithRegen() {
 
 void MainWindow::loadFolderWith(bool regen) {
 	basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	rescanFolder(regen);
+}
+
+void MainWindow::rescanFolder(bool regen){
 	if(!basefolder.size()) {
 		// "Invalid folder";
 		return;

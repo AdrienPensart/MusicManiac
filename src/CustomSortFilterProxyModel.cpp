@@ -1,5 +1,8 @@
 #include "CustomSortFilterProxyModel.hpp"
 #include "MusicFolderModel.hpp"
+#include <common/Utility.hpp>
+#include <QSet>
+#include <QDebug>
 
 CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _artists, QStringListModel& _without, QStringListModel& _with, QObject * parent)
 	:
@@ -29,6 +32,23 @@ void CustomSortFilterProxyModel::minDurationChanged(QString _minDuration) {
 void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration) {
 	maxDuration = _maxDuration;
 	refilter();
+}
+
+QStringList CustomSortFilterProxyModel::getKeywords(){
+	QStringList qsl;
+	for(int row = 0; row < rowCount(); row++){
+		QModelIndex keywords_index = index(row, MusicFolderModel::COLUMN_KEYWORDS);
+		QString keywords = data(keywords_index).toString();
+		std::vector<std::string> currentKeywords;
+		Common::split(keywords.toStdString(), " ", currentKeywords);
+		for(std::vector<std::string>::const_iterator si = currentKeywords.begin(); si != currentKeywords.end(); si++) {
+			qsl.append(QString::fromStdString(*si));
+		}
+	}
+
+	QStringList sorted = qsl.toSet().toList();
+	sorted.sort();
+	return sorted;
 }
 
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
