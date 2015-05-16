@@ -26,6 +26,11 @@ std::vector<std::string> stringListToVector(const QStringList& input) {
 	return output;
 }
 
+void MainWindow::showModified(const QString& str)
+{
+	QMessageBox::information(this,"Directory Modified", str + " modified");
+}
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow) {
@@ -47,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->outGenreButton, SIGNAL(clicked()), this, SLOT(deselectGenre()));
 	connect(ui->actionGenerate, SIGNAL(triggered()), this, SLOT(generatePlaylist()));
 	connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(reset()));
+
+	connect(&watcher, SIGNAL(directoryChanged(QString)), this, SLOT(showModified(QString)));
 
 	musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
 
@@ -220,6 +227,8 @@ void MainWindow::loadFolderWith(bool regen) {
 		// "Invalid folder";
 		return;
 	}
+
+	watcher.addPath(basefolder);
 
 	musicModel->clear();
 	MusicFileFactory mff(basefolder.toStdString(), regen);

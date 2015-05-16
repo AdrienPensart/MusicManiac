@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QItemSelectionModel>
+#include <QFileSystemWatcher>
 
 #include "CustomSortFilterProxyModel.hpp"
 
@@ -40,6 +41,7 @@ class MainWindow : public QMainWindow {
 		void deselectGenre();
 		void loadPlaylist(QModelIndex);
 		void reset();
+		void showModified(const QString& str);
 
 	private:
 
@@ -73,4 +75,5 @@ class MainWindow : public QMainWindow {
 		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
+		QFileSystemWatcher watcher;
 };

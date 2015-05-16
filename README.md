@@ -1,4 +1,4 @@
-# MusicManiac
+# MusicManiac (linux only)
 
 ## Description
 
@@ -54,5 +54,18 @@ Buckethead/1992 - Bucketheadland/CD1/28 - Computer Master.flac
 Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 ```
 
+## Service
+
+- X5, iPod syncer of best.mp3 and playlist marked as syncable
+- directory scanning
+- YouTube URL fetcher
+- playlists auto-updates
+- web stream
+
 ## ToDo
+
+- create background service for directory scanning and youtube URL fetcher
+- mark playlist to not sync with device
+- create ipod syncer
+- actor / service modeling
 
