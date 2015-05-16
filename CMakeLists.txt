@@ -36,8 +36,10 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # Main target
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_executable(musicmaniac ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
 target_link_libraries(musicmaniac Qt5::Widgets uuid tag ${Boost_LIBRARIES})
+#CMAKE 3.1 only : target_compile_features(musicmaniac PRIVATE cxx_range_for)
 
 # Test target
 #add_executable(musicmaniac_test test/test.cpp ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})

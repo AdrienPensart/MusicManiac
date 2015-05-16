@@ -1,7 +1,7 @@
-#ifndef MUSICFOLDERWATCHER_HPP
-#define MUSICFOLDERWATCHER_HPP
+#pragma once
 
 #include <QThread>
+#include "inotify/Inotify.h"
 
 class MusicFolderWatcher : public QThread
 {
@@ -9,10 +9,7 @@ class MusicFolderWatcher : public QThread
 	public:
 		explicit MusicFolderWatcher(QObject *parent = 0);
 
-	signals:
-
-	public slots:
+	protected:
+		void run();
 
 };
-
-#endif // MUSICFOLDERWATCHER_HPP
