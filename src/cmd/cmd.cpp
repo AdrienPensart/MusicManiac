@@ -24,6 +24,12 @@ int main(int argc, char * argv[]){
 		cout << "Exception " + std::string(fex.what());
 	}
 
+	std::vector<Playlist *> playlists = mff.getPlaylists();
+	for(std::vector<Playlist*>::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
+		(*playlist)->load();
+		(*playlist)->refresh(musics);
+	}
+
 	boost::filesystem::path dir(argv[1]);
 
 	std::cout << "Setup watches for " << dir <<"..." << std::endl;

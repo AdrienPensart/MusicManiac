@@ -17,6 +17,7 @@ class MusicFileFactory {
 		double progression();
 		int getTotalCount();
 		int getReadCount();
+		MusicFile * load(const std::string& filepath);
 
 	private:
 

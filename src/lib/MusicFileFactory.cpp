@@ -47,16 +47,9 @@ const std::vector<Playlist *>& MusicFileFactory::getPlaylists() {
 	return playlists;
 }
 
-MusicFile * MusicFileFactory::factory() {
-	if(!valid()) {
-		return 0;
-	}
-
-	readCount++;
-	MusicDebugger::instance().setCurrentMusic(iterator->path().native());
-	MusicFile * mf = 0;
-	if(boost::algorithm::ends_with(iterator->path().native(), ".mp3")) {
-		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(iterator->path().c_str());
+MusicFile * MusicFileFactory::load(const std::string& filepath){
+	if(boost::algorithm::ends_with(filepath, ".mp3")) {
+		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
 		if(!mp3->audioProperties()) {
 			// "No audio property";
 		} else if(!mp3->hasID3v2Tag()) {
@@ -70,12 +63,12 @@ MusicFile * MusicFileFactory::factory() {
 				mp3->save();
 				// reopen file
 				delete mp3;
-				mp3 = new TagLib::MPEG::File(iterator->path().c_str());
+				mp3 = new TagLib::MPEG::File(filepath.c_str());
 			}
-			mf = new MP3File(iterator->path().native(), mp3);
+			return new MP3File(filepath, mp3);
 		}
-	} else if(boost::algorithm::ends_with(iterator->path().native(), ".flac")) {
-		TagLib::FLAC::File * flac = new TagLib::FLAC::File(iterator->path().c_str());
+	} else if(boost::algorithm::ends_with(filepath, ".flac")) {
+		TagLib::FLAC::File * flac = new TagLib::FLAC::File(filepath.c_str());
 		if(!flac->audioProperties()) {
 			// "No audio property";
 		} else if(!flac->hasXiphComment()) {
@@ -85,14 +78,24 @@ MusicFile * MusicFileFactory::factory() {
 			if(!tag) {
 				// "Tag invalid";
 			} else {
-				mf = new FLACFile(iterator->path().native(), flac, regen);
+				return new FLACFile(filepath, flac, regen);
 			}
 		}
-	} else if(boost::algorithm::ends_with(iterator->path().native(), ".m3u")) {
-		playlists.push_back(new Playlist(iterator->path().native()));
+	} else if(boost::algorithm::ends_with(filepath, ".m3u")) {
+		playlists.push_back(new Playlist(filepath));
 	} else {
 		//// "Music file not supported " + iterator.filePath().toStdString();
 	}
+	return 0;
+}
+
+MusicFile * MusicFileFactory::factory() {
+	if(!valid()) {
+		return 0;
+	}
+	readCount++;
+	MusicDebugger::instance().setCurrentMusic(iterator->path().native());
+	MusicFile * mf = load(iterator->path().native());
 	++iterator;
 	return mf;
 }
