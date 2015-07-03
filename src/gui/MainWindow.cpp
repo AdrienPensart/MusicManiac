@@ -228,7 +228,6 @@ void MainWindow::rescanFolder(bool regen){
 		return;
 	}
 
-	mfw.start();
 	musicModel->clear();
 	MusicFileFactory mff(basefolder.toStdString(), regen);
 	QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);

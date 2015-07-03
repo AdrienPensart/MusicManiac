@@ -15,10 +15,14 @@ for i in $(find $1 -name "best.m3u" -o -name "all.m3u" ) ; do
     artist=$(basename $basefolder)
     echo "i = $i"
     echo "Basefolder = $basefolder and artist = $artist"
-    sed "s|^$1/||g" $i | rsync -h --progress -v --update --files-from=- $1 $2
+    sed "s|^$1/||g" $i | rsync -Prtvu --delete --files-from=- $1 $2
     cp $basefolder/*.m3u $2/$artist
     sed --in-place '/^#EXTREM/ d' $2/$artist/*.m3u
     sed --in-place -i "s|^$basefolder/||g" $2/$artist/*.m3u
 done
 IFS=$SAVEIFS
 
+# use a temp directory for cleaning deleted files
+# rm -rf $temp
+# rsync -r --link-dest=$dst --files-from=filelist.txt user@server:$source/ $temp
+# rsync -ra --delete --link-dest=$temp $temp/ $dest

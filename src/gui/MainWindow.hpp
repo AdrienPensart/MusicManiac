@@ -5,7 +5,6 @@
 #include <QItemSelectionModel>
 
 #include "CustomSortFilterProxyModel.hpp"
-#include "MusicFolderWatcher.hpp"
 
 namespace Ui {
 	class MainWindow;
@@ -74,5 +73,4 @@ class MainWindow : public QMainWindow {
 		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
-		MusicFolderWatcher mfw;
 };
