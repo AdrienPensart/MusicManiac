@@ -29,6 +29,8 @@ find_package(Qt5Widgets)
 file(GLOB LIB_SRC_FILES src/lib/*.cpp src/lib/*.hpp)
 file(GLOB CMD_SRC_FILES src/cmd/*.cpp src/cmd/*.hpp)
 file(GLOB GUI_SRC_FILES src/gui/*.cpp src/gui/*.hpp)
+file(GLOB COMMON_SRC_FILES src/common/*.hpp)
+
 file(GLOB UI_FILES src/gui/*.ui)
 file(GLOB RES_FILES src/gui/*.qrc)
 QT5_WRAP_UI(UI_HEADERS ${UI_FILES})
@@ -40,11 +42,11 @@ include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 
 # Main target
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-add_executable(musicmaniac ${GUI_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
+add_executable(musicmaniac ${GUI_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
 target_link_libraries(musicmaniac Qt5::Widgets uuid tag ${Boost_LIBRARIES})
 #CMAKE 3.1 only : target_compile_features(musicmaniac PRIVATE cxx_range_for)
 
-add_executable(musiccmd ${CMD_SRC_FILES} ${LIB_SRC_FILES})
+add_executable(musiccmd ${CMD_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES})
 target_link_libraries(musiccmd uuid tag ${Boost_LIBRARIES})
 
 # Test target

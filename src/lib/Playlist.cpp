@@ -26,7 +26,9 @@ std::string Playlist::getFilepath()const {
 }
 
 void Playlist::load() {
-	ifstream playlist(filepath.c_str());
+	Common::read_file (filepath, filecontent);
+	std::istringstream playlist(filecontent);
+
 	std::string header;
 	std::string musicmaniac;
 	std::getline(playlist, header);
@@ -74,26 +76,31 @@ void Playlist::save() {
 	}
 	string m3u = filepath;
 
-	ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
-	m3u_file << HEADER << '\n';
-	m3u_file << MUSICMANIAC << '\n';
-	m3u_file << ARTISTS << Common::implode(artists) << '\n';
-	m3u_file << GENRES << Common::implode(genres) << '\n';
-	m3u_file << RATING << rating << '\n';
-	m3u_file << MIN_DURATION << minDuration << '\n';
-	m3u_file << MAX_DURATION << maxDuration << '\n';
-	m3u_file << WITHOUT << Common::implode(without) << '\n';
-	m3u_file << WITH << Common::implode(with) << '\n';
-	m3u_file << ENDHEADER << '\n';
+	ostringstream m3u_content;
+	m3u_content << HEADER << '\n'
+				<< MUSICMANIAC << '\n'
+				<< ARTISTS << Common::implode(artists) << '\n'
+				<< GENRES << Common::implode(genres) << '\n'
+				<< RATING << rating << '\n'
+				<< MIN_DURATION << minDuration << '\n'
+				<< MAX_DURATION << maxDuration << '\n'
+				<< WITHOUT << Common::implode(without) << '\n'
+				<< WITH << Common::implode(with) << '\n'
+				<< ENDHEADER << '\n';
 
 	for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++) {
 		string filepath = (*i)->getFilepath();
 		size_t found = filepath.find_last_of("/");
-		m3u_file << INF << (*i)->getDurationInSeconds() << "," << filepath.substr(found+1) << '\n';
-		m3u_file << UUID << (*i)->getUUID() << '\n';
-		m3u_file << filepath << '\n';
+		m3u_content << INF << (*i)->getDurationInSeconds() << "," << filepath.substr(found+1) << '\n'
+					<< UUID << (*i)->getUUID() << '\n'
+					<< filepath << '\n';
 	}
-	m3u_file.close();
+
+	if(filecontent != m3u_content.str()){
+		ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
+		m3u_file << m3u_content.str();
+		m3u_file.close();
+	}
 }
 
 void Playlist::refresh( const std::vector<MusicFile *>& sources) {

@@ -31,6 +31,7 @@ class Playlist {
 
 	private:
 
+		std::string filecontent;
 		std::string filepath;
 		double rating;
 		std::string minDuration;
