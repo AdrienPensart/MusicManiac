@@ -2,6 +2,7 @@
 #include <common/Utility.hpp>
 
 #include <fstream>
+#include <iostream>
 using namespace std;
 
 const std::string HEADER = "#EXTM3U";
@@ -18,7 +19,7 @@ const std::string INF = "#EXTINF: ";
 const std::string UUID = "#EXTREM:uuid ";
 
 Playlist::Playlist(const std::string& _filepath) :
-	filepath(_filepath), rating(0) {
+	filepath(_filepath), rating(0), valid(true), minDuration("00:00"), maxDuration("100:00") {
 }
 
 std::string Playlist::getFilepath()const {
@@ -26,6 +27,10 @@ std::string Playlist::getFilepath()const {
 }
 
 void Playlist::refresh(Musics musics) {
+	if(!valid){
+		return;
+	}
+
 	// "Refreshing playlist " + filepath;
 	// filtering
 	for(Musics::iterator i = musics.begin();i != musics.end(); i++) {
@@ -88,9 +93,10 @@ void Playlist::load() {
 	std::getline(playlist, header);
 	std::getline(playlist, musicmaniac);
 	if(header != HEADER || musicmaniac != MUSICMANIAC) {
-		// "Not a MusicManiac playlist";
+		cout << "Not a MusicManiac playlist : " + filepath + "\n";
 		return;
 	}
+	valid = false;
 
 	std::string line;
 	while(line != ENDHEADER) {
@@ -98,32 +104,36 @@ void Playlist::load() {
 		// line;
 		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
 			Common::split(line.substr(ARTISTS.size()), ",", artists);
-			// "Getting artists : " + Common::implode(artists);
+			//cout << "Getting artists : " + Common::implode(artists) + "\n";
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
 			Common::split(line.substr(GENRES.size()), ",", genres);
-			// "Getting genres : " + Common::implode(genres);
+			//cout << "Getting genres : " + Common::implode(genres) + "\n";
 		} else if(!line.compare(0, RATING.length(), RATING)) {
 			Common::fromString(line.substr(RATING.size()), rating);
-			// "Getting rating : " + Common::toString(rating);
+			//cout << "Getting rating : " + Common::toString(rating) + "\n";
 		} else if(!line.compare(0, MIN_DURATION.length(), MIN_DURATION)) {
 			minDuration = line.substr(MIN_DURATION.size());
-			// "Getting min duration : " + minDuration;
+			//cout << "Getting min duration : " + minDuration + "\n";
 		} else if(!line.compare(0, MAX_DURATION.length(), MAX_DURATION)) {
 			maxDuration = line.substr(MAX_DURATION.size());
-			// "Getting max duration : " + maxDuration;
+			//cout << "Getting max duration : " + maxDuration + "\n";
 		} else if(!line.compare(0, WITHOUT.length(), WITHOUT)) {
 			Common::split(line.substr(WITHOUT.size()), ",", without);
-			// "Getting without keywords : " + Common::implode(without);
+			//cout << "Getting without keywords : " + Common::implode(without) + "\n";
 		} else if(!line.compare(0, WITH.length(), WITH)) {
 			Common::split(line.substr(WITH.size()), ",", with);
-			// "Getting with keywords : " + Common::implode(with);
+			//cout << "Getting with keywords : " + Common::implode(with) + "\n";
 		} else {
-			// "Unrecognized setting : " + line;
+			//cout << "Unrecognized setting : " + line;
 		}
 	}
 }
 
 void Playlist::save() {
+	if(!valid){
+		return;
+	}
+
 	const std::string m3uExt = ".m3u";
 	if(filepath.size() >= m3uExt.size() && filepath.substr(filepath.size()-m3uExt.size()) != m3uExt) {
 		filepath += m3uExt;
@@ -150,10 +160,13 @@ void Playlist::save() {
 	}
 
 	if(filecontent != m3u_content.str()){
+		cout << "Updating playlist : " << filepath << '\n';
 		ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
 		m3u_file << m3u_content.str();
 		m3u_file.close();
 		filecontent = m3u_content.str();
+	} else {
+		cout << "Playlist did not changed : " << filepath << '\n';
 	}
 }
 

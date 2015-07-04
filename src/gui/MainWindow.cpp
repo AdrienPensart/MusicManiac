@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionOpenFolder, SIGNAL(triggered()), this, SLOT(loadFolder()));
 	connect(ui->actionOpenRegenFolder, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
 	connect(ui->actionRescanFolder, SIGNAL(triggered()), this, SLOT(rescanFolder()));
+	connect(ui->actionGenerateBest, SIGNAL(triggered()), this, SLOT(generateBest()));
 	connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
 	connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
 	connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
@@ -98,6 +99,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
 	delete ui;
+}
+
+void MainWindow::generateBest(){
+	auto musics = musicModel->getMusics();
+	Musics mappedMusics;
+	for(auto& music : musics){
+		mappedMusics[music->getFilepath()] = music;
+	}
+
+	foreach (const QString &artist, selectedArtistsModel.stringList()) {
+		Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/best.m3u");
+		playlist.setRating(4);
+		std::vector<std::string> artists;
+		artists.push_back(artist.toStdString());
+		playlist.setArtists(artists);
+		playlist.refresh(mappedMusics);
+		playlist.save();
+	}
 }
 
 void MainWindow::generatePlaylist() {
@@ -228,7 +247,6 @@ void MainWindow::rescanFolder(bool regen){
 		return;
 	}
 
-	musicModel->clear();
 	MusicFileFactory mff(basefolder.toStdString(), regen);
 	QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
 	progress.setWindowModality(Qt::WindowModal);
@@ -250,11 +268,13 @@ void MainWindow::rescanFolder(bool regen){
 	//ui->musicView->setUpdatesEnabled(true);
 
 	Musics musics = mff.getMusics();
+	musicModel->clear();
 	for(Musics::iterator i = musics.begin(); i != musics.end(); i++){
 		musicModel->add(i->second);
 	}
 
 	Playlists playlists = mff.getPlaylists();
+	playlistModel->clear();
 	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
 		playlistModel->add(i->second);
 	}

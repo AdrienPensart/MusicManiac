@@ -338,7 +338,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QHBoxLayout" name="genresLayout">
         <item>
          <layout class="QVBoxLayout" name="availableGenresLayout">
@@ -451,6 +451,7 @@
      <string>Playlist</string>
     </property>
     <addaction name="actionGenerate"/>
+    <addaction name="actionGenerateBest"/>
     <addaction name="actionReset"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -525,6 +526,11 @@
   <action name="actionRescanFolder">
    <property name="text">
     <string>Rescan Folder</string>
+   </property>
+  </action>
+  <action name="actionGenerateBest">
+   <property name="text">
+    <string>Generate best.m3u</string>
    </property>
   </action>
  </widget>

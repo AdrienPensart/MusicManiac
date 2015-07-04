@@ -32,6 +32,7 @@ class Playlist {
 
 	private:
 
+		bool valid;
 		std::string filecontent;
 		std::string filepath;
 		double rating;
