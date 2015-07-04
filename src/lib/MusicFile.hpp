@@ -4,6 +4,7 @@
 #include <taglib/fileref.h>
 #include <vector>
 #include <string>
+#include <map>
 
 class MusicFile {
 	public:
@@ -49,3 +50,5 @@ class MusicFile {
 		std::string uuid;
 		std::string duration;
 };
+
+typedef std::map<std::string, MusicFile*> Musics;

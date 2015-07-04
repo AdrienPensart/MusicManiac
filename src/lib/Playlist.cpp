@@ -18,11 +18,65 @@ const std::string INF = "#EXTINF: ";
 const std::string UUID = "#EXTREM:uuid ";
 
 Playlist::Playlist(const std::string& _filepath) :
-	filepath(_filepath) {
+	filepath(_filepath), rating(0) {
 }
 
 std::string Playlist::getFilepath()const {
 	return filepath;
+}
+
+void Playlist::refresh(Musics musics) {
+	// "Refreshing playlist " + filepath;
+	// filtering
+	for(Musics::iterator i = musics.begin();i != musics.end(); i++) {
+		MusicFile * music = i->second;
+		bool cont = true;
+		if (std::find(artists.begin(), artists.end(), music->getArtist()) == artists.end()) {
+			//// music->getArtist() + " : is not in artists list : " + implode(artists);
+			cont = false;
+		}
+
+		const std::vector<std::string> splittedKeywords = music->getSplittedKeywords();
+		if(cont) {
+			cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), without.begin(), without.end()) == splittedKeywords.end();
+		}
+
+		if(with.size() && cont) {
+			cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), with.begin(), with.end()) != splittedKeywords.end();
+		}
+
+		if(music->getRating() < rating && cont) {
+			//// music->getFilepath() + " : rating does not match : " + Common::toString(music->getRating()) + " < " + Common::toString(vrating);
+			cont = false;
+		}
+
+		unsigned int currentDuration = music->getDurationInSeconds();
+		std::string tempMinDuration = minDuration;
+		tempMinDuration.erase(std::remove(tempMinDuration.begin(), tempMinDuration.end(), ':'), tempMinDuration.end());
+		unsigned int min = 0;
+		Common::fromString(tempMinDuration, min);
+
+		std::string tempMaxDuration = maxDuration;
+		tempMaxDuration.erase(std::remove(tempMaxDuration.begin(), tempMaxDuration.end(), ':'), tempMaxDuration.end());
+		unsigned int max = 0;
+		Common::fromString(tempMaxDuration, max);
+
+		if(min > currentDuration || max < currentDuration) {
+			cont = false;
+			/*
+			// music->getFilepath() +
+			   " is not in duration sequence : min = " + Common::toString(min) +
+			   " and max = " + Common::toString(max) +
+			   " and current = " + Common::toString(currentDuration);
+			*/
+		}
+
+		if(cont) {
+			// "ADDING : " + music->getFilepath();
+			add(music);
+		}
+	}
+	save();
 }
 
 void Playlist::load() {
@@ -88,76 +142,23 @@ void Playlist::save() {
 				<< WITH << Common::implode(with) << '\n'
 				<< ENDHEADER << '\n';
 
-	for(vector<MusicFile *>::const_iterator i = musics.begin(); i != musics.end(); i++) {
-		string filepath = (*i)->getFilepath();
+	for(Musics::const_iterator i = musics.begin(); i != musics.end(); i++) {
 		size_t found = filepath.find_last_of("/");
-		m3u_content << INF << (*i)->getDurationInSeconds() << "," << filepath.substr(found+1) << '\n'
-					<< UUID << (*i)->getUUID() << '\n'
-					<< filepath << '\n';
+		m3u_content << INF << i->second->getDurationInSeconds() << "," << i->first.substr(found+1) << '\n'
+					<< UUID << i->second->getUUID() << '\n'
+					<< i->first << '\n';
 	}
 
 	if(filecontent != m3u_content.str()){
 		ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
 		m3u_file << m3u_content.str();
 		m3u_file.close();
+		filecontent = m3u_content.str();
 	}
-}
-
-void Playlist::refresh( const std::vector<MusicFile *>& sources) {
-	// "Refreshing playlist " + filepath;
-	// filtering
-	for(std::vector<MusicFile *>::const_iterator i = sources.begin(); i != sources.end(); i++) {
-		bool cont = true;
-		if (std::find(artists.begin(), artists.end(), (*i)->getArtist()) == artists.end()) {
-			//// (*i)->getArtist() + " : is not in artists list : " + implode(artists);
-			cont = false;
-		}
-
-		const std::vector<std::string> splittedKeywords = (*i)->getSplittedKeywords();
-		if(cont) {
-			cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), without.begin(), without.end()) == splittedKeywords.end();
-		}
-
-		if(with.size() && cont) {
-			cont = std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), with.begin(), with.end()) != splittedKeywords.end();
-		}
-
-		if((*i)->getRating() < rating && cont) {
-			//// (*i)->getFilepath() + " : rating does not match : " + Common::toString((*i)->getRating()) + " < " + Common::toString(vrating);
-			cont = false;
-		}
-
-		unsigned int currentDuration = (*i)->getDurationInSeconds();
-		std::string tempMinDuration = minDuration;
-		tempMinDuration.erase(std::remove(tempMinDuration.begin(), tempMinDuration.end(), ':'), tempMinDuration.end());
-		unsigned int min = 0;
-		Common::fromString(tempMinDuration, min);
-
-		std::string tempMaxDuration = maxDuration;
-		tempMaxDuration.erase(std::remove(tempMaxDuration.begin(), tempMaxDuration.end(), ':'), tempMaxDuration.end());
-		unsigned int max = 0;
-		Common::fromString(tempMaxDuration, max);
-
-		if(min > currentDuration || max < currentDuration) {
-			cont = false;
-			/*
-			// (*i)->getFilepath() +
-			   " is not in duration sequence : min = " + Common::toString(min) +
-			   " and max = " + Common::toString(max) +
-			   " and current = " + Common::toString(currentDuration);
-			*/
-		}
-
-		if(cont) {
-			// "ADDING : " + (*i)->getFilepath();
-			add(*i);
-		}
-	}
-	save();
 }
 
 void Playlist::add(MusicFile * music) {
-	musics.push_back(music);
+	musics[music->getFilepath()] = music;
 }
 
 double Playlist::getRating() {

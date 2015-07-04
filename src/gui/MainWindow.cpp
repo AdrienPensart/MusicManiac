@@ -232,32 +232,35 @@ void MainWindow::rescanFolder(bool regen){
 	MusicFileFactory mff(basefolder.toStdString(), regen);
 	QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
 	progress.setWindowModality(Qt::WindowModal);
+	progress.show();
 
-	ui->musicView->setUpdatesEnabled(false);
+	//ui->musicView->setUpdatesEnabled(false);
 	try {
-		while(mff.valid()) {
+		while(mff.factory()) {
 			if (progress.wasCanceled()) {
 				break;
 			}
-			MusicFile * mf = mff.factory();
-			if(mf) {
-				musicModel->add(mf);
-			}
 			progress.setValue(mff.getReadCount());
+			QApplication::processEvents();
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
 		// "Exception " + std::string(fex.what());
 		progress.cancel();
 	}
-	ui->musicView->setUpdatesEnabled(true);
+	//ui->musicView->setUpdatesEnabled(true);
+
+	Musics musics = mff.getMusics();
+	for(Musics::iterator i = musics.begin(); i != musics.end(); i++){
+		musicModel->add(i->second);
+	}
+
+	Playlists playlists = mff.getPlaylists();
+	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
+		playlistModel->add(i->second);
+	}
 
 	if (!progress.wasCanceled()) {
-		std::vector<Playlist *> playlists = mff.getPlaylists();
-		for(std::vector<Playlist*>::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
-			(*playlist)->load();
-			(*playlist)->refresh(musicModel->getMusics());
-			playlistModel->add(*playlist);
-		}
+		mff.refreshPlaylists();
 	}
 	reset();
 }

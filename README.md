@@ -64,7 +64,7 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 
 ## ToDo
 
-- create background service for directory scanning and youtube URL fetcher
+- youtube URL fetcher integration in db
 - mark playlist to not sync with device
 - create ipod syncer
 - album mood

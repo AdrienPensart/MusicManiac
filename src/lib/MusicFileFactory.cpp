@@ -1,4 +1,6 @@
 #include <taglib/id3v2tag.h>
+#include <iostream>
+using namespace std;
 
 #include "MusicFileFactory.hpp"
 #include "MP3File.hpp"
@@ -27,15 +29,15 @@ MusicFileFactory::MusicFileFactory(const std::string& _folder, bool _regen) :
 	}
 }
 
-int MusicFileFactory::getTotalCount() {
+int MusicFileFactory::getTotalCount() const {
 	return totalCount;
 }
 
-int MusicFileFactory::getReadCount() {
+int MusicFileFactory::getReadCount() const {
 	return readCount;
 }
 
-double MusicFileFactory::progression() {
+double MusicFileFactory::progression() const {
 	return (double)readCount / (double)totalCount;
 }
 
@@ -43,11 +45,15 @@ bool MusicFileFactory::valid() {
 	return iterator != recursive_directory_iterator();
 }
 
-const std::vector<Playlist *>& MusicFileFactory::getPlaylists() {
+const Playlists& MusicFileFactory::getPlaylists() const {
 	return playlists;
 }
 
-MusicFile * MusicFileFactory::load(const std::string& filepath){
+const Musics& MusicFileFactory::getMusics() const{
+	return musics;
+}
+
+void MusicFileFactory::load(const std::string& filepath){
 	if(boost::algorithm::ends_with(filepath, ".mp3")) {
 		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
 		if(!mp3->audioProperties()) {
@@ -65,7 +71,11 @@ MusicFile * MusicFileFactory::load(const std::string& filepath){
 				delete mp3;
 				mp3 = new TagLib::MPEG::File(filepath.c_str());
 			}
-			return new MP3File(filepath, mp3);
+			if(musics.count(filepath)){
+				cout << "Music already exists, deleting old..." << filepath << '\n';
+				delete musics[filepath];
+			}
+			musics[filepath] = new MP3File(filepath, mp3);
 		}
 	} else if(boost::algorithm::ends_with(filepath, ".flac")) {
 		TagLib::FLAC::File * flac = new TagLib::FLAC::File(filepath.c_str());
@@ -78,24 +88,38 @@ MusicFile * MusicFileFactory::load(const std::string& filepath){
 			if(!tag) {
 				// "Tag invalid";
 			} else {
-				return new FLACFile(filepath, flac, regen);
+				if(musics.count(filepath)){
+					cout << "Music already exists, deleting old..." << filepath << '\n';
+					delete musics[filepath];
+				}
+				musics[filepath] = new FLACFile(filepath, flac, regen);
 			}
 		}
 	} else if(boost::algorithm::ends_with(filepath, ".m3u")) {
-		playlists.push_back(new Playlist(filepath));
+		if(playlists.count(filepath)){
+			cout << "Playlist already exists, deleting old..." << filepath << '\n';
+			delete playlists[filepath];
+		}
+		playlists[filepath] = new Playlist(filepath);
 	} else {
 		//// "Music file not supported " + iterator.filePath().toStdString();
 	}
-	return 0;
 }
 
-MusicFile * MusicFileFactory::factory() {
+void MusicFileFactory::refreshPlaylists(){
+	for(Playlists::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
+		playlist->second->load();
+		playlist->second->refresh(musics);
+	}
+}
+
+bool MusicFileFactory::factory() {
 	if(!valid()) {
-		return 0;
+		return false;
 	}
 	readCount++;
 	MusicDebugger::instance().setCurrentMusic(iterator->path().native());
-	MusicFile * mf = load(iterator->path().native());
+	load(iterator->path().native());
 	++iterator;
-	return mf;
+	return true;
 }

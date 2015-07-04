@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <map>
 #include "MusicFile.hpp"
+#include "common/Utility.hpp"
 
 class Playlist {
 	public:
@@ -10,7 +11,7 @@ class Playlist {
 		Playlist(const std::string& filepath);
 		void add(MusicFile * file);
 		void load();
-		void refresh(const std::vector<MusicFile *>& sources);
+		void refresh(Musics musics);
 		void save();
 
 		std::string getFilepath()const;
@@ -40,5 +41,7 @@ class Playlist {
 		std::vector<std::string> artists;
 		std::vector<std::string> without;
 		std::vector<std::string> with;
-		std::vector<MusicFile *> musics;
+		Musics musics;
 };
+
+typedef std::map<std::string, Playlist*> Playlists;

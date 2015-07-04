@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <string>
 #include "MusicFile.hpp"
 #include "Playlist.hpp"
@@ -11,13 +10,15 @@ class MusicFileFactory {
 	public:
 
 		MusicFileFactory(const std::string& folder, bool regen=false);
-		MusicFile * factory();
-		const std::vector<Playlist *>& getPlaylists();
+		bool factory();
+		void refreshPlaylists();
+		const Musics& getMusics()const;
+		const Playlists& getPlaylists()const;
 		bool valid();
-		double progression();
-		int getTotalCount();
-		int getReadCount();
-		MusicFile * load(const std::string& filepath);
+		double progression() const;
+		int getTotalCount() const;
+		int getReadCount() const;
+		void load(const std::string& filepath);
 
 	private:
 
@@ -25,6 +26,7 @@ class MusicFileFactory {
 		const std::string folder;
 		unsigned int totalCount;
 		unsigned int readCount;
-		std::vector<Playlist*> playlists;
+		Musics musics;
+		Playlists playlists;
 		bool regen;
 };
