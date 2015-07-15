@@ -38,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionOpenFolder, SIGNAL(triggered()), this, SLOT(loadFolder()));
 	connect(ui->actionOpenRegenFolder, SIGNAL(triggered()), this, SLOT(loadFolderWithRegen()));
 	connect(ui->actionRescanFolder, SIGNAL(triggered()), this, SLOT(rescanFolder()));
-	connect(ui->actionGenerateBest, SIGNAL(triggered()), this, SLOT(generateBest()));
 	connect(ui->inWithButton, SIGNAL(clicked()), this, SLOT(availableToWith()));
 	connect(ui->outWithButton, SIGNAL(clicked()), this, SLOT(withToAvailable()));
 	connect(ui->inWithoutButton, SIGNAL(clicked()), this, SLOT(availableToWithout()));
@@ -233,7 +232,6 @@ void MainWindow::rescanFolder(bool regen){
 	progress.setWindowModality(Qt::WindowModal);
 	progress.show();
 
-	//ui->musicView->setUpdatesEnabled(false);
 	try {
 		while(collection.factory()) {
 			if (progress.wasCanceled()) {
@@ -246,7 +244,6 @@ void MainWindow::rescanFolder(bool regen){
 		// "Exception " + std::string(fex.what());
 		progress.cancel();
 	}
-	//ui->musicView->setUpdatesEnabled(true);
 
 	auto musics = collection.getMusics();
 	musicModel->clear();
@@ -254,6 +251,7 @@ void MainWindow::rescanFolder(bool regen){
 		musicModel->add(i->second);
 	}
 
+	/*
 	auto playlists = collection.getPlaylists();
 	playlistModel->clear();
 	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
@@ -263,6 +261,11 @@ void MainWindow::rescanFolder(bool regen){
 	if (!progress.wasCanceled()) {
 		collection.refreshPlaylists();
 	}
+	*/
+	reset();
+
+	std::vector<std::string> without;
+	without.push_back("cutoff");
 
 	// generate best.m3u playlists
 	// mainly for sync purpose
@@ -271,14 +274,33 @@ void MainWindow::rescanFolder(bool regen){
 		playlist.setRating(4);
 		std::vector<std::string> artists;
 		artists.push_back(artist.toStdString());
+		playlist.setWithout(without);
 		playlist.setArtists(artists);
 		playlist.refresh(musics);
 		playlist.save();
+		std::cout << "Generating " << playlist.getFilepath().data() << "\n";
 	}
 
-	// generate all keywords playlists
+	// generate all keywords playlists for each artist
+	foreach (const QString &artist, selectedArtistsModel.stringList()) {
+		foreach (const QString &keyword, availableKeywordsModel.stringList()) {
+			Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/"+keyword.toStdString()+".m3u");
+			playlist.setRating(4);
+			std::vector<std::string> artists;
+			artists.push_back(artist.toStdString());
+			std::vector<std::string> with;
+			with.push_back(keyword.toStdString());
+			playlist.setWith(with);
+			playlist.setWithout(without);
+			playlist.setArtists(artists);
+			playlist.refresh(musics);
 
-	reset();
+			if(playlist.size() >= 3){
+				playlist.save();
+				std::cout << "Generating " << playlist.getFilepath().data() << "\n";
+			}
+		}
+	}
 }
 
 void MainWindow::aboutQt() {

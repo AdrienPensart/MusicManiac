@@ -26,6 +26,10 @@ std::string Playlist::getFilepath()const {
 	return filepath;
 }
 
+size_t Playlist::size()const {
+	return musics.size();
+}
+
 void Playlist::refresh(Musics musics) {
 	if(!valid){
 		return;
@@ -81,7 +85,6 @@ void Playlist::refresh(Musics musics) {
 			add(music);
 		}
 	}
-	save();
 }
 
 void Playlist::load() {

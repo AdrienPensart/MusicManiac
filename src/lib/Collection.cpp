@@ -1,5 +1,6 @@
 #include <taglib/id3v2tag.h>
 #include <iostream>
+#include <unordered_set>
 using namespace std;
 
 #include "Collection.hpp"

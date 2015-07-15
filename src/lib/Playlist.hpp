@@ -13,6 +13,7 @@ class Playlist {
 		void load();
 		void refresh(Musics musics);
 		void save();
+		size_t size()const;
 
 		std::string getFilepath()const;
 		double getRating();
