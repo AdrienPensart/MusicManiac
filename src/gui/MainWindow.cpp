@@ -7,7 +7,7 @@
 
 #include "common/Utility.hpp"
 #include "MainWindow.hpp"
-#include "MusicFileFactory.hpp"
+#include "Collection.hpp"
 #include "MusicFolderModel.hpp"
 #include "PlaylistModel.hpp"
 
@@ -48,7 +48,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
 	connect(ui->inGenreButton, SIGNAL(clicked()), this, SLOT(selectGenre()));
 	connect(ui->outGenreButton, SIGNAL(clicked()), this, SLOT(deselectGenre()));
-	connect(ui->actionGenerate, SIGNAL(triggered()), this, SLOT(generatePlaylist()));
 	connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(reset()));
 
 	musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
@@ -99,24 +98,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
 	delete ui;
-}
-
-void MainWindow::generateBest(){
-	auto musics = musicModel->getMusics();
-	Musics mappedMusics;
-	for(auto& music : musics){
-		mappedMusics[music->getFilepath()] = music;
-	}
-
-	foreach (const QString &artist, selectedArtistsModel.stringList()) {
-		Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/best.m3u");
-		playlist.setRating(4);
-		std::vector<std::string> artists;
-		artists.push_back(artist.toStdString());
-		playlist.setArtists(artists);
-		playlist.refresh(mappedMusics);
-		playlist.save();
-	}
 }
 
 void MainWindow::generatePlaylist() {
@@ -247,18 +228,18 @@ void MainWindow::rescanFolder(bool regen){
 		return;
 	}
 
-	MusicFileFactory mff(basefolder.toStdString(), regen);
-	QProgressDialog progress("Loading your music...", "Abort", 0, mff.getTotalCount(), this);
+	Collection collection(basefolder.toStdString(), regen);
+	QProgressDialog progress("Loading your music...", "Abort", 0, collection.getTotalCount(), this);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.show();
 
 	//ui->musicView->setUpdatesEnabled(false);
 	try {
-		while(mff.factory()) {
+		while(collection.factory()) {
 			if (progress.wasCanceled()) {
 				break;
 			}
-			progress.setValue(mff.getReadCount());
+			progress.setValue(collection.getReadCount());
 			QApplication::processEvents();
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
@@ -267,21 +248,36 @@ void MainWindow::rescanFolder(bool regen){
 	}
 	//ui->musicView->setUpdatesEnabled(true);
 
-	Musics musics = mff.getMusics();
+	auto musics = collection.getMusics();
 	musicModel->clear();
 	for(Musics::iterator i = musics.begin(); i != musics.end(); i++){
 		musicModel->add(i->second);
 	}
 
-	Playlists playlists = mff.getPlaylists();
+	auto playlists = collection.getPlaylists();
 	playlistModel->clear();
 	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
 		playlistModel->add(i->second);
 	}
 
 	if (!progress.wasCanceled()) {
-		mff.refreshPlaylists();
+		collection.refreshPlaylists();
 	}
+
+	// generate best.m3u playlists
+	// mainly for sync purpose
+	foreach (const QString &artist, selectedArtistsModel.stringList()) {
+		Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/best.m3u");
+		playlist.setRating(4);
+		std::vector<std::string> artists;
+		artists.push_back(artist.toStdString());
+		playlist.setArtists(artists);
+		playlist.refresh(musics);
+		playlist.save();
+	}
+
+	// generate all keywords playlists
+
 	reset();
 }
 

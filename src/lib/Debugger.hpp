@@ -4,8 +4,8 @@
 #include <taglib/tdebuglistener.h>
 #include <common/Singleton.hpp>
 
-class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugListener {
-		friend class Common::Singleton<MusicDebugger>;
+class Debugger : public Common::Singleton<Debugger>, TagLib::DebugListener {
+		friend class Common::Singleton<Debugger>;
 
 	public:
 
@@ -14,8 +14,8 @@ class MusicDebugger : public Common::Singleton<MusicDebugger>, TagLib::DebugList
 
 	protected:
 
-		MusicDebugger();
-		virtual ~MusicDebugger();
+		Debugger();
+		virtual ~Debugger();
 
 	private:
 

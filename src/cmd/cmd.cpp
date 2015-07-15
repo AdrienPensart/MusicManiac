@@ -1,4 +1,4 @@
-#include "lib/MusicFileFactory.hpp"
+#include "lib/Collection.hpp"
 #include "inotify/FileSystemEvent.h"
 #include "inotify/Inotify.h"
 
@@ -13,11 +13,11 @@ int main(int argc, char * argv[]){
 		return 1;
 	}
 	string basefolder = argv[1];
-	MusicFileFactory mff(basefolder, false);
+	Collection collection(basefolder, false);
 
 	try {
-		while(mff.factory()) {
-			cout << mff.getReadCount() << " / " << mff.getTotalCount() << " : " << mff.progression()*100 << '\n';
+		while(collection.factory()) {
+			cout << collection.getReadCount() << " / " << collection.getTotalCount() << " : " << collection.progression()*100 << '\n';
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
 		cout << "Exception " + std::string(fex.what());

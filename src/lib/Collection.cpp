@@ -2,17 +2,17 @@
 #include <iostream>
 using namespace std;
 
-#include "MusicFileFactory.hpp"
+#include "Collection.hpp"
 #include "MP3File.hpp"
 #include "FLACFile.hpp"
-#include "MusicDebugger.hpp"
+#include "Debugger.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lambda/bind.hpp>
 using namespace boost::filesystem;
 using namespace boost::lambda;
 
-MusicFileFactory::MusicFileFactory(const std::string& _folder, bool _regen) :
+Collection::Collection(const std::string& _folder, bool _regen) :
 	folder(_folder),
 	iterator(_folder),
 	regen(_regen),
@@ -29,31 +29,31 @@ MusicFileFactory::MusicFileFactory(const std::string& _folder, bool _regen) :
 	}
 }
 
-int MusicFileFactory::getTotalCount() const {
+int Collection::getTotalCount() const {
 	return totalCount;
 }
 
-int MusicFileFactory::getReadCount() const {
+int Collection::getReadCount() const {
 	return readCount;
 }
 
-double MusicFileFactory::progression() const {
+double Collection::progression() const {
 	return (double)readCount / (double)totalCount;
 }
 
-bool MusicFileFactory::valid() {
+bool Collection::valid() {
 	return iterator != recursive_directory_iterator();
 }
 
-const Playlists& MusicFileFactory::getPlaylists() const {
+const Playlists& Collection::getPlaylists() const {
 	return playlists;
 }
 
-const Musics& MusicFileFactory::getMusics() const{
+const Musics& Collection::getMusics() const{
 	return musics;
 }
 
-void MusicFileFactory::load(const std::string& filepath){
+void Collection::load(const std::string& filepath){
 	if(boost::algorithm::ends_with(filepath, ".mp3")) {
 		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
 		if(!mp3->audioProperties()) {
@@ -106,19 +106,19 @@ void MusicFileFactory::load(const std::string& filepath){
 	}
 }
 
-void MusicFileFactory::refreshPlaylists(){
+void Collection::refreshPlaylists(){
 	for(Playlists::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
 		playlist->second->load();
 		playlist->second->refresh(musics);
 	}
 }
 
-bool MusicFileFactory::factory() {
+bool Collection::factory() {
 	if(!valid()) {
 		return false;
 	}
 	readCount++;
-	MusicDebugger::instance().setCurrentMusic(iterator->path().native());
+	Debugger::instance().setCurrentMusic(iterator->path().native());
 	load(iterator->path().native());
 	++iterator;
 	return true;

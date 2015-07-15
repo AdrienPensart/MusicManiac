@@ -27,7 +27,6 @@ class MainWindow : public QMainWindow {
 		void about();
 		void aboutQt();
 		void generatePlaylist();
-		void generateBest();
 		void loadFolder();
 		void loadFolderWithRegen();
 		void withoutToAvailable();

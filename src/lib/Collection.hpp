@@ -6,10 +6,10 @@
 
 #include <boost/filesystem.hpp>
 
-class MusicFileFactory {
+class Collection {
 	public:
 
-		MusicFileFactory(const std::string& folder, bool regen=false);
+		Collection(const std::string& folder, bool regen=false);
 		bool factory();
 		void refreshPlaylists();
 		const Musics& getMusics()const;
