@@ -4,12 +4,13 @@
 #include <QSet>
 #include <QDebug>
 
-CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _artists, QStringListModel& _without, QStringListModel& _with, QObject * parent)
+CustomSortFilterProxyModel::CustomSortFilterProxyModel(QStringListModel& _genres, QStringListModel& _artists, QStringListModel& _without, QStringListModel& _with, QObject * parent)
 	:
 	QSortFilterProxyModel(parent),
 	rating(0),
 	minDuration("00:00"),
 	maxDuration("100:00"),
+	genres(_genres),
 	artists(_artists),
 	without(_without),
 	with(_with) {
@@ -57,6 +58,12 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
 	QModelIndex artist_index = model->index(sourceRow, MusicFolderModel::COLUMN_ARTIST, sourceParent);
 	QString currentArtist = model->data(artist_index).toString();
 	if(!artists.stringList().contains(currentArtist)) {
+		return false;
+	}
+
+	QModelIndex genre_index = model->index(sourceRow, MusicFolderModel::COLUMN_GENRE, sourceParent);
+	QString currentGenre = model->data(genre_index).toString();
+	if(!genres.stringList().contains(currentGenre)) {
 		return false;
 	}
 

@@ -107,7 +107,7 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
 			case COLUMN_FILEPATH:
-				return tr("Filepath");
+				return tr("File");
 				break;
 			case COLUMN_ARTISTS:
 				return tr("Artists");
@@ -116,19 +116,19 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 				return tr("Genres");
 				break;
 			case COLUMN_MIN_DURATION:
-				return tr("Min duration");
+				return tr("Min dur.");
 				break;
 			case COLUMN_MAX_DURATION:
-				return tr("Max duration");
+				return tr("Max dur.");
 				break;
 			case COLUMN_RATING:
 				return tr("Rating");
 				break;
 			case COLUMN_WITH_KEYWORDS:
-				return tr("With keywords");
+				return tr("W/ Tags");
 				break;
 			case COLUMN_WITHOUT_KEYWORDS:
-				return tr("Without keywords");
+				return tr("W/O Tags");
 				break;
 		}
 	}
@@ -142,7 +142,7 @@ QVariant PlaylistModel::infoAtColumn(Playlist * pl, int row) const {
 
 	switch(row) {
 		case COLUMN_FILEPATH:
-			return pl->getFilepath().c_str();
+			return pl->getFilename().c_str();
 			break;
 		case COLUMN_ARTISTS:
 			return Common::implode(pl->getArtists()).c_str();

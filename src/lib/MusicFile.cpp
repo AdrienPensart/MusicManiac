@@ -58,7 +58,7 @@ std::string MusicFile::getPath() const {
 	return filepath.substr(0,filepath.find_last_of("/\\"));
 }
 
-std::string MusicFile::getFilepath() const {
+const std::string& MusicFile::getFilepath() const {
 	return filepath;
 }
 

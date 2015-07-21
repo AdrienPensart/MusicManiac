@@ -154,7 +154,7 @@ QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, 
 				return tr("Rating");
 				break;
 			case COLUMN_KEYWORDS:
-				return tr("Keywords");
+				return tr("Tags");
 				break;
 		}
 	}

@@ -22,8 +22,12 @@ Playlist::Playlist(const std::string& _filepath) :
 	filepath(_filepath), rating(0), valid(true), minDuration("00:00"), maxDuration("100:00") {
 }
 
-std::string Playlist::getFilepath()const {
+const std::string& Playlist::getFilepath()const {
 	return filepath;
+}
+
+std::string Playlist::getFilename() const {
+	return filepath.substr(filepath.find_last_of("/\\") + 1);
 }
 
 size_t Playlist::size()const {
@@ -163,13 +167,13 @@ void Playlist::save() {
 	}
 
 	if(filecontent != m3u_content.str()){
-		cout << "Updating playlist : " << filepath << '\n';
+		cout << "Updating playlist : " << filepath << endl;
 		ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
 		m3u_file << m3u_content.str();
 		m3u_file.close();
 		filecontent = m3u_content.str();
 	} else {
-		cout << "Playlist did not changed : " << filepath << '\n';
+		cout << "Playlist did not changed : " << filepath << endl;
 	}
 }
 

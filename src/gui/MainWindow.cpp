@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->outGenreButton, SIGNAL(clicked()), this, SLOT(deselectGenre()));
 	connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(reset()));
 
-	musicProxyModel = new CustomSortFilterProxyModel(selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
+	musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
 
 	connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
 	connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
@@ -190,6 +190,9 @@ void MainWindow::loadPlaylist(QModelIndex index) {
 	availableArtistsModel.setStringList(empty);
 	selectedArtistsModel.setStringList(vectorToStringList(playlist.getArtists()));
 
+	availableGenresModel.setStringList(empty);
+	selectedGenresModel.setStringList(vectorToStringList(playlist.getGenres()));
+
 	withKeywordsModel.setStringList(vectorToStringList(playlist.getWith()));
 	withoutKeywordsModel.setStringList(vectorToStringList(playlist.getWithout()));
 	musicProxyModel->refilter();
@@ -200,9 +203,12 @@ void MainWindow::reset() {
 	withoutKeywordsModel.setStringList(empty);
 	withKeywordsModel.setStringList(empty);
 	availableArtistsModel.setStringList(empty);
+	availableGenresModel.setStringList(empty);
 
 	selectedArtistsModel.setStringList(musicModel->getArtists());
 	availableKeywordsModel.setStringList(musicModel->getKeywords());
+	selectedGenresModel.setStringList(musicModel->getGenres());
+
 	ui->musicView->resizeColumnsToContents();
 	ui->musicView->reset();
 	musicProxyModel->refilter();
@@ -229,13 +235,14 @@ void MainWindow::rescanFolder(bool regen){
 
 	Collection collection(basefolder.toStdString(), regen);
 	QProgressDialog progress("Loading your music...", "Abort", 0, collection.getTotalCount(), this);
+	progress.setWindowTitle(this->windowTitle());
 	progress.setWindowModality(Qt::WindowModal);
 	progress.show();
 
 	try {
 		while(collection.factory()) {
 			if (progress.wasCanceled()) {
-				break;
+				return;
 			}
 			progress.setValue(collection.getReadCount());
 			QApplication::processEvents();
@@ -251,17 +258,11 @@ void MainWindow::rescanFolder(bool regen){
 		musicModel->add(i->second);
 	}
 
-	/*
 	auto playlists = collection.getPlaylists();
 	playlistModel->clear();
 	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
 		playlistModel->add(i->second);
 	}
-
-	if (!progress.wasCanceled()) {
-		collection.refreshPlaylists();
-	}
-	*/
 	reset();
 
 	std::vector<std::string> without;
@@ -269,18 +270,18 @@ void MainWindow::rescanFolder(bool regen){
 
 	// generate best.m3u playlists
 	// mainly for sync purpose
-	foreach (const QString &artist, selectedArtistsModel.stringList()) {
-		Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/best.m3u");
+	for (Artists::const_iterator i = collection.getArtists().begin(); i != collection.getArtists().end(); i++) {
+		Playlist playlist(basefolder.toStdString()+"/"+i->first+"/best.m3u");
 		playlist.setRating(4);
 		std::vector<std::string> artists;
-		artists.push_back(artist.toStdString());
+		artists.push_back(i->first);
 		playlist.setWithout(without);
 		playlist.setArtists(artists);
 		playlist.refresh(musics);
 		playlist.save();
-		std::cout << "Generating " << playlist.getFilepath().data() << "\n";
+		std::cout << "Generating " << playlist.getFilepath().data() << '\n';
 	}
-
+	/*
 	// generate all keywords playlists for each artist
 	foreach (const QString &artist, selectedArtistsModel.stringList()) {
 		foreach (const QString &keyword, availableKeywordsModel.stringList()) {
@@ -297,10 +298,11 @@ void MainWindow::rescanFolder(bool regen){
 
 			if(playlist.size() >= 3){
 				playlist.save();
-				std::cout << "Generating " << playlist.getFilepath().data() << "\n";
+				std::cout << "Generating " << playlist.getFilepath().data() << endl;
 			}
 		}
 	}
+	*/
 }
 
 void MainWindow::aboutQt() {

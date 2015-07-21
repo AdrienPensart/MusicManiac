@@ -15,7 +15,8 @@ class Playlist {
 		void save();
 		size_t size()const;
 
-		std::string getFilepath()const;
+		std::string getFilename() const;
+		const std::string& getFilepath()const;
 		double getRating();
 		void setRating(double _rating);
 		std::string getMaxDuration();

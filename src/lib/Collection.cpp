@@ -76,7 +76,8 @@ void Collection::load(const std::string& filepath){
 				cout << "Music already exists, deleting old..." << filepath << '\n';
 				delete musics[filepath];
 			}
-			musics[filepath] = new MP3File(filepath, mp3);
+
+			push(new MP3File(filepath, mp3));
 		}
 	} else if(boost::algorithm::ends_with(filepath, ".flac")) {
 		TagLib::FLAC::File * flac = new TagLib::FLAC::File(filepath.c_str());
@@ -93,7 +94,7 @@ void Collection::load(const std::string& filepath){
 					cout << "Music already exists, deleting old..." << filepath << '\n';
 					delete musics[filepath];
 				}
-				musics[filepath] = new FLACFile(filepath, flac, regen);
+				push(new FLACFile(filepath, flac, regen));
 			}
 		}
 	} else if(boost::algorithm::ends_with(filepath, ".m3u")) {
@@ -101,10 +102,33 @@ void Collection::load(const std::string& filepath){
 			cout << "Playlist already exists, deleting old..." << filepath << '\n';
 			delete playlists[filepath];
 		}
-		playlists[filepath] = new Playlist(filepath);
+		auto playlist = new Playlist(filepath);
+		playlist->load();
+		playlists[filepath] = playlist;
 	} else {
 		//// "Music file not supported " + iterator.filePath().toStdString();
 	}
+}
+
+void Collection::push(MusicFile * music){
+	musics[music->getFilepath()] = music;
+	artists[music->getArtist()].push_back(music);
+	genres[music->getGenre()].push_back(music);
+	for(const std::string keyword : music->getSplittedKeywords()){
+		keywords[keyword].push_back(music);
+	}
+}
+
+const Artists& Collection::getArtists()const{
+	return artists;
+}
+
+const Keywords& Collection::getKeywords()const{
+	return keywords;
+}
+
+const Genres& Collection::getGenres()const{
+	return genres;
 }
 
 void Collection::refreshPlaylists(){

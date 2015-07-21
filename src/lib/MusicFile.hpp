@@ -14,7 +14,7 @@ class MusicFile {
 		std::string getDuration() const;
 		unsigned int getDurationInSeconds() const;
 		std::string getPath() const;
-		std::string getFilepath() const;
+		const std::string& getFilepath() const;
 		std::string getFilename() const;
 		double getRating() const;
 		std::string getUUID() const;
