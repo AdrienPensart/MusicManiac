@@ -23,17 +23,6 @@ int main(int argc, char * argv[]){
 		cout << "Exception " + std::string(fex.what());
 	}
 
-	/*
-	auto artist = "Buckethead";
-	string finalPath = basefolder+"/"+artist+"/best.m3u";
-	cout << "Creating best playlist " + finalPath + "\n";
-	Playlist playlist(finalPath);
-	playlist.setRating(4);
-	std::vector<std::string> artists;
-	artists.push_back(artist);
-	playlist.setArtists(artists);
-	playlist.refresh(mff.getMusics());
-	playlist.save();
-	*/
+	collection.generateBest();
 	return 0;
 }

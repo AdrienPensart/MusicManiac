@@ -8,9 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
-typedef std::map<std::string, std::vector<MusicFile*> > Artists;
-typedef std::map<std::string, std::vector<MusicFile*> > Keywords;
-typedef std::map<std::string, std::vector<MusicFile*> > Genres;
+typedef std::map<std::string, Musics > Artists;
+typedef std::map<std::string, Musics > Keywords;
+typedef std::map<std::string, Musics > Genres;
+typedef std::map<std::string, Keywords > KeywordsByArtist;
 
 class Collection {
 	public:
@@ -18,6 +19,8 @@ class Collection {
 		Collection(const std::string& folder, bool regen=false);
 		bool factory();
 		void refreshPlaylists();
+		void generateBest();
+		void generateBestByKeyword();
 		const Musics& getMusics()const;
 		const Playlists& getPlaylists()const;
 		const Artists& getArtists()const;
@@ -41,5 +44,6 @@ class Collection {
 		Artists artists;
 		Keywords keywords;
 		Genres genres;
+		KeywordsByArtist keywordsByArtist;
 		bool regen;
 };

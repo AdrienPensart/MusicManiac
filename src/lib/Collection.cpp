@@ -30,6 +30,49 @@ Collection::Collection(const std::string& _folder, bool _regen) :
 	}
 }
 
+void Collection::generateBest(){
+	std::vector<std::string> without;
+	without.push_back("cutoff");
+	// generate best.m3u playlists
+	// mainly for sync purpose
+	for (Artists::const_iterator i = artists.begin(); i != artists.end(); i++) {
+		Playlist playlist(folder+"/"+i->first+"/best.m3u");
+		playlist.setRating(4);
+		std::vector<std::string> artists;
+		artists.push_back(i->first);
+		playlist.setWithout(without);
+		playlist.setArtists(artists);
+		playlist.refresh(i->second);
+		playlist.save();
+		std::cout << "Generating " << playlist.getFilepath().data() << '\n';
+	}
+}
+
+void Collection::generateBestByKeyword(){
+	std::vector<std::string> without;
+	without.push_back("cutoff");
+	// generate all keywords playlists for each artist
+	for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
+		for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+			Playlist playlist(folder+"/"+i->first+"/"+j->first+".m3u");
+			playlist.setRating(4);
+			std::vector<std::string> artists;
+			artists.push_back(i->first);
+			std::vector<std::string> with;
+			with.push_back(j->first);
+			playlist.setWith(with);
+			playlist.setWithout(without);
+			playlist.setArtists(artists);
+			playlist.refresh(j->second);
+
+			if(playlist.size() >= 3){
+				playlist.save();
+				std::cout << "Generating " << playlist.getFilepath().data() << endl;
+			}
+		}
+	}
+}
+
 int Collection::getTotalCount() const {
 	return totalCount;
 }
@@ -112,10 +155,11 @@ void Collection::load(const std::string& filepath){
 
 void Collection::push(MusicFile * music){
 	musics[music->getFilepath()] = music;
-	artists[music->getArtist()].push_back(music);
-	genres[music->getGenre()].push_back(music);
+	artists[music->getArtist()][music->getFilepath()] = music;
+	genres[music->getGenre()][music->getFilepath()] = music;
 	for(const std::string keyword : music->getSplittedKeywords()){
-		keywords[keyword].push_back(music);
+		keywords[keyword][music->getFilepath()] = music;
+		keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
 	}
 }
 

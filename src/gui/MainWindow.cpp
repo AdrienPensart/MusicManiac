@@ -265,44 +265,8 @@ void MainWindow::rescanFolder(bool regen){
 	}
 	reset();
 
-	std::vector<std::string> without;
-	without.push_back("cutoff");
-
-	// generate best.m3u playlists
-	// mainly for sync purpose
-	for (Artists::const_iterator i = collection.getArtists().begin(); i != collection.getArtists().end(); i++) {
-		Playlist playlist(basefolder.toStdString()+"/"+i->first+"/best.m3u");
-		playlist.setRating(4);
-		std::vector<std::string> artists;
-		artists.push_back(i->first);
-		playlist.setWithout(without);
-		playlist.setArtists(artists);
-		playlist.refresh(musics);
-		playlist.save();
-		std::cout << "Generating " << playlist.getFilepath().data() << '\n';
-	}
-	/*
-	// generate all keywords playlists for each artist
-	foreach (const QString &artist, selectedArtistsModel.stringList()) {
-		foreach (const QString &keyword, availableKeywordsModel.stringList()) {
-			Playlist playlist(basefolder.toStdString()+"/"+artist.toStdString()+"/"+keyword.toStdString()+".m3u");
-			playlist.setRating(4);
-			std::vector<std::string> artists;
-			artists.push_back(artist.toStdString());
-			std::vector<std::string> with;
-			with.push_back(keyword.toStdString());
-			playlist.setWith(with);
-			playlist.setWithout(without);
-			playlist.setArtists(artists);
-			playlist.refresh(musics);
-
-			if(playlist.size() >= 3){
-				playlist.save();
-				std::cout << "Generating " << playlist.getFilepath().data() << endl;
-			}
-		}
-	}
-	*/
+	collection.generateBest();
+	collection.generateBestByKeyword();
 }
 
 void MainWindow::aboutQt() {
