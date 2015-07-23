@@ -4,9 +4,8 @@
 #include "lib/Collection.hpp"
 #include <QObject>
 #include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlQuery>
-#include <QtSql/QSqlError>
 
+extern QString SELECT_ARTISTS;
 extern QString ENABLE_FOREIGN_KEYS;
 extern QString CREATE_ARTIST_TABLE;
 extern QString CREATE_GENRE_TABLE;
@@ -23,6 +22,7 @@ class MusicDb : public QObject {
 		MusicDb(QObject * parent = 0);
 		void save(MusicFile * mf);
 		void save(Collection& collection);
+		void generateBest();
 
 	private:
 		QSqlDatabase db;

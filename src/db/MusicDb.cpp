@@ -1,4 +1,7 @@
 #include "MusicDb.hpp"
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlRecord>
 #include <QDebug>
 #include <QDir>
 #include <QVariant>
@@ -70,6 +73,36 @@ void MusicDb::save(MusicFile * mf){
 	}
 }
 
+void MusicDb::generateBest(){
+	QSqlQuery artist_query(db);
+	artist_query.exec(SELECT_ARTISTS);
+	while(artist_query.next()){
+		QString artist = artist_query.value(0).toString();
+		QSqlQuery best(db);
+		best.prepare(
+		R"(
+				SELECT
+					g.name AS `genre`,
+					a.name AS `artist`,
+					GROUP_CONCAT(t.name) AS `tags`,
+					m.filepath AS `filepath`,
+					m.uuid AS `uuid`,
+					m.rating AS `rating`,
+					m.duration AS `duration`
+				FROM music_tag mt
+				INNER JOIN music m ON m.id = mt.music_id
+				INNER JOIN artist a ON m.artist_id = a.id
+				INNER JOIN tag t ON t.id = mt.tag_id
+				INNER JOIN genre g ON g.id = m.genre_id
+				WHERE a.name = :artist AND m.rating >= 4
+				GROUP BY m.id;
+		)");
+		best.bindValue(":artist", artist);
+		best.exec();
+	}
+}
+
+QString SELECT_ARTISTS = "SELECT name FROM artist;";
 QString ENABLE_FOREIGN_KEYS = "PRAGMA foreign_keys = ON;";
 QString CREATE_ARTIST_TABLE = "CREATE TABLE IF NOT EXISTS `artist`(`id` INTEGER PRIMARY KEY, `name` VARCHAR UNIQUE);";
 QString CREATE_GENRE_TABLE = "CREATE TABLE IF NOT EXISTS `genre` (`id` INTEGER PRIMARY KEY, `name` VARCHAR UNIQUE);";
@@ -88,8 +121,9 @@ QString CREATE_TAG_TABLE = "CREATE TABLE IF NOT EXISTS `tag`(`id` INTEGER PRIMAR
 QString CREATE_MUSIC_TAG_TABLE = R"(CREATE TABLE IF NOT EXISTS `music_tag`(
 		   `music_id` INTEGER,
 		   `tag_id` INTEGER,
-		   FOREIGN KEY(`music_id`) REFERENCES music(id) ON DELETE CASCADE,
-		   FOREIGN KEY(`tag_id`) REFERENCES tag(id) ON DELETE CASCADE);)";
+		   PRIMARY KEY (`music_id`, `tag_id`));)";
+//		   FOREIGN KEY(`music_id`) REFERENCES music(id) ON DELETE CASCADE,
+//		   FOREIGN KEY(`tag_id`) REFERENCES tag(id) ON DELETE CASCADE);)";
 
 QString CREATE_MUSIC_INDEX = "CREATE INDEX IF NOT EXISTS `musicindex` ON music_tag(music_id);";
 QString CREATE_TAG_INDEX = "CREATE INDEX IF NOT EXISTS `tagindex` ON music_tag(tag_id);";
