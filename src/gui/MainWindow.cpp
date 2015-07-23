@@ -29,8 +29,10 @@ std::vector<std::string> stringListToVector(const QStringList& input) {
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow) {
+	ui(new Ui::MainWindow)
+{
 	ui->setupUi(this);
+	db = new MusicDb(this);
 
 	setWindowIcon(QIcon(":/musicmaniac.ico"));
 	connect(ui->actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
@@ -87,6 +89,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	musicModel = new MusicFolderModel(this);
 	musicProxyModel->setSourceModel(musicModel);
 	ui->playlistView->setModel(playlistModel);
+	ui->playlistView->setSortingEnabled(true);
+	ui->playlistView->sortByColumn(PlaylistModel::COLUMN_ARTISTS, Qt::AscendingOrder);
+	ui->playlistView->horizontalHeader()->setStretchLastSection(true);
+
 	ui->musicView->setModel(musicProxyModel);
 	ui->musicView->setSortingEnabled(true);
 	ui->musicView->sortByColumn(MusicFolderModel::COLUMN_ARTIST, Qt::AscendingOrder);

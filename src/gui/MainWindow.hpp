@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QItemSelectionModel>
+#include "db/MusicDb.hpp"
 
 #include "CustomSortFilterProxyModel.hpp"
 
@@ -15,7 +16,7 @@ class MusicFolderModel;
 class PlaylistModel;
 
 class MainWindow : public QMainWindow {
-		Q_OBJECT
+	Q_OBJECT
 
 	public:
 
@@ -73,4 +74,5 @@ class MainWindow : public QMainWindow {
 		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
+		MusicDb * db;
 };

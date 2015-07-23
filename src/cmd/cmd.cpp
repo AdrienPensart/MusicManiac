@@ -1,3 +1,4 @@
+#include "db/MusicDb.hpp"
 #include "lib/Collection.hpp"
 #include "inotify/FileSystemEvent.h"
 #include "inotify/Inotify.h"
@@ -14,6 +15,7 @@ int main(int argc, char * argv[]){
 	}
 	string basefolder = argv[1];
 	Collection collection(basefolder, false);
+	MusicDb db;
 
 	try {
 		while(collection.factory()) {
@@ -23,6 +25,8 @@ int main(int argc, char * argv[]){
 		cout << "Exception " + std::string(fex.what());
 	}
 
-	collection.generateBest();
+	db.save(collection);
+	//collection.generateBest();
+	//collection.generateBestByKeyword();
 	return 0;
 }

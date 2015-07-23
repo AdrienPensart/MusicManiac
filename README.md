@@ -66,7 +66,6 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 
 - youtube URL fetcher integration in db
 - mark playlist to not sync with device
-- create ipod syncer
 - album mood
 - web exposition daemon
 - player
