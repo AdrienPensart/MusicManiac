@@ -31,20 +31,22 @@ int main(int argc, char * argv[]){
 	}
 
 	collection.consolidateTitles();
-	auto musics = collection.getMusics();
-	QThreadPool *threadPool = QThreadPool::globalInstance();
-	threadPool->setMaxThreadCount(200);
-	for(auto music : musics){
-		auto mf = music.second;
-		auto work = new YoutubeFetcher(mf);
-		work->setAutoDelete(true);
-		threadPool->start(work);
-	}
-	threadPool->waitForDone();
-
 	try {
 		MusicDb db;
-		db.save(collection);
+		auto musics = collection.getMusics();
+		QThreadPool *threadPool = QThreadPool::globalInstance();
+		threadPool->setMaxThreadCount(100);
+		for(auto music : musics){
+			auto mf = music.second;
+			if(mf->getYoutube().size() == 0){
+				auto work = new YoutubeFetcher(mf);
+				work->setAutoDelete(true);
+				threadPool->start(work);
+			}
+		}
+		threadPool->waitForDone();
+
+
 		//db.generateBestByKeyword();
 		//db.generateBest();
 	} catch(std::exception& e){

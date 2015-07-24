@@ -5,12 +5,12 @@
 #include <QDir>
 #include <QVariant>
 
-MusicDb::MusicDb(QObject * parent)	:
+MusicDb::MusicDb(bool toDelete, QObject * parent)	:
 	db(QSqlDatabase::addDatabase("QSQLITE")),
 	QObject(parent)
 {
 	auto dbpath = QDir::homePath()+"/music.db";
-	if(!QFile::remove(dbpath)){
+	if(toDelete && !QFile::remove(dbpath)){
 		throw Common::Exception("Can't remove " + dbpath.toStdString());
 	}
 	db.setDatabaseName(dbpath);

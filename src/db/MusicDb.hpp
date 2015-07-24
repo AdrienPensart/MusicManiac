@@ -24,7 +24,7 @@ class MusicDb : public QObject {
 	Q_OBJECT
 	public:
 
-		MusicDb(QObject * parent = 0);
+		MusicDb(bool toDelete=false, QObject * parent = 0);
 		void save(MusicFile * mf);
 		void save(Collection& collection);
 		void generateBest();
