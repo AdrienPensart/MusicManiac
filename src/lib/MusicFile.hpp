@@ -21,11 +21,15 @@ class MusicFile {
 		std::string getKeywords() const;
 		std::string getArtist() const;
 		std::string getGenre() const;
+		std::string getYoutube() const;
+		std::string getTitle() const;
+		void setYoutube(std::string);
 		std::vector<std::string> getSplittedKeywords() const;
 		bool isModified();
 		virtual void setRating(double)=0;
 		virtual void setKeywords(std::string)=0;
 		virtual void setGenre(std::string)=0;
+		virtual void setTitle(std::string)=0;
 		virtual void save();
 
 	protected:
@@ -36,6 +40,7 @@ class MusicFile {
 		virtual void setUUID(std::string, bool erase);
 		virtual void setArtist(std::string, bool erase);
 		virtual void setGenre(std::string, bool erase);
+		virtual void setTitle(std::string, bool erase);
 
 	private:
 
@@ -44,11 +49,13 @@ class MusicFile {
 		TagLib::File * file;
 		bool modified;
 		double rating;
+		std::string title;
 		std::string genre;
 		std::string artist;
 		std::string keywords;
 		std::string uuid;
 		std::string duration;
+		std::string youtube;
 };
 
 typedef std::map<std::string, MusicFile*> Musics;

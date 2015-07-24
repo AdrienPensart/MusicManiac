@@ -21,6 +21,7 @@ class Collection {
 		void refreshPlaylists();
 		void generateBest();
 		void generateBestByKeyword();
+		void consolidateTitles();
 		const Musics& getMusics()const;
 		const Playlists& getPlaylists()const;
 		const Artists& getArtists()const;

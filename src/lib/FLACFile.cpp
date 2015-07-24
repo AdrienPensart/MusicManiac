@@ -24,6 +24,7 @@ FLACFile::FLACFile(std::string filepath, TagLib::FLAC::File * _flac, bool regen)
 	MusicFile::setRating(rating, false);
 	MusicFile::setArtist(flac->xiphComment()->artist().to8Bit(true).c_str(), false);
 	MusicFile::setGenre(flac->xiphComment()->genre().to8Bit(true).c_str(), false);
+	MusicFile::setTitle(flac->xiphComment()->title().to8Bit(true).c_str(), false);
 
 	if(regen || !flac->xiphComment()->contains("UFID")) {
 		std::string uuid = newUUID();
@@ -57,4 +58,9 @@ void FLACFile::setKeywords(std::string _keywords) {
 void FLACFile::setGenre(std::string _genre) {
 	flac->xiphComment()->setGenre(_genre.c_str());
 	MusicFile::setGenre(_genre, true);
+}
+
+void FLACFile::setTitle(std::string _title) {
+	flac->xiphComment()->setTitle(_title.c_str());
+	MusicFile::setTitle(_title, true);
 }

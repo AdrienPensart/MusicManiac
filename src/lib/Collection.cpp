@@ -73,6 +73,14 @@ void Collection::generateBestByKeyword(){
 	}
 }
 
+void Collection::consolidateTitles(){
+	for(auto music : musics){
+		if(!music.second->getTitle().size()){
+			music.second->setTitle(music.second->getFilename());
+		}
+	}
+}
+
 int Collection::getTotalCount() const {
 	return totalCount;
 }

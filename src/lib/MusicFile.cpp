@@ -70,8 +70,20 @@ std::string MusicFile::getDuration() const {
 	return duration;
 }
 
+std::string MusicFile::getYoutube() const {
+	return youtube;
+}
+
+std::string MusicFile::getTitle() const {
+	return title;
+}
+
 unsigned int MusicFile::getDurationInSeconds() const {
 	return totalSeconds;
+}
+
+void MusicFile::setYoutube(std::string _youtube){
+	youtube = _youtube;
 }
 
 void MusicFile::setRating(double _rating, bool erase) {
@@ -99,6 +111,14 @@ void MusicFile::setArtist(std::string _artist, bool erase) {
 		modified |= erase;
 		artist = _artist;
 		// filepath + ", setting artist " + artist + " modified ? : " + Common::toString(modified);
+	}
+}
+
+void MusicFile::setTitle(std::string _title, bool erase){
+	if(title != _title) {
+		modified |= erase;
+		title = _title;
+		// filepath + ", setting title " + title + " modified ? : " + Common::toString(title);
 	}
 }
 
