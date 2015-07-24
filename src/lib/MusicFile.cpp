@@ -138,6 +138,14 @@ void MusicFile::setKeywords(std::string _keywords, bool erase) {
 	}
 }
 
+void MusicFile::setAlbum(std::string _album, bool erase){
+	if(album != _album) {
+		modified |= erase;
+		album = _album;
+		// filepath + ", setting album : " + album + " modified ? : " + Common::toString(modified);
+	}
+}
+
 double MusicFile::getRating() const {
 	return rating;
 }
@@ -156,6 +164,10 @@ std::string MusicFile::getArtist() const {
 
 std::string MusicFile::getGenre() const {
 	return genre;
+}
+
+std::string MusicFile::getAlbum() const {
+	return album;
 }
 
 std::vector<std::string> MusicFile::getSplittedKeywords() const {

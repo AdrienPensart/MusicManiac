@@ -1,4 +1,3 @@
-#include "YoutubeFetcher.hpp"
 #include "db/MusicDb.hpp"
 #include "lib/Collection.hpp"
 #include "inotify/FileSystemEvent.h"
@@ -11,15 +10,13 @@ using namespace boost::filesystem;
 #include <iomanip>
 using namespace std;
 
-#include <QThreadPool>
-
 int main(int argc, char * argv[]){
 	if(argc < 2){
 		return 1;
 	}
 	string basefolder = argv[1];
-	Collection collection(basefolder, false);
 
+	Collection collection(basefolder, false);
 	try {
 		while(collection.factory()) {
 			cout << collection.getReadCount()
@@ -29,23 +26,12 @@ int main(int argc, char * argv[]){
 	} catch (boost::filesystem::filesystem_error& fex) {
 		cout << "Exception " + std::string(fex.what());
 	}
-
 	collection.consolidateTitles();
+
 	try {
 		MusicDb db;
-		auto musics = collection.getMusics();
-		QThreadPool *threadPool = QThreadPool::globalInstance();
-		threadPool->setMaxThreadCount(100);
-		for(auto music : musics){
-			auto mf = music.second;
-			if(mf->getYoutube().size() == 0){
-				auto work = new YoutubeFetcher(mf);
-				work->setAutoDelete(true);
-				threadPool->start(work);
-			}
-		}
-		threadPool->waitForDone();
-
+		db.save(collection);
+		db.fetchYoutube();
 
 		//db.generateBestByKeyword();
 		//db.generateBest();

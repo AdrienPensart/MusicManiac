@@ -22,6 +22,7 @@ MP3File::MP3File(std::string filepath, TagLib::MPEG::File * _mp3)
 	MusicFile::setArtist(mp3->ID3v2Tag()->artist().to8Bit(true).c_str(), false);
 	MusicFile::setGenre(mp3->ID3v2Tag()->genre().to8Bit(true).c_str(), false);
 	MusicFile::setTitle(mp3->ID3v2Tag()->title().to8Bit(true).c_str(), false);
+	MusicFile::setAlbum(mp3->ID3v2Tag()->album().to8Bit(true).c_str(), false);
 
 	// use first frame
 	const TagLib::ID3v2::FrameListMap& frames = mp3->ID3v2Tag()->frameListMap();
@@ -39,7 +40,7 @@ MP3File::MP3File(std::string filepath, TagLib::MPEG::File * _mp3)
 	}
 }
 
-void MP3File::setRating(double _rating) {
+void MP3File::setRating(double _rating){
 	MusicFile::setRating(_rating, true);
 	TagLib::StringList& list = mp3->properties()["FMPS_RATING"];
 	if(list.size() == 1) {
@@ -47,17 +48,22 @@ void MP3File::setRating(double _rating) {
 	}
 }
 
-void MP3File::setKeywords(std::string _keywords) {
+void MP3File::setKeywords(std::string _keywords){
 	mp3->ID3v2Tag()->setComment(_keywords.c_str());
 	MusicFile::setKeywords(_keywords, true);
 }
 
-void MP3File::setGenre(std::string _genre) {
+void MP3File::setGenre(std::string _genre){
 	mp3->ID3v2Tag()->setGenre(_genre.c_str());
 	MusicFile::setGenre(_genre, true);
 }
 
-void MP3File::setTitle(std::string _title) {
+void MP3File::setTitle(std::string _title){
 	mp3->ID3v2Tag()->setTitle(_title.c_str());
 	MusicFile::setTitle(_title, true);
+}
+
+void MP3File::setAlbum(std::string _album){
+	mp3->ID3v2Tag()->setAlbum(_album.c_str());
+	MusicFile::setAlbum(_album, true);
 }
