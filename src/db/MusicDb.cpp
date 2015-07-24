@@ -10,7 +10,9 @@ MusicDb::MusicDb(QObject * parent)	:
 	db(QSqlDatabase::addDatabase("QSQLITE")),
 	QObject(parent)
 {
-	db.setDatabaseName(QDir::homePath()+"/music.db");
+	auto dbpath = QDir::homePath()+"/music.db";
+	QFile::remove(dbpath);
+	db.setDatabaseName(dbpath);
 	if(db.open()){
 		QSqlDatabase::database().transaction();
 		QSqlQuery query(db);
@@ -81,27 +83,77 @@ void MusicDb::generateBest(){
 		QSqlQuery best(db);
 		best.prepare(
 		R"(
-				SELECT
-					g.name AS `genre`,
-					a.name AS `artist`,
-					GROUP_CONCAT(t.name) AS `tags`,
-					m.filepath AS `filepath`,
-					m.uuid AS `uuid`,
-					m.rating AS `rating`,
-					m.duration AS `duration`
-				FROM music_tag mt
-				INNER JOIN music m ON m.id = mt.music_id
-				INNER JOIN artist a ON m.artist_id = a.id
-				INNER JOIN tag t ON t.id = mt.tag_id
-				INNER JOIN genre g ON g.id = m.genre_id
-				WHERE a.name = :artist AND m.rating >= 4
-				GROUP BY m.id;
+SELECT
+	g.name AS `genre`,
+	a.name AS `artist`,
+	GROUP_CONCAT(t.name) AS `tags`,
+	m.filepath AS `filepath`,
+	m.uuid AS `uuid`,
+	m.rating AS `rating`,
+	m.duration AS `duration`
+FROM music_tag mt
+INNER JOIN music m ON m.id = mt.music_id
+INNER JOIN artist a ON m.artist_id = a.id
+INNER JOIN tag t ON t.id = mt.tag_id
+INNER JOIN genre g ON g.id = m.genre_id
+WHERE a.name = :artist AND m.rating >= 4 AND t.name != "cutoff"
+GROUP BY m.id;
 		)");
 		best.bindValue(":artist", artist);
 		best.exec();
+		while (best.next()){
+			for(int i = 0; i < best.record().count(); i++){
+				qDebug() << best.value(i).toString();
+			}
+		}
 	}
 }
 
+void MusicDb::generateBestByKeyword(){
+	QSqlQuery artist_query(db);
+	artist_query.exec(SELECT_ARTISTS);
+	while(artist_query.next()){
+		auto artist = artist_query.value(0);
+		QSqlQuery tag_query(db);
+		tag_query.exec(SELECT_TAGS);
+		while(tag_query.next()){
+			auto tag = tag_query.value(0);
+			QSqlQuery best(db);
+			best.prepare(
+R"(
+SELECT
+	g.name AS `genre`,
+	a.name AS `artist`,
+	GROUP_CONCAT(t.name) AS `tags`,
+	m.filepath AS `filepath`,
+	m.uuid AS `uuid`,
+	m.rating AS `rating`,
+	m.duration AS `duration`
+FROM music_tag mt
+INNER JOIN music m ON m.id = mt.music_id
+INNER JOIN artist a ON m.artist_id = a.id
+INNER JOIN tag t ON t.id = mt.tag_id
+INNER JOIN genre g ON g.id = m.genre_id
+WHERE
+	a.name = :artist AND
+	m.rating >= 4 AND
+	t.name != "cutoff"
+GROUP BY m.id
+HAVING GROUP_CONCAT(t.name) LIKE '%:tag%';
+)");
+			best.bindValue(":artist", artist);
+			best.bindValue(":tag", tag);
+			best.exec();
+			while (best.next()){
+				for(int i = 0; i < best.record().count(); i++){
+					qDebug() << best.value(i).toString();
+				}
+			}
+		}
+	}
+}
+
+QString SELECT_TAGS = "SELECT name FROM tag;";
 QString SELECT_ARTISTS = "SELECT name FROM artist;";
 QString ENABLE_FOREIGN_KEYS = "PRAGMA foreign_keys = ON;";
 QString CREATE_ARTIST_TABLE = "CREATE TABLE IF NOT EXISTS `artist`(`id` INTEGER PRIMARY KEY, `name` VARCHAR UNIQUE);";

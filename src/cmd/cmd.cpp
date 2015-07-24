@@ -26,7 +26,8 @@ int main(int argc, char * argv[]){
 	}
 
 	db.save(collection);
-	db.generateBest();
+	//db.generateBestByKeyword();
+	//db.generateBest();
 	//collection.generateBest();
 	//collection.generateBestByKeyword();
 	return 0;

@@ -14,6 +14,7 @@ extern QString CREATE_TAG_TABLE;
 extern QString CREATE_MUSIC_INDEX;
 extern QString CREATE_MUSIC_TAG_TABLE;
 extern QString CREATE_TAG_INDEX;
+extern QString SELECT_TAGS;
 
 class MusicDb : public QObject {
 	Q_OBJECT
@@ -23,6 +24,7 @@ class MusicDb : public QObject {
 		void save(MusicFile * mf);
 		void save(Collection& collection);
 		void generateBest();
+		void generateBestByKeyword();
 
 	private:
 		QSqlDatabase db;
