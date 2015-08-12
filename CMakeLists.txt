@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(musicmaniac CXX)
 
+#add_subdirectory(src/taglib)
 FIND_PATH(UUID_INCLUDE_DIR uuid/uuid.h)
 FIND_LIBRARY(UUID_LIBRARY NAMES uuid PATH)
 

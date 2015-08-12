@@ -12,6 +12,7 @@ class FLACFile : public MusicFile {
 		virtual void setGenre(std::string);
 		virtual void setTitle(std::string);
 		virtual void setAlbum(std::string);
+        virtual void setArtist(std::string);
 
 	private:
 

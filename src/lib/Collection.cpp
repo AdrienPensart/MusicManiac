@@ -43,8 +43,12 @@ void Collection::generateBest(){
 		playlist.setWithout(without);
 		playlist.setArtists(artists);
 		playlist.refresh(i->second);
-		playlist.save();
-		std::cout << "Generating " << playlist.getFilepath().data() << '\n';
+		if(!playlist.size()){
+			unlink(playlist.getFilepath().c_str());
+		} else {
+			std::cout << "Generating " << playlist.getFilepath().data() << '\n';
+			playlist.save();
+		}
 	}
 }
 

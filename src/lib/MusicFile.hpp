@@ -32,6 +32,7 @@ class MusicFile {
 		virtual void setGenre(std::string)=0;
 		virtual void setTitle(std::string)=0;
 		virtual void setAlbum(std::string)=0;
+        virtual void setArtist(std::string)=0;
 		virtual void save();
 
 	protected:

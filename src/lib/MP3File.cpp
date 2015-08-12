@@ -53,6 +53,11 @@ void MP3File::setKeywords(std::string _keywords){
 	MusicFile::setKeywords(_keywords, true);
 }
 
+void MP3File::setArtist(std::string _artist){
+    mp3->ID3v2Tag()->setArtist(_artist.c_str());
+    MusicFile::setArtist(_artist, true);
+}
+
 void MP3File::setGenre(std::string _genre){
 	mp3->ID3v2Tag()->setGenre(_genre.c_str());
 	MusicFile::setGenre(_genre, true);

@@ -1,6 +1,6 @@
 #include "Uuid.hpp"
 
-#include "uuid/uuid.h"
+#include <uuid/uuid.h>
 
 std::string newUUID() {
 	uuid_t uuid;

@@ -83,7 +83,12 @@ Qt::ItemFlags MusicFolderModel::flags(const QModelIndex &index) const {
 	if (!index.isValid()) {
 		return Qt::ItemIsEnabled;
 	}
-	if(index.column() == COLUMN_KEYWORDS || index.column() == COLUMN_RATING) {
+    if(
+            index.column() == COLUMN_KEYWORDS ||
+            index.column() == COLUMN_RATING ||
+            index.column() == COLUMN_ARTIST ||
+            index.column() == COLUMN_ALBUM ||
+            index.column() == COLUMN_GENRE) {
 		return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 	}
 	return QAbstractItemModel::flags(index);// | Qt::ItemIsEditable;
@@ -118,14 +123,20 @@ bool MusicFolderModel::setData (const QModelIndex & index, const QVariant & valu
 		MusicFile * rowMusic = musicAt(index.row());
 		if(rowMusic) {
 			switch(index.column()) {
+                case COLUMN_ARTIST:
+                    rowMusic->setArtist(value.toString().toStdString());
+                    break;
+                case COLUMN_ALBUM:
+                    rowMusic->setAlbum(value.toString().toStdString());
+                    break;
+                case COLUMN_GENRE:
+                    rowMusic->setGenre(value.toString().toStdString());
+                    break;
 				case COLUMN_RATING:
 					rowMusic->setRating(value.toDouble());
 					break;
 				case COLUMN_KEYWORDS:
 					rowMusic->setKeywords(value.toString().toStdString());
-					break;
-				case COLUMN_GENRE:
-					rowMusic->setGenre(value.toString().toStdString());
 					break;
 			}
 			emit dataChanged(index, index);
@@ -144,6 +155,9 @@ QVariant MusicFolderModel::headerData(int section, Qt::Orientation orientation, 
 			case COLUMN_ARTIST:
 				return tr("Artist");
 				break;
+            case COLUMN_ALBUM:
+                return tr("Album");
+                break;
 			case COLUMN_GENRE:
 				return tr("Genre");
 				break;
@@ -173,6 +187,9 @@ QVariant MusicFolderModel::infoAtColumn(MusicFile * mf, int row) const {
 		case COLUMN_ARTIST:
 			return mf->getArtist().c_str();
 			break;
+        case COLUMN_ALBUM:
+            return mf->getAlbum().c_str();
+            break;
 		case COLUMN_GENRE:
 			return mf->getGenre().c_str();
 			break;

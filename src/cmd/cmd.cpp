@@ -27,18 +27,17 @@ int main(int argc, char * argv[]){
 		cout << "Exception " + std::string(fex.what());
 	}
 	collection.consolidateTitles();
+	collection.generateBest();
 
 	try {
 		MusicDb db;
 		db.save(collection);
-		db.fetchYoutube();
-
+        //db.fetchYoutube();
 		//db.generateBestByKeyword();
 		//db.generateBest();
 	} catch(std::exception& e){
 		qDebug() << e.what();
 	}
-
 	//collection.generateBest();
 	//collection.generateBestByKeyword();
 	return 0;

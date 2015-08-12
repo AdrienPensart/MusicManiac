@@ -41,9 +41,16 @@ void YoutubeFetcher::run(){
 		std::string youtube = execCmd(cmd.toStdString());
 	//}
 
+	if(youtube == ""){
+		youtube = "notfound";
+	} else if(youtube == "error"){
+		youtube = "";
+		return;
+	}
+
 	QSqlQuery youtube_query(db);
 	youtube_query.prepare("UPDATE music SET youtube = :youtube WHERE id = :id");
-	youtube_query.bindValue(":youtube", youtube.size() ? youtube.c_str() : "notfound");
+	youtube_query.bindValue(":youtube", youtube.c_str());
 	youtube_query.bindValue(":id", id);
 	exec(youtube_query);
 	qDebug() << search + " => " + QString::fromStdString(youtube);
@@ -52,10 +59,10 @@ void YoutubeFetcher::run(){
 std::string YoutubeFetcher::execCmd(std::string cmd){
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe){
-		return "ERROR";
+		abort();
 	}
 	char buffer[512];
-	std::string result = "";
+	std::string result;
 	while(!feof(pipe)) {
 		if(fgets(buffer, sizeof(buffer), pipe) != NULL)
 			result += buffer;

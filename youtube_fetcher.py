@@ -20,7 +20,9 @@ try:
     search_results = re.findall(r'href=\"\/watch\?v=(.{11})', html_content.read().decode())
     print("http://www.youtube.com/watch?v=" + search_results[0], end="")
 except KeyboardInterrupt:
-    pass
+    print("error", end="");
+    sys.exit(1);
 except:
-    pass
+    print("error", end="");
+    sys.exit(1);
 

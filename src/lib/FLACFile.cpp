@@ -51,6 +51,11 @@ void FLACFile::setRating(double _rating) {
 	MusicFile::setRating(_rating, true);
 }
 
+void FLACFile::setArtist(std::string _artist) {
+    flac->xiphComment()->setArtist(_artist.c_str());
+    MusicFile::setArtist(_artist, true);
+}
+
 void FLACFile::setKeywords(std::string _keywords) {
 	flac->xiphComment()->setComment(_keywords.c_str());
 	MusicFile::setKeywords(_keywords, true);
