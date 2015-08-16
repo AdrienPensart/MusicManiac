@@ -74,5 +74,5 @@ class MainWindow : public QMainWindow {
 		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
-		MusicDb * db;
+        MusicDb db;
 };

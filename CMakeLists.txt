@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(musicmaniac CXX)
+project(musicmaniac C CXX)
 
 #add_subdirectory(src/taglib)
 FIND_PATH(UUID_INCLUDE_DIR uuid/uuid.h)
@@ -9,6 +9,8 @@ set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.55.0 COMPONENTS filesystem system REQUIRED)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+find_package(FUSE 2.6 REQUIRED)
 
 IF(NOT UUID_LIBRARY)
 	SET(UUID_LIBRARY "")
@@ -30,6 +32,7 @@ find_package(Qt5 COMPONENTS Widgets Sql REQUIRED)
 file(GLOB INOTIFY_SRC_FILES src/inotify/*.h)
 file(GLOB LIB_SRC_FILES src/lib/*.cpp src/lib/*.hpp)
 file(GLOB CMD_SRC_FILES src/cmd/*.cpp src/cmd/*.hpp)
+file(GLOB MUSICFS_SRC_FILES src/musicfs/*.cpp src/musicfs/*.hpp)
 file(GLOB GUI_SRC_FILES src/gui/*.cpp src/gui/*.hpp)
 file(GLOB DB_SRC_FILES src/db/*.cpp src/db/*.hpp)
 file(GLOB COMMON_SRC_FILES src/common/*.hpp)
@@ -44,12 +47,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 
 # Main target
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -D_FILE_OFFSET_BITS=64")
 add_executable(musicmaniac ${GUI_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
 target_link_libraries(musicmaniac Qt5::Widgets Qt5::Sql uuid tag ${Boost_LIBRARIES})
 
 add_executable(musiccmd ${CMD_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES})
 target_link_libraries(musiccmd uuid tag Qt5::Sql ${Boost_LIBRARIES})
+
+add_executable(musicfs ${MUSICFS_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES})
+target_link_libraries(musicfs uuid tag ${Boost_LIBRARIES} ${FUSE_LIBRARIES})
 
 # Test target
 #add_executable(musicmaniac_test test/test.cpp ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
