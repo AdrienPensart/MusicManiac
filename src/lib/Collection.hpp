@@ -31,7 +31,8 @@ class Collection {
 		double progression() const;
 		int getTotalCount() const;
 		int getReadCount() const;
-		void load(const std::string& filepath);
+        void loadFile(const std::string& filepath);
+        void loadAll();
 
 	private:
 

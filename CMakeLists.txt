@@ -47,7 +47,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 
 # Main target
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -D_FILE_OFFSET_BITS=64")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DFUSE_USE_VERSION=30 -D_FILE_OFFSET_BITS=64")
 add_executable(musicmaniac ${GUI_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
 target_link_libraries(musicmaniac Qt5::Widgets Qt5::Sql uuid tag ${Boost_LIBRARIES})
 

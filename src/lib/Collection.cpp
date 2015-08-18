@@ -1,6 +1,7 @@
 #include <taglib/id3v2tag.h>
 #include <iostream>
 #include <unordered_set>
+#include <iomanip>
 using namespace std;
 
 #include "Collection.hpp"
@@ -109,7 +110,21 @@ const Musics& Collection::getMusics() const{
 	return musics;
 }
 
-void Collection::load(const std::string& filepath){
+void Collection::loadAll(){
+    try {
+        while(factory()) {
+            /*
+            cout << getReadCount()
+                 << " / " << getTotalCount()
+                 << " : " << std::fixed << std::showpoint << std::setprecision(2) << progression()*100 << '\n';
+            */
+        }
+    } catch (boost::filesystem::filesystem_error& fex) {
+        cout << "Exception " + std::string(fex.what());
+    }
+}
+
+void Collection::loadFile(const std::string& filepath){
 	if(boost::algorithm::ends_with(filepath, ".mp3")) {
 		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
 		if(!mp3->audioProperties()) {
@@ -200,7 +215,7 @@ bool Collection::factory() {
 	}
 	readCount++;
 	Debugger::instance().setCurrentMusic(iterator->path().native());
-	load(iterator->path().native());
+    loadFile(iterator->path().native());
 	++iterator;
 	return true;
 }

@@ -14,12 +14,9 @@
 #include <sys/types.h>
 #include <sys/xattr.h>
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 void set_rootdir(const char *path);
-
 int wrap_getattr(const char *path, struct stat *statbuf);
 int wrap_readlink(const char *path, char *link, size_t size);
 int wrap_mknod(const char *path, mode_t mode, dev_t dev);
@@ -32,7 +29,9 @@ int wrap_link(const char *path, const char *newpath);
 int wrap_chmod(const char *path, mode_t mode);
 int wrap_chown(const char *path, uid_t uid, gid_t gid);
 int wrap_truncate(const char *path, off_t newSize);
+int wrap_utimens(const char *path, const struct timespec ts[2]);
 int wrap_utime(const char *path, struct utimbuf *ubuf);
+int wrap_fallocate(const char *path, int mode, off_t offset, off_t length, struct fuse_file_info *fi);
 int wrap_open(const char *path, struct fuse_file_info *fileInfo);
 int wrap_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo);
 int wrap_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo);
@@ -48,8 +47,44 @@ int wrap_opendir(const char *path, struct fuse_file_info *fileInfo);
 int wrap_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo);
 int wrap_releasedir(const char *path, struct fuse_file_info *fileInfo);
 int wrap_fsyncdir(const char *path, int datasync, struct fuse_file_info *fileInfo);
-int wrap_init(struct fuse_conn_info *conn);
+void * wrap_init(struct fuse_conn_info *conn);
 
-#ifdef __cplusplus
 }
+
+static struct fuse_operations musicfs_oper = {
+    .getattr = wrap_getattr,
+    .mkdir = wrap_mkdir,
+    .unlink = wrap_unlink,
+    .rmdir = wrap_rmdir,
+    .symlink = wrap_symlink,
+    .rename = wrap_rename,
+    .link = wrap_link,
+    .chmod = wrap_chmod,
+    .chown = wrap_chown,
+    .truncate = wrap_truncate,
+#ifdef HAVE_UTIMENSAT
+    .utimens = wrap_utimens,
 #endif
+    .utime = wrap_utime,
+    .open = wrap_open,
+    .read = wrap_read,
+    .write = wrap_write,
+    .statfs = wrap_statfs,
+    .flush = wrap_flush,
+    .release = wrap_release,
+    .fsync = wrap_fsync,
+#ifdef HAVE_POSIX_FALLOCATE
+    .fallocate = wrap_fallocate,
+#endif
+#ifdef HAVE_SETXATTR
+    .setxattr = wrap_setxattr,
+    .getxattr = wrap_getxattr,
+    .listxattr = wrap_listxattr,
+    .removexattr = wrap_removexattr,
+#endif
+    .opendir = wrap_opendir,
+    .readdir = wrap_readdir,
+    .releasedir = wrap_releasedir,
+    .fsyncdir = wrap_fsyncdir,
+    .init = wrap_init
+};

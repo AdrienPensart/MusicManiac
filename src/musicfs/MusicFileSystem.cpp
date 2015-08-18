@@ -1,22 +1,20 @@
 #include "MusicFileSystem.hpp"
-
-MusicFileSystem* MusicFileSystem::_instance = NULL;
+#include <iostream>
+using namespace std;
 
 #define RETURN_ERRNO(x) (x) == 0 ? 0 : -errno
 
-MusicFileSystem* MusicFileSystem::Instance() {
-	if(_instance == NULL) {
-        _instance = new MusicFileSystem();
-	}
-	return _instance;
+MusicFileSystem::MusicFileSystem() :
+    collection(0),
+    playlist("whatever") {
+    std::vector<std::string> without;
+    without.push_back("cutoff");
+    playlist.setRating(4);
+    playlist.setWithout(without);
 }
 
-MusicFileSystem::MusicFileSystem() {
-
-}
-
-MusicFileSystem::~MusicFileSystem() {
-
+MusicFileSystem::~MusicFileSystem(){
+    delete collection;
 }
 
 void MusicFileSystem::AbsPath(char dest[PATH_MAX], const char *path) {
@@ -28,13 +26,15 @@ void MusicFileSystem::AbsPath(char dest[PATH_MAX], const char *path) {
 void MusicFileSystem::setRootDir(const char *path) {
 	printf("setting FS root to: %s\n", path);
 	_root = path;
+    collection = new Collection(path);
+    collection->loadAll();
 }
 
-int MusicFileSystem::Getattr(const char *path, struct stat *statbuf) {
-	char fullPath[PATH_MAX];
+int MusicFileSystem::Getattr(const char *path, struct stat *stbuf) {
+    char fullPath[PATH_MAX];
 	AbsPath(fullPath, path);
 	printf("getattr(%s)\n", fullPath);
-	return RETURN_ERRNO(lstat(fullPath, statbuf));
+    return RETURN_ERRNO(lstat(fullPath, stbuf));
 }
 
 int MusicFileSystem::Readlink(const char *path, char *link, size_t size) {
@@ -118,6 +118,29 @@ int MusicFileSystem::Truncate(const char *path, off_t newSize) {
 	return RETURN_ERRNO(truncate(fullPath, newSize));
 }
 
+int MusicFileSystem::Utimens(const char *path, const struct timespec ts[2]) {
+    int res;
+    /* don't use utime/utimes since they follow symlinks */
+    res = utimensat(0, path, ts, AT_SYMLINK_NOFOLLOW);
+    if (res == -1)
+            return -errno;
+    return 0;
+}
+
+int MusicFileSystem::Fallocate(const char *path, int mode, off_t offset, off_t length, struct fuse_file_info *fi){
+    int fd;
+    int res;
+    (void) fi;
+    if (mode)
+            return -EOPNOTSUPP;
+    fd = open(path, O_WRONLY);
+    if (fd == -1)
+            return -errno;
+    res = -posix_fallocate(fd, offset, length);
+    close(fd);
+    return res;
+}
+
 int MusicFileSystem::Utime(const char *path, struct utimbuf *ubuf) {
 	printf("utime(path=%s)\n", path);
 	char fullPath[PATH_MAX];
@@ -134,8 +157,8 @@ int MusicFileSystem::Open(const char *path, struct fuse_file_info *fileInfo) {
 }
 
 int MusicFileSystem::Read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
-	printf("read(path=%s, size=%d, offset=%d)\n", path, (int)size, (int)offset);
-	return RETURN_ERRNO(pread(fileInfo->fh, buf, size, offset));
+    printf("read(path=%s, size=%d, offset=%d)\n", path, (int)size, (int)offset);
+    return pread(fileInfo->fh, buf, size, offset);
 }
 
 int MusicFileSystem::Write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
@@ -213,12 +236,36 @@ int MusicFileSystem::Opendir(const char *path, struct fuse_file_info *fileInfo) 
 int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
 	printf("readdir(path=%s, offset=%d)\n", path, (int)offset);
 	DIR *dir = (DIR*)fileInfo->fh;
+
 	struct dirent *de = readdir(dir);
 	if(NULL == de) {
 		return -errno;
 	} else {
-		do {
-			if(filler(buf, de->d_name, NULL, 0) != 0) {
+        do {
+            if(de->d_type == DT_REG){
+                auto musics = collection->getMusics();
+                auto playlists = collection->getPlaylists();
+                boost::filesystem::path fsroot (_root);
+                boost::filesystem::path fspath (path);
+                boost::filesystem::path fsfile (de->d_name);
+                boost::filesystem::path full_path = fsroot / fspath / fsfile;
+                Musics::const_iterator m;
+                if((m = musics.find(full_path.c_str())) != musics.end()){
+                    if(!playlist.conform(m->second)){
+                        cout << full_path << " = file does not conform\n";
+                        continue;
+                    } else {
+                        cout << full_path << " = file does conform\n";
+                    }
+                } else if(playlists.find(full_path.c_str()) != playlists.end()) {
+                    cout << full_path << " = is a playlist\n";
+                } else {
+                    cout << full_path << " = file not in collection\n";
+                    continue;
+                }
+            }
+
+            if(filler(buf, de->d_name, NULL, 0) != 0) {
 				return -ENOMEM;
 			}
 		} while(NULL != (de = readdir(dir)));
@@ -236,8 +283,8 @@ int MusicFileSystem::Fsyncdir(const char *path, int datasync, struct fuse_file_i
 	return 0;
 }
 
-int MusicFileSystem::Init(struct fuse_conn_info *conn) {
-	return 0;
+void * MusicFileSystem::Init(struct fuse_conn_info *conn) {
+    return NULL;
 }
 
 int MusicFileSystem::Truncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
