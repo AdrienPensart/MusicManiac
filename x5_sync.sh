@@ -16,7 +16,7 @@ for i in $(find $2 -name "best.m3u" -o -name "all.m3u" ) ; do
     basefolder=$(dirname $i)
     artist=$(basename $basefolder)
     sed --in-place '/^#EXTREM/ d' $2/$artist/*.m3u
-    sed --in-place -i "s|^$3/||g" $2/$artist/*.m3u
+    sed --in-place -i "s|^$3/$artist/||g" $2/$artist/*.m3u
 done
 IFS=$SAVEIFS
 
