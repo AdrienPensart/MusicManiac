@@ -9,6 +9,7 @@ MusicFileSystem::MusicFileSystem() :
     playlist("whatever") {
     std::vector<std::string> without;
     without.push_back("cutoff");
+    //without.push_back("nosync");
     playlist.setRating(4);
     playlist.setWithout(without);
 }

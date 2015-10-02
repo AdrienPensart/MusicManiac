@@ -52,7 +52,7 @@ bool Playlist::conform(MusicFile *music){
     }
 
     if(music->getRating() < rating) {
-        cout << "Rating criteria does not match\n";
+        cout << "Rating criteria does not match " << music->getRating() << " < " << rating << "\n";
         return false;
     }
 

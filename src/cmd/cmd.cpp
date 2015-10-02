@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
     collection.loadAll();
 	collection.consolidateTitles();
 	collection.generateBest();
-
+    /*
 	try {
 		MusicDb db;
 		db.save(collection);
@@ -26,7 +26,7 @@ int main(int argc, char * argv[]){
 	} catch(std::exception& e){
 		qDebug() << e.what();
 	}
-	//collection.generateBest();
-	//collection.generateBestByKeyword();
+    */
+    collection.generateBestByKeyword();
 	return 0;
 }
