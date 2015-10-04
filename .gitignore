@@ -8,4 +8,4 @@ CMakeLists.txt.user
 Makefile
 build/*
 !build/
-
+web/venv
