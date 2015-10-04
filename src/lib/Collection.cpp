@@ -14,12 +14,15 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost::lambda;
 
+bool Collection::regen = false;
+
 Collection::Collection(const std::string& _folder, bool _regen) :
 	folder(_folder),
 	iterator(_folder),
-	regen(_regen),
 	totalCount(0),
-	readCount(0) {
+    readCount(0)
+{
+    regen = _regen;
 	// "Constructing directory " + folder;
 	try {
 		for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
@@ -125,49 +128,8 @@ void Collection::loadAll(){
 }
 
 void Collection::loadFile(const std::string& filepath){
-	if(boost::algorithm::ends_with(filepath, ".mp3")) {
-		TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
-		if(!mp3->audioProperties()) {
-			// "No audio property";
-		} else if(!mp3->hasID3v2Tag()) {
-			// "No ID3v2 Tag present";
-		} else {
-			TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
-			if(!tag) {
-				// "Tag invalid";
-			} else if(regen) {
-				tag->removeFrames("UFID");
-				mp3->save();
-				// reopen file
-				delete mp3;
-				mp3 = new TagLib::MPEG::File(filepath.c_str());
-			}
-			if(musics.count(filepath)){
-				cout << "Music already exists, deleting old..." << filepath << '\n';
-				delete musics[filepath];
-			}
-
-			push(new MP3File(filepath, mp3));
-		}
-	} else if(boost::algorithm::ends_with(filepath, ".flac")) {
-		TagLib::FLAC::File * flac = new TagLib::FLAC::File(filepath.c_str());
-		if(!flac->audioProperties()) {
-			// "No audio property";
-		} else if(!flac->hasXiphComment()) {
-			// "No XiphComment present";
-		} else {
-			TagLib::Ogg::XiphComment * tag = flac->xiphComment();
-			if(!tag) {
-				// "Tag invalid";
-			} else {
-				if(musics.count(filepath)){
-					cout << "Music already exists, deleting old..." << filepath << '\n';
-					delete musics[filepath];
-				}
-				push(new FLACFile(filepath, flac, regen));
-			}
-		}
-	} else if(boost::algorithm::ends_with(filepath, ".m3u")) {
+    MusicFile * file = getFile(filepath);
+    if(!file && boost::algorithm::ends_with(filepath, ".m3u")) {
 		if(playlists.count(filepath)){
 			cout << "Playlist already exists, deleting old..." << filepath << '\n';
 			delete playlists[filepath];
@@ -175,9 +137,51 @@ void Collection::loadFile(const std::string& filepath){
 		auto playlist = new Playlist(filepath);
 		playlist->load();
 		playlists[filepath] = playlist;
-	} else {
-		//// "Music file not supported " + iterator.filePath().toStdString();
-	}
+    } else {
+        if(musics.count(filepath)){
+            cout << "Music already exists, deleting old..." << filepath << '\n';
+            delete musics[filepath];
+        }
+        push(file);
+    }
+}
+
+MusicFile * Collection::getFile(const std::string& filepath) {
+    if(boost::algorithm::ends_with(filepath, ".mp3")) {
+        TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
+        if(!mp3->audioProperties()) {
+            // "No audio property";
+        } else if(!mp3->hasID3v2Tag()) {
+            // "No ID3v2 Tag present";
+        } else {
+            TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
+            if(!tag) {
+                // "Tag invalid";
+            } else if(regen) {
+                tag->removeFrames("UFID");
+                mp3->save();
+                // reopen file
+                delete mp3;
+                mp3 = new TagLib::MPEG::File(filepath.c_str());
+            }
+            return new MP3File(filepath, mp3);
+        }
+    } else if(boost::algorithm::ends_with(filepath, ".flac")) {
+        TagLib::FLAC::File * flac = new TagLib::FLAC::File(filepath.c_str());
+        if(!flac->audioProperties()) {
+            // "No audio property";
+        } else if(!flac->hasXiphComment()) {
+            // "No XiphComment present";
+        } else {
+            TagLib::Ogg::XiphComment * tag = flac->xiphComment();
+            if(!tag) {
+                // "Tag invalid";
+            } else {
+                return new FLACFile(filepath, flac, regen);
+            }
+        }
+    }
+    return 0;
 }
 
 void Collection::push(MusicFile * music){

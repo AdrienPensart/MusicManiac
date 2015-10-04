@@ -1,9 +1,12 @@
-[submodule "src/taglib"]
-	path = src/taglib
-	url = https://github.com/taglib/taglib.git
 [submodule "src/common"]
 	path = src/common
 	url = git@github.com:AdrienPensart/common.git
 [submodule "src/inotify"]
 	path = src/inotify
 	url = git@github.com:AdrienPensart/Inotify.git
+[submodule "src/json"]
+	path = src/json
+	url = https://github.com/nlohmann/json.git
+[submodule "src/taglib"]
+	path = src/taglib
+	url = https://github.com/taglib/taglib.git

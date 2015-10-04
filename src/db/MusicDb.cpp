@@ -83,10 +83,14 @@ void MusicDb::commit(){
 	}
 }
 
-MusicDb::MusicDb(bool toDelete, QObject * parent):
-	db(QSqlDatabase::addDatabase("QSQLITE")),
-	QObject(parent) {
-	auto dbpath = QDir::homePath()+"/music.db";
+MusicDb::MusicDb(QString dbpath, bool toDelete, QObject * parent)
+    : db(QSqlDatabase::addDatabase("QSQLITE")),
+      QObject(parent)
+{
+    if(!dbpath.size()){
+        dbpath = QDir::homePath()+"/music.db";
+    }
+
 	if(toDelete && !QFile::remove(dbpath)){
 		throw Common::Exception("Can't remove " + dbpath.toStdString());
 	}

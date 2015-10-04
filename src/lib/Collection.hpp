@@ -16,7 +16,7 @@ typedef std::map<std::string, Keywords > KeywordsByArtist;
 class Collection {
 	public:
 
-		Collection(const std::string& folder, bool regen=false);
+        Collection(const std::string& folder, bool regen=false);
 		bool factory();
 		void refreshPlaylists();
 		void generateBest();
@@ -32,6 +32,7 @@ class Collection {
 		int getTotalCount() const;
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
+        static MusicFile * getFile(const std::string& filepath);
         void loadAll();
 
 	private:
@@ -47,5 +48,5 @@ class Collection {
 		Keywords keywords;
 		Genres genres;
 		KeywordsByArtist keywordsByArtist;
-		bool regen;
+        static bool regen;
 };
