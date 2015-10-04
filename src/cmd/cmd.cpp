@@ -3,6 +3,8 @@
 #include "inotify/FileSystemEvent.h"
 #include "inotify/Inotify.h"
 #include "json/src/json.hpp"
+using json = nlohmann::json;
+
 #include <boost/algorithm/string/predicate.hpp>
 using namespace boost::filesystem;
 
@@ -115,15 +117,30 @@ int main(int argc, const char * argv[]){
             collection.generateBest();
             collection.generateBestByKeyword();
 
-            MusicDb db(dbpath.c_str());
-            db.save(collection);
+            //MusicDb db(dbpath.c_str());
+            //db.save(collection);
             //db.fetchYoutube();
             //db.generateBestByKeyword();
             //db.generateBest();
         } else {
             string filepath;
-            while (cin >> filepath) {
+            while (getline(cin, filepath)) {
                 MusicFile * file = Collection::getFile(filepath);
+                if(file){
+                    json j;
+
+                    j["title"] = file->getTitle();
+                    j["artist"] = file->getArtist();
+                    j["filepath"] = file->getFilepath();
+                    j["genre"] = file->getGenre();
+                    j["album"] = file->getAlbum();
+                    j["rating"] = file->getRating();
+                    j["keywords"] = file->getSplittedKeywords();
+                    j["uuid"] = file->getUUID();
+                    j["duration"] = file->getDurationInSeconds();
+
+                    std::cout << j.dump(4) << std::endl;
+                }
             }
         }
 	} catch(std::exception& e){
