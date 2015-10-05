@@ -324,19 +324,19 @@ std::string CREATE_ARTIST_TABLE = "CREATE TABLE IF NOT EXISTS `artist`(`id` INTE
 std::string CREATE_GENRE_TABLE = "CREATE TABLE IF NOT EXISTS `genre` (`id` INTEGER PRIMARY KEY, `name` VARCHAR UNIQUE);";
 std::string CREATE_MUSIC_TABLE =
 R"(
-	CREATE TABLE IF NOT EXISTS `music` (
-		`id` INTEGER PRIMARY KEY,
-		`artist_id` INTEGER,
-		`genre_id` INTEGER,
-		`rating` REAL,
-		`duration` VARCHAR,
-		`uuid` VARCHAR,
-		`title` VARCHAR,
-		`album` VARCHAR,
-		`filepath` VARCHAR UNIQUE,
-		`youtube` VARCHAR,
-		FOREIGN KEY(`artist_id`) REFERENCES artist(id),
-		FOREIGN KEY(`genre_id`) REFERENCES genre(id));
+    CREATE TABLE IF NOT EXISTS `music` (
+        `id` INTEGER PRIMARY KEY,
+        `artist_id` INTEGER,
+        `genre_id` INTEGER,
+        `rating` REAL,
+        `duration` VARCHAR,
+        `uuid` VARCHAR,
+        `title` VARCHAR,
+        `album` VARCHAR,
+        `filepath` VARCHAR UNIQUE,
+        `youtube` VARCHAR,
+        FOREIGN KEY(`artist_id`) REFERENCES artist(id),
+        FOREIGN KEY(`genre_id`) REFERENCES genre(id));
 )";
 std::string CREATE_TAG_TABLE = "CREATE TABLE IF NOT EXISTS `tag`(`id` INTEGER PRIMARY KEY, `name` VARCHAR UNIQUE);";
 std::string CREATE_MUSIC_TAG_TABLE =

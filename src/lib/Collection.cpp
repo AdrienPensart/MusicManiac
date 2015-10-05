@@ -14,15 +14,13 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost::lambda;
 
-bool Collection::regen = false;
-
 Collection::Collection(const std::string& _folder, bool _regen) :
 	folder(_folder),
+    regen(_regen),
 	iterator(_folder),
 	totalCount(0),
     readCount(0)
 {
-    regen = _regen;
 	// "Constructing directory " + folder;
 	try {
 		for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
@@ -128,7 +126,7 @@ void Collection::loadAll(){
 }
 
 void Collection::loadFile(const std::string& filepath){
-    MusicFile * file = getFile(filepath);
+    MusicFile * file = getFile(filepath, regen);
     if(!file && boost::algorithm::ends_with(filepath, ".m3u")) {
 		if(playlists.count(filepath)){
 			cout << "Playlist already exists, deleting old..." << filepath << '\n';
@@ -146,7 +144,7 @@ void Collection::loadFile(const std::string& filepath){
     }
 }
 
-MusicFile * Collection::getFile(const std::string& filepath) {
+MusicFile * Collection::getFile(const std::string& filepath, bool _regen) {
     if(boost::algorithm::ends_with(filepath, ".mp3")) {
         TagLib::MPEG::File * mp3 = new TagLib::MPEG::File(filepath.c_str());
         if(!mp3->audioProperties()) {
@@ -157,7 +155,7 @@ MusicFile * Collection::getFile(const std::string& filepath) {
             TagLib::ID3v2::Tag * tag = mp3->ID3v2Tag();
             if(!tag) {
                 // "Tag invalid";
-            } else if(regen) {
+            } else if(_regen) {
                 tag->removeFrames("UFID");
                 mp3->save();
                 // reopen file
@@ -177,7 +175,7 @@ MusicFile * Collection::getFile(const std::string& filepath) {
             if(!tag) {
                 // "Tag invalid";
             } else {
-                return new FLACFile(filepath, flac, regen);
+                return new FLACFile(filepath, flac, _regen);
             }
         }
     }

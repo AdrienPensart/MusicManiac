@@ -24,31 +24,14 @@ def get_pw(username):
         return users.get(username)
     return None
 
-class Music(Resource):
-    @auth.login_required 
-    def get(self):
-        pass
-    @auth.login_required 
-    def put(self):
-        pass
-    @auth.login_required 
-    def delete(self):
-        pass
-
-class Collection(Resource):
-    @auth.login_required
-    def get(self):
-        pass
-    @auth.login_required 
-    def post(self):
-        print('Getting a new music update from ', auth.username())
-        music = request.get_json(force=True)
-        return jsonify(music)
+@app.route("/music", methods=['POST'])
+@auth.login_required 
+def music():
+    print('Getting a new music update from ', auth.username())
+    music = request.get_json(force=True)
+    print music
+    return (jsonify(music), 200)
     
-api.add_resource(Music, '/music/<music_id>')
-api.add_resource(Collection, '/music')
-
 if __name__ == "__main__":
-    print ("Start listening on address : %s" % listening_address)
-    app.run(host='0.0.0.0', port=int(listening_port), debug = True)
+    app.run()
 

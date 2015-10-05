@@ -32,7 +32,7 @@ class Collection {
 		int getTotalCount() const;
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
-        static MusicFile * getFile(const std::string& filepath);
+        static MusicFile * getFile(const std::string& filepath, bool _regen=false);
         void loadAll();
 
 	private:
@@ -48,5 +48,5 @@ class Collection {
 		Keywords keywords;
 		Genres genres;
 		KeywordsByArtist keywordsByArtist;
-        static bool regen;
+        bool regen;
 };

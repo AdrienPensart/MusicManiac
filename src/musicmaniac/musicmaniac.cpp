@@ -1,3 +1,8 @@
+#include "fs/wrap.hpp"
+#include "fs/MusicFileSystem.hpp"
+#include <fuse.h>
+
+#include "common/Utility.hpp"
 #include "db/MusicDb.hpp"
 #include "lib/Collection.hpp"
 #include "inotify/FileSystemEvent.h"
@@ -16,13 +21,17 @@ using namespace ez;
 #include <iostream>
 using namespace std;
 
+#include "MainWindow.hpp"
+#include <QApplication>
+#include <QDebug>
+
 void Usage(ezOptionParser& opt) {
     std::string usage;
     opt.getUsage(usage);
     std::cout << usage;
 };
 
-int main(int argc, const char * argv[]){
+int main(int argc, char * argv[]) {
     ezOptionParser opt;
     opt.overview = "MusicManiac swiss army knife";
     opt.syntax = "musicmaniac [OPTIONS]";
@@ -56,6 +65,15 @@ int main(int argc, const char * argv[]){
         0,
         1,
         0,
+        "-f",
+        "--filesystem"
+    );
+
+    opt.add(
+        "",
+        0,
+        1,
+        0,
         "Music folder",
         "-m",
         "--music"
@@ -72,7 +90,8 @@ int main(int argc, const char * argv[]){
         "--db"
     );
 
-    opt.parse(argc, argv);
+    const char ** cargv = const_cast<const char **> (argv);
+    opt.parse(argc, cargv);
     if (opt.isSet("-h")) {
         Usage(opt);
         return 1;
@@ -106,6 +125,35 @@ int main(int argc, const char * argv[]){
             cout << "Database selected : " << dbpath << '\n';
         }
 
+        // filesystem mode
+        if (opt.isSet("-f")) {
+            /*
+            int i;
+            for(i = 1; i < argc && (argv[i][0] == '-'); i++) {
+                if(i == argc) {
+                    return (-1);
+                }
+            }
+            MusicFileSystem::instance().setRootDir(argv[1]);
+
+            for(; i < argc; i++) {
+                argv[i] = argv[i+1];
+            }
+            argc--;
+
+            int fuse_stat = fuse_main(argc, argv, &musicfs_oper, NULL);
+            cout << "fuse_main returned " << fuse_stat << "\n";
+            return fuse_stat;
+            */
+        }
+
+        if (opt.isSet("-g")) {
+            QApplication a(argc, argv);
+            MainWindow w;
+            w.show();
+            return a.exec();
+        }
+
         if (opt.isSet("-m")) {
             std::string musicpath;
             opt.get("-m")->getString(musicpath);
@@ -122,9 +170,25 @@ int main(int argc, const char * argv[]){
             //db.fetchYoutube();
             //db.generateBestByKeyword();
             //db.generateBest();
-        } else {
-            string filepath;
-            while (getline(cin, filepath)) {
+        }
+        /*
+            string line;
+            while (getline(cin, line)) {
+                std::vector<std::string> output;
+                Common::split(line, ":", output);
+                if(output.size() != 2){
+                    qDebug() << "Invalid input";
+                }
+
+                std::vector<std::string> events;
+                Common::split(output[0], ",", events);
+                for(auto event : events){
+                    if(event == "DELETE" ||
+                       event == "CREATE" ||
+                       event == "CLOSE_WRITE"){
+                    }
+                }
+
                 MusicFile * file = Collection::getFile(filepath);
                 if(file){
                     json j;
@@ -143,8 +207,9 @@ int main(int argc, const char * argv[]){
                 }
             }
         }
-	} catch(std::exception& e){
-		qDebug() << e.what();
-	}
-	return 0;
+        */
+    } catch(std::exception& e){
+        qDebug() << e.what();
+    }
+    return 0;
 }

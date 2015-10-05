@@ -31,14 +31,13 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5 COMPONENTS Widgets Sql REQUIRED)
 file(GLOB INOTIFY_SRC_FILES src/inotify/*.h)
 file(GLOB LIB_SRC_FILES src/lib/*.cpp src/lib/*.hpp)
-file(GLOB CMD_SRC_FILES src/cmd/*.cpp src/cmd/*.hpp)
-file(GLOB MUSICFS_SRC_FILES src/musicfs/*.cpp src/musicfs/*.hpp)
-file(GLOB GUI_SRC_FILES src/gui/*.cpp src/gui/*.hpp)
+file(GLOB FS_SRC_FILES src/fs/*.cpp src/fs/*.hpp)
+file(GLOB MUSICMANIAC_SRC_FILES src/musicmaniac/*.cpp src/musicmaniac/*.hpp)
 file(GLOB DB_SRC_FILES src/db/*.cpp src/db/*.hpp)
 file(GLOB COMMON_SRC_FILES src/common/*.hpp)
 
-file(GLOB UI_FILES src/gui/*.ui)
-file(GLOB RES_FILES src/gui/*.qrc)
+file(GLOB UI_FILES src/musicmaniac/*.ui)
+file(GLOB RES_FILES src/musicmaniac/*.qrc)
 QT5_WRAP_UI(UI_HEADERS ${UI_FILES})
 QT5_ADD_RESOURCES(RESOURCES_RCC ${RES_FILES})
 
@@ -48,18 +47,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 
 # Main target
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DFUSE_USE_VERSION=30 -D_FILE_OFFSET_BITS=64")
-add_executable(musicmaniac ${GUI_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
+add_executable(musicmaniac ${MUSICMANIAC_SRC_FILES} ${FS_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC} ${FUSE_LIBRARIES})
 target_link_libraries(musicmaniac Qt5::Widgets Qt5::Sql uuid tag ${Boost_LIBRARIES})
 
-add_executable(musiccmd ${CMD_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES})
-target_link_libraries(musiccmd uuid tag Qt5::Sql ${Boost_LIBRARIES})
 
-add_executable(musicfs ${MUSICFS_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES})
-target_link_libraries(musicfs uuid tag ${Boost_LIBRARIES} ${FUSE_LIBRARIES})
-
-# Test target
-#add_executable(musicmaniac_test test/test.cpp ${SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
-#target_link_libraries(musicmaniac_test Qt5::Widgets uuid tag ${Boost_LIBRARIES})
-
-#enable_testing()
-#add_test(catch musicmaniac_test)
