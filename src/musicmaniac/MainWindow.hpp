@@ -3,16 +3,14 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QItemSelectionModel>
+#include <QStandardItemModel>
 #include "db/MusicDb.hpp"
-
-#include "CustomSortFilterProxyModel.hpp"
 
 namespace Ui {
 	class MainWindow;
 }
 
 class MusicFile;
-class MusicFolderModel;
 class PlaylistModel;
 
 class MainWindow : public QMainWindow {
@@ -23,7 +21,7 @@ class MainWindow : public QMainWindow {
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
-	private slots:
+    private slots:
 
 		void about();
 		void aboutQt();
@@ -47,8 +45,8 @@ class MainWindow : public QMainWindow {
 		void updateFilter();
 		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
 		void loadFolderWith(bool regen);
-		MusicFolderModel * musicModel;
-		CustomSortFilterProxyModel * musicProxyModel;
+        QStandardItemModel musicModel;
+        //CustomSortFilterProxyModel * musicProxyModel;
 		const QStringList empty;
 		QItemSelectionModel * withoutKeywordsSelection;
 		QStringListModel withoutKeywordsModel;
@@ -74,5 +72,7 @@ class MainWindow : public QMainWindow {
 		PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
+        Collection collection;
         MusicDb db;
+        QStringList headerLabels;
 };

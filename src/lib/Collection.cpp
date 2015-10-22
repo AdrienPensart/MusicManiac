@@ -14,22 +14,29 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost::lambda;
 
-Collection::Collection(const std::string& _folder, bool _regen) :
-	folder(_folder),
-    regen(_regen),
-	iterator(_folder),
+Collection::Collection() :
+    regen(false),
 	totalCount(0),
     readCount(0)
 {
-	// "Constructing directory " + folder;
-	try {
-		for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
-			totalCount++;
-		}
-		// "Total count of files in " + folder + " : " + Common::toString(totalCount);
-	} catch (boost::filesystem::filesystem_error& fex) {
-		// "Exception " + std::string(fex.what());
-	}
+}
+
+void Collection::setRegen(bool _regen){
+    regen = _regen;
+}
+
+void Collection::setFolder(const std::string& _folder){
+    folder = _folder;
+    // "Constructing directory " + folder;
+    try {
+        for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
+            totalCount++;
+        }
+        // "Total count of files in " + folder + " : " + Common::toString(totalCount);
+    } catch (boost::filesystem::filesystem_error& fex) {
+        // "Exception " + std::string(fex.what());
+    }
+    iterator = recursive_directory_iterator(folder);
 }
 
 void Collection::generateBest(){
@@ -59,7 +66,7 @@ void Collection::generateBestByKeyword(){
 	without.push_back("cutoff");
 	// generate all keywords playlists for each artist
 	for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
-		for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+        for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
 			Playlist playlist(folder+"/"+i->first+"/"+j->first+".m3u");
 			playlist.setRating(4);
 			std::vector<std::string> artists;
@@ -111,6 +118,37 @@ const Musics& Collection::getMusics() const{
 	return musics;
 }
 
+void Collection::buildTree() {
+    // build tree
+    for(auto music_pair : musics){
+        MusicFile * music = music_pair.second;
+        bool artist_found = false;
+        for(auto &artist : tree){
+            if(music->getArtist() == artist.first){
+                artist_found = true;
+                bool album_found = false;
+                for(auto &album : artist.second){
+                    if(music->getAlbum() == album.first){
+                        album_found = true;
+                        album.second.push_back(music);
+                        break;
+                    }
+                }
+                if(!album_found){
+                    artist.second.push_back(make_pair(music->getAlbum(), MusicVector{music}));
+                    break;
+                }
+            }
+            if(artist_found){
+                break;
+            }
+        }
+        if(!artist_found){
+            tree.push_back(make_pair(music->getArtist(), MusicVectorByAlbum {make_pair(music->getAlbum(), MusicVector{music})}));
+        }
+    }
+}
+
 void Collection::loadAll(){
     try {
         while(factory()) {
@@ -120,14 +158,14 @@ void Collection::loadAll(){
                  << " : " << std::fixed << std::showpoint << std::setprecision(2) << progression()*100 << '\n';
             */
         }
+        buildTree();
     } catch (boost::filesystem::filesystem_error& fex) {
         cout << "Exception " + std::string(fex.what());
     }
 }
 
-void Collection::loadFile(const std::string& filepath){
-    MusicFile * file = getFile(filepath, regen);
-    if(!file && boost::algorithm::ends_with(filepath, ".m3u")) {
+void Collection::loadFile(const std::string& filepath){ 
+    if(boost::algorithm::ends_with(filepath, ".m3u")) {
 		if(playlists.count(filepath)){
 			cout << "Playlist already exists, deleting old..." << filepath << '\n';
 			delete playlists[filepath];
@@ -136,6 +174,7 @@ void Collection::loadFile(const std::string& filepath){
 		playlist->load();
 		playlists[filepath] = playlist;
     } else {
+        MusicFile * file = getFile(filepath, regen);
         if(musics.count(filepath)){
             cout << "Music already exists, deleting old..." << filepath << '\n';
             delete musics[filepath];
@@ -183,13 +222,19 @@ MusicFile * Collection::getFile(const std::string& filepath, bool _regen) {
 }
 
 void Collection::push(MusicFile * music){
-	musics[music->getFilepath()] = music;
-	artists[music->getArtist()][music->getFilepath()] = music;
-	genres[music->getGenre()][music->getFilepath()] = music;
-	for(const std::string keyword : music->getSplittedKeywords()){
-		keywords[keyword][music->getFilepath()] = music;
-		keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
-	}
+    if(music){
+        musics[music->getFilepath()] = music;
+        artists[music->getArtist()][music->getFilepath()] = music;
+        genres[music->getGenre()][music->getFilepath()] = music;
+        for(auto keyword : music->getSplittedKeywords()){
+            keywords[keyword][music->getFilepath()] = music;
+            keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
+        }
+    }
+}
+
+Tree& Collection::getTree() {
+    return tree;
 }
 
 const Artists& Collection::getArtists()const{

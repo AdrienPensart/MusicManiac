@@ -32,10 +32,30 @@ void Usage(ezOptionParser& opt) {
 };
 
 int main(int argc, char * argv[]) {
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+    /*
+    Collection collection("/home/crunch/music");
+    collection.loadAll();
+    Tree tree = collection.buildTree();
+    for(int i = 0; i < tree.size(); i++){
+        cout << tree[i].first << " : " << tree[i].second.size() << " albums\n";
+        for(int j = 0; j < tree[i].second.size(); j++){
+            cout << "\t" << tree[i].second[j].first << " : " << tree[i].second[j].second.size() << " songs\n";
+            for(int h = 0; h < tree[i].second[j].second.size(); h++){
+                cout << "\t\t" << tree[i].second[j].second[h]->getTitle() << " at index (" << i << "," << j << "," << h << ")\n";
+            }
+        }
+    }
+    return 0;
+
     ezOptionParser opt;
     opt.overview = "MusicManiac swiss army knife";
     opt.syntax = "musicmaniac [OPTIONS]";
-    opt.example = "musicmaniac -d music.sqlite -m My_Music_Folder\n\n";
+    opt.example = "\nFill the database with musics : musicmaniac -d music.sqlite -m My_Music_Folder\n"
+                  "\nUse the QT GUI : musicmaniac -d music.sqlite --gui";
     opt.footer = "musicmaniac v1 Copyright (C) 2015 Adrien Pensart\nThis program is free and without warranty.\n";
 
     opt.add(
@@ -65,6 +85,7 @@ int main(int argc, char * argv[]) {
         0,
         1,
         0,
+        "Fuse filesystem mode",
         "-f",
         "--filesystem"
     );
@@ -84,7 +105,7 @@ int main(int argc, char * argv[]) {
         0,
         1,
         0,
-        "SQLite Database"
+        "SQLite Database",
         "-d",
         "--database",
         "--db"
@@ -127,7 +148,6 @@ int main(int argc, char * argv[]) {
 
         // filesystem mode
         if (opt.isSet("-f")) {
-            /*
             int i;
             for(i = 1; i < argc && (argv[i][0] == '-'); i++) {
                 if(i == argc) {
@@ -144,7 +164,6 @@ int main(int argc, char * argv[]) {
             int fuse_stat = fuse_main(argc, argv, &musicfs_oper, NULL);
             cout << "fuse_main returned " << fuse_stat << "\n";
             return fuse_stat;
-            */
         }
 
         if (opt.isSet("-g")) {
@@ -171,7 +190,6 @@ int main(int argc, char * argv[]) {
             //db.generateBestByKeyword();
             //db.generateBest();
         }
-        /*
             string line;
             while (getline(cin, line)) {
                 std::vector<std::string> output;
@@ -207,9 +225,8 @@ int main(int argc, char * argv[]) {
                 }
             }
         }
-        */
     } catch(std::exception& e){
         qDebug() << e.what();
     }
-    return 0;
+    */
 }

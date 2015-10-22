@@ -1,5 +1,4 @@
 #include "CustomSortFilterProxyModel.hpp"
-#include "MusicFolderModel.hpp"
 #include <common/Utility.hpp>
 #include <QSet>
 #include <QDebug>
@@ -38,7 +37,7 @@ void CustomSortFilterProxyModel::maxDurationChanged(QString _maxDuration) {
 QStringList CustomSortFilterProxyModel::getKeywords(){
 	QStringList qsl;
 	for(int row = 0; row < rowCount(); row++){
-		QModelIndex keywords_index = index(row, MusicFolderModel::COLUMN_KEYWORDS);
+        QModelIndex keywords_index = index(row, MusicModel::COLUMN_KEYWORDS);
 		QString keywords = data(keywords_index).toString();
 		std::vector<std::string> currentKeywords;
 		Common::split(keywords.toStdString(), " ", currentKeywords);
@@ -55,19 +54,19 @@ QStringList CustomSortFilterProxyModel::getKeywords(){
 bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const {
 	QAbstractItemModel * model = sourceModel();
 
-	QModelIndex artist_index = model->index(sourceRow, MusicFolderModel::COLUMN_ARTIST, sourceParent);
+    QModelIndex artist_index = model->index(sourceRow, MusicModel::COLUMN_ARTIST, sourceParent);
 	QString currentArtist = model->data(artist_index).toString();
 	if(!artists.stringList().contains(currentArtist)) {
 		return false;
 	}
 
-	QModelIndex genre_index = model->index(sourceRow, MusicFolderModel::COLUMN_GENRE, sourceParent);
+    QModelIndex genre_index = model->index(sourceRow, MusicModel::COLUMN_GENRE, sourceParent);
 	QString currentGenre = model->data(genre_index).toString();
 	if(!genres.stringList().contains(currentGenre)) {
 		return false;
 	}
 
-	QModelIndex keywords_index = model->index(sourceRow, MusicFolderModel::COLUMN_KEYWORDS, sourceParent);
+    QModelIndex keywords_index = model->index(sourceRow, MusicModel::COLUMN_KEYWORDS, sourceParent);
 	QString keywords = model->data(keywords_index).toString();
 	foreach(QString keyword, without.stringList()) {
 		if(keywords.contains(keyword)) {
@@ -89,13 +88,13 @@ bool CustomSortFilterProxyModel::filterAcceptsRow (int sourceRow, const QModelIn
 		}
 	}
 
-	QModelIndex rating_index = model->index(sourceRow, MusicFolderModel::COLUMN_RATING, sourceParent);
+    QModelIndex rating_index = model->index(sourceRow, MusicModel::COLUMN_RATING, sourceParent);
 	double currentRating = model->data(rating_index).toDouble();
 	if(currentRating < rating) {
 		return false;
 	}
 
-	QModelIndex duration_index = model->index(sourceRow, MusicFolderModel::COLUMN_DURATION, sourceParent);
+    QModelIndex duration_index = model->index(sourceRow, MusicModel::COLUMN_DURATION, sourceParent);
 	QString currentDuration = model->data(duration_index).toString();
 
 	QString tempCurrentDuration = currentDuration;

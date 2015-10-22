@@ -27,7 +27,8 @@ void MusicFileSystem::AbsPath(char dest[PATH_MAX], const char *path) {
 void MusicFileSystem::setRootDir(const char *path) {
 	printf("setting FS root to: %s\n", path);
 	_root = path;
-    collection = new Collection(path);
+    collection = new Collection();
+    collection->setFolder(path);
     collection->loadAll();
 }
 

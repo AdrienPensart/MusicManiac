@@ -8,8 +8,9 @@
 #include "common/Utility.hpp"
 #include "MainWindow.hpp"
 #include "Collection.hpp"
-#include "MusicFolderModel.hpp"
 #include "PlaylistModel.hpp"
+
+using std::cout;
 
 QStringList vectorToStringList(const std::vector<std::string>& input) {
 	QStringList output;
@@ -21,7 +22,7 @@ QStringList vectorToStringList(const std::vector<std::string>& input) {
 
 std::vector<std::string> stringListToVector(const QStringList& input) {
 	std::vector<std::string> output;
-	foreach(QString str, input) {
+    for(auto str : input) {
 		output.push_back(str.toStdString());
 	}
 	return output;
@@ -50,11 +51,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->outGenreButton, SIGNAL(clicked()), this, SLOT(deselectGenre()));
 	connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(reset()));
 
-	musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
-
-	connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
+    /*
+    musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
+    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
 	connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
 	connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
+    */
+
+    headerLabels.append("Artist");
 
 	withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
 	ui->withoutKeywordsView->setModel(&withoutKeywordsModel);
@@ -85,19 +89,24 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->selectedGenresView->setSelectionModel(selectedGenresSelection);
 
 	playlistModel = new PlaylistModel(this);
-	musicModel = new MusicFolderModel(this);
+    /*
+    musicModel = new MusicModel(collection, this);
 	musicProxyModel->setSourceModel(musicModel);
+    */
 	ui->playlistView->setModel(playlistModel);
 	ui->playlistView->setSortingEnabled(true);
 	ui->playlistView->sortByColumn(PlaylistModel::COLUMN_ARTISTS, Qt::AscendingOrder);
 	ui->playlistView->horizontalHeader()->setStretchLastSection(true);
 
-	ui->musicView->setModel(musicProxyModel);
+    //ui->musicView->setModel(musicProxyModel);
+    //ui->musicView->setModel(&musicModel);
+    /*
 	ui->musicView->setSortingEnabled(true);
-	ui->musicView->sortByColumn(MusicFolderModel::COLUMN_ARTIST, Qt::AscendingOrder);
-	ui->musicView->horizontalHeader()->setStretchLastSection(true);
-	musicProxyModel->setFilterKeyColumn(MusicFolderModel::COLUMN_KEYWORDS);
+    ui->musicView->sortByColumn(MusicModel::COLUMN_ARTIST, Qt::AscendingOrder);
+    ui->musicView->horizontalHeader()->setStretchLastSection(true);
+    musicProxyModel->setFilterKeyColumn(MusicModel::COLUMN_KEYWORDS);
 	musicProxyModel->setDynamicSortFilter(true);
+    */
 }
 
 MainWindow::~MainWindow() {
@@ -130,11 +139,13 @@ void MainWindow::generatePlaylist() {
 	playlist.setWith(stringListToVector(withKeywordsModel.stringList()));
 	playlist.setWithout(stringListToVector(withoutKeywordsModel.stringList()));
 
+    /*
 	for(int i = 0; i < musicProxyModel->rowCount(); i++) {
 		QModelIndex index = musicProxyModel->index(i,0);
 		QModelIndex index2 = musicProxyModel->mapToSource(index);
-		playlist.add(musicModel->musicAt(index2.row()));
+        playlist.add(musicModel->musicAt(index2.row()));
 	}
+    */
 	playlist.save();
 }
 
@@ -148,7 +159,7 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
 	}
 	list.sort();
 	destinationModel.setStringList(list);
-	musicProxyModel->refilter();
+    //musicProxyModel->refilter();
 }
 
 void MainWindow::selectGenre() {
@@ -184,6 +195,7 @@ void MainWindow::withToAvailable() {
 }
 
 void MainWindow::loadPlaylist(QModelIndex index) {
+    /*
 	QString playlistFilepath = playlistModel->itemData(index).first().toString();
 	// playlistFilepath.toStdString();
 	Playlist playlist(playlistFilepath.toStdString());
@@ -200,23 +212,26 @@ void MainWindow::loadPlaylist(QModelIndex index) {
 
 	withKeywordsModel.setStringList(vectorToStringList(playlist.getWith()));
 	withoutKeywordsModel.setStringList(vectorToStringList(playlist.getWithout()));
-	musicProxyModel->refilter();
-	availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
+    musicProxyModel->refilter();
+    availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
+    */
 }
 
 void MainWindow::reset() {
+    /*
 	withoutKeywordsModel.setStringList(empty);
 	withKeywordsModel.setStringList(empty);
 	availableArtistsModel.setStringList(empty);
 	availableGenresModel.setStringList(empty);
 
-	selectedArtistsModel.setStringList(musicModel->getArtists());
-	availableKeywordsModel.setStringList(musicModel->getKeywords());
-	selectedGenresModel.setStringList(musicModel->getGenres());
+    selectedArtistsModel.setStringList(musicModel->getArtists());
+    availableKeywordsModel.setStringList(musicModel->getKeywords());
+    selectedGenresModel.setStringList(musicModel->getGenres());
 
-	ui->musicView->resizeColumnsToContents();
-	ui->musicView->reset();
-	musicProxyModel->refilter();
+    ui->musicView->resizeColumnsToContents();
+    ui->musicView->reset();
+    musicProxyModel->refilter();
+    */
 }
 
 void MainWindow::loadFolder() {
@@ -234,19 +249,22 @@ void MainWindow::loadFolderWith(bool regen) {
 
 void MainWindow::rescanFolder(bool regen){
 	if(!basefolder.size()) {
-		// "Invalid folder";
+        cout << "Invalid folder\n";
 		return;
 	}
 
-	Collection collection(basefolder.toStdString(), regen);
+    cout << "Loading " << basefolder.toStdString() << "\n";
+    collection.setFolder(basefolder.toStdString());
+    collection.setRegen(regen);
+
 	QProgressDialog progress("Loading your music...", "Abort", 0, collection.getTotalCount(), this);
 	progress.setWindowTitle(this->windowTitle());
 	progress.setWindowModality(Qt::WindowModal);
 	progress.show();
-
 	try {
 		while(collection.factory()) {
 			if (progress.wasCanceled()) {
+                cout << "Loading canceled\n";
 				return;
 			}
 			progress.setValue(collection.getReadCount());
@@ -256,22 +274,42 @@ void MainWindow::rescanFolder(bool regen){
 		// "Exception " + std::string(fex.what());
 		progress.cancel();
 	}
+    progress.close();
 
-	auto musics = collection.getMusics();
-	musicModel->clear();
-	for(Musics::iterator i = musics.begin(); i != musics.end(); i++){
-		musicModel->add(i->second);
-	}
+    cout << "Loading tree view\n";
+    collection.buildTree();
+    musicModel.clear();
+    musicModel.setHorizontalHeaderLabels(headerLabels);
+    for(const auto& artist : collection.getTree()){
+        QStandardItem * artistItem = new QStandardItem(artist.first.c_str());
+        auto albums = artist.second;
+        QStandardItem * albumHeaderItem = new QStandardItem("Album");
+        artistItem->appendRow(albumHeaderItem);
+        for(const auto& album : albums){
+            QStandardItem * albumItem = new QStandardItem(album.first.c_str());
+            auto songs = album.second;
+            QStandardItem * songHeaderItem = new QStandardItem("Song");
+            albumItem->appendRow(songHeaderItem);
+            for(const auto& song : songs){
+                QStandardItem * songItem = new QStandardItem(song->getTitle().c_str());
+                albumItem->appendRow(songItem);
+            }
+            artistItem->appendRow(albumItem);
+        }
+        musicModel.appendRow(artistItem);
+    }
+    ui->musicView->setModel(&musicModel);
 
+    /*
 	auto playlists = collection.getPlaylists();
 	playlistModel->clear();
 	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
 		playlistModel->add(i->second);
 	}
 	reset();
-
 	collection.generateBest();
 	collection.generateBestByKeyword();
+    */
 }
 
 void MainWindow::aboutQt() {

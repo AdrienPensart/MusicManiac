@@ -9,14 +9,23 @@
 #include <boost/filesystem.hpp>
 
 typedef std::map<std::string, Musics > Artists;
+typedef std::map<std::string, Musics > Albums;
 typedef std::map<std::string, Musics > Keywords;
 typedef std::map<std::string, Musics > Genres;
 typedef std::map<std::string, Keywords > KeywordsByArtist;
 
+typedef std::vector<MusicFile*> MusicVector;
+typedef std::vector<std::pair<std::string, MusicVector>> MusicVectorByAlbum;
+typedef std::vector<std::pair<std::string, MusicVectorByAlbum>> Tree;
+
 class Collection {
 	public:
 
-        Collection(const std::string& folder, bool regen=false);
+        Collection();
+
+        void setRegen(bool regen);
+        void setFolder(const std::string& folder);
+
 		bool factory();
 		void refreshPlaylists();
 		void generateBest();
@@ -28,20 +37,23 @@ class Collection {
 		const Keywords& getKeywords()const;
 		const Genres& getGenres()const;
 		bool valid();
-		double progression() const;
+        double progression() const;
 		int getTotalCount() const;
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
         static MusicFile * getFile(const std::string& filepath, bool _regen=false);
         void loadAll();
+        void buildTree();
+        Tree& getTree();
 
 	private:
 
 		void push(MusicFile * );
 		boost::filesystem::recursive_directory_iterator iterator;
-		const std::string folder;
+        std::string folder;
 		unsigned int totalCount;
 		unsigned int readCount;
+        Tree tree;
 		Musics musics;
 		Playlists playlists;
 		Artists artists;

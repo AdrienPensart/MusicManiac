@@ -64,9 +64,8 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 
 ## ToDo
 
-- youtube URL fetcher integration in db
-- mark playlist to not sync with device
 - album mood
 - web exposition daemon
 - player
+- reproduce fuse : ./musicfs /home/crunch/music /home/crunch/fiio -f -s
 
