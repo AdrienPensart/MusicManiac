@@ -36,23 +36,23 @@ size_t Playlist::size()const {
 
 bool Playlist::conform(MusicFile *music){
     if (artists.size() && std::find(artists.begin(), artists.end(), music->getArtist()) == artists.end()) {
-        cout << "Artist criteria does not match\n";
+        //cout << "Artist criteria does not match\n";
         return false;
     }
 
     const std::vector<std::string> splittedKeywords = music->getSplittedKeywords();
     if(std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), without.begin(), without.end()) != splittedKeywords.end()) {
-        cout << "Without criteria does not match\n";
+        //cout << "Without criteria does not match\n";
         return false;
     }
 
     if(with.size() && std::find_first_of(splittedKeywords.begin(), splittedKeywords.end(), with.begin(), with.end()) == splittedKeywords.end()) {
-        cout << "With criteria does not match\n";
+        //cout << "With criteria does not match\n";
         return false;
     }
 
     if(music->getRating() < rating) {
-        cout << "Rating criteria does not match " << music->getRating() << " < " << rating << "\n";
+        //cout << "Rating criteria does not match " << music->getRating() << " < " << rating << "\n";
         return false;
     }
 
@@ -68,20 +68,20 @@ bool Playlist::conform(MusicFile *music){
     Common::fromString(tempMaxDuration, max);
 
     if(min > currentDuration || max < currentDuration) {
-        cout << "Duration criteria does not match\n";
+        //cout << "Duration criteria does not match\n";
         return false;
     }
     return true;
 }
 
 void Playlist::refresh(Musics musics) {
-	if(!valid){
+    if(!valid){
 		return;
 	}
 
 	// "Refreshing playlist " + filepath;
 	// filtering
-	for(Musics::iterator i = musics.begin();i != musics.end(); i++) {
+    for(Musics::iterator i = musics.begin(); i != musics.end(); i++) {
 		MusicFile * music = i->second;
         if(conform(music)) {
             // "ADDING : " + music->getFilepath();
@@ -100,9 +100,9 @@ void Playlist::load() {
 	std::getline(playlist, musicmaniac);
 	if(header != HEADER || musicmaniac != MUSICMANIAC) {
 		cout << "Not a MusicManiac playlist : " + filepath + "\n";
+        valid = false;
 		return;
 	}
-	valid = false;
 
 	std::string line;
 	while(line != ENDHEADER) {
@@ -133,10 +133,13 @@ void Playlist::load() {
 			//cout << "Unrecognized setting : " + line;
 		}
 	}
+
+    cout << "Loading of playlist " << filepath << " ok\n";
 }
 
 void Playlist::save() {
 	if(!valid){
+        cout << "Invalid playlist " << filepath << " not saving\n";
 		return;
 	}
 
@@ -171,6 +174,7 @@ void Playlist::save() {
 		m3u_file << m3u_content.str();
 		m3u_file.close();
 		filecontent = m3u_content.str();
+        cout << "Playlist saved : " << filecontent << endl;
 	} else {
 		cout << "Playlist did not changed : " << filepath << endl;
 	}

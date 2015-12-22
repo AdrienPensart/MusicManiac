@@ -31,15 +31,12 @@ void Usage(ezOptionParser& opt) {
     std::cout << usage;
 };
 
-int main(int argc, char * argv[]) {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+int main(int argc, char * argv[]) try {
+    Collection collection;
     /*
-    Collection collection("/home/crunch/music");
+    collection.setFolder("/home/crunch/music");
     collection.loadAll();
-    Tree tree = collection.buildTree();
+    Tree tree = collection.getTree();
     for(int i = 0; i < tree.size(); i++){
         cout << tree[i].first << " : " << tree[i].second.size() << " albums\n";
         for(int j = 0; j < tree[i].second.size(); j++){
@@ -49,8 +46,10 @@ int main(int argc, char * argv[]) {
             }
         }
     }
+    collection.generateBest();
+    collection.generateBestByKeyword();
     return 0;
-
+    */
     ezOptionParser opt;
     opt.overview = "MusicManiac swiss army knife";
     opt.syntax = "musicmaniac [OPTIONS]";
@@ -70,46 +69,11 @@ int main(int argc, char * argv[]) {
         "--usage" // Flag token.
     );
 
-    opt.add(
-        "",
-        0,
-        0,
-        0,
-        "Start GUI",
-        "-g",
-        "--gui"
-    );
-
-    opt.add(
-        "",
-        0,
-        1,
-        0,
-        "Fuse filesystem mode",
-        "-f",
-        "--filesystem"
-    );
-
-    opt.add(
-        "",
-        0,
-        1,
-        0,
-        "Music folder",
-        "-m",
-        "--music"
-    );
-
-    opt.add(
-        "",
-        0,
-        1,
-        0,
-        "SQLite Database",
-        "-d",
-        "--database",
-        "--db"
-    );
+    opt.add("", 0, 0, 0, "Regen UUID", "-r", "--regen");
+    opt.add("", 0, 0, 0, "Start GUI", "-g", "--gui");
+    opt.add("", 0, 1, 0, "FUSE mode", "-f", "--filesystem");
+    opt.add("", 0, 1, 0, "Music folder", "-m", "--music");
+    opt.add("", 0, 1, 0, "SQLite Database", "-d", "--database", "--db");
 
     const char ** cargv = const_cast<const char **> (argv);
     opt.parse(argc, cargv);
@@ -139,94 +103,101 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    try {
-        std::string dbpath;
-        if (opt.isSet("-d")) {
-            opt.get("-d")->getString(dbpath);
-            cout << "Database selected : " << dbpath << '\n';
-        }
+    std::string dbpath;
+    if (opt.isSet("-d")) {
+        opt.get("-d")->getString(dbpath);
+        cout << "Database selected : " << dbpath << '\n';
+    }
 
-        // filesystem mode
-        if (opt.isSet("-f")) {
-            int i;
-            for(i = 1; i < argc && (argv[i][0] == '-'); i++) {
-                if(i == argc) {
-                    return (-1);
-                }
-            }
-            MusicFileSystem::instance().setRootDir(argv[1]);
+    bool regen = false;
+    if (opt.isSet("-r")) {
+        regen = true;
+        cout << "Regen UUID selected : " << regen << '\n';
+        collection.setRegen(regen);
+    }
 
-            for(; i < argc; i++) {
-                argv[i] = argv[i+1];
-            }
-            argc--;
-
-            int fuse_stat = fuse_main(argc, argv, &musicfs_oper, NULL);
-            cout << "fuse_main returned " << fuse_stat << "\n";
-            return fuse_stat;
-        }
-
-        if (opt.isSet("-g")) {
-            QApplication a(argc, argv);
-            MainWindow w;
-            w.show();
-            return a.exec();
-        }
-
-        if (opt.isSet("-m")) {
-            std::string musicpath;
-            opt.get("-m")->getString(musicpath);
-            cout << "Music folder selected : " << musicpath << '\n';
-
-            Collection collection(musicpath, false);
-            collection.loadAll();
-            collection.consolidateTitles();
-            collection.generateBest();
-            collection.generateBestByKeyword();
-
-            //MusicDb db(dbpath.c_str());
-            //db.save(collection);
-            //db.fetchYoutube();
-            //db.generateBestByKeyword();
-            //db.generateBest();
-        }
-            string line;
-            while (getline(cin, line)) {
-                std::vector<std::string> output;
-                Common::split(line, ":", output);
-                if(output.size() != 2){
-                    qDebug() << "Invalid input";
-                }
-
-                std::vector<std::string> events;
-                Common::split(output[0], ",", events);
-                for(auto event : events){
-                    if(event == "DELETE" ||
-                       event == "CREATE" ||
-                       event == "CLOSE_WRITE"){
-                    }
-                }
-
-                MusicFile * file = Collection::getFile(filepath);
-                if(file){
-                    json j;
-
-                    j["title"] = file->getTitle();
-                    j["artist"] = file->getArtist();
-                    j["filepath"] = file->getFilepath();
-                    j["genre"] = file->getGenre();
-                    j["album"] = file->getAlbum();
-                    j["rating"] = file->getRating();
-                    j["keywords"] = file->getSplittedKeywords();
-                    j["uuid"] = file->getUUID();
-                    j["duration"] = file->getDurationInSeconds();
-
-                    std::cout << j.dump(4) << std::endl;
-                }
+    // filesystem mode
+    if (opt.isSet("-f")) {
+        int i;
+        for(i = 1; i < argc && (argv[i][0] == '-'); i++) {
+            if(i == argc) {
+                return (-1);
             }
         }
-    } catch(std::exception& e){
-        qDebug() << e.what();
+        MusicFileSystem::instance().setRootDir(argv[1]);
+
+        for(; i < argc; i++) {
+            argv[i] = argv[i+1];
+        }
+        argc--;
+
+        int fuse_stat = fuse_main(argc, argv, &musicfs_oper, NULL);
+        cout << "fuse_main returned " << fuse_stat << "\n";
+        return fuse_stat;
+    }
+
+    if (opt.isSet("-g")) {
+        QApplication a(argc, argv);
+        MainWindow w;
+        w.show();
+        return a.exec();
+    }
+
+    if (opt.isSet("-m")) {
+        std::string musicpath;
+        opt.get("-m")->getString(musicpath);
+        cout << "Music folder selected : " << musicpath << '\n';
+        collection.setFolder(musicpath);
+    }
+
+    collection.loadAll();
+    collection.consolidateTitles();
+    collection.generateBest();
+    collection.generateBestByKeyword();
+
+    //MusicDb db(dbpath.c_str());
+    //db.save(collection);
+    //db.fetchYoutube();
+    //db.generateBestByKeyword();
+    //db.generateBest();
+
+    /*
+    string line;
+    while (getline(cin, line)) {
+        std::vector<std::string> output;
+        Common::split(line, ":", output);
+        if(output.size() != 2){
+            qDebug() << "Invalid input";
+        }
+
+        std::vector<std::string> events;
+        Common::split(output[0], ",", events);
+        for(auto event : events){
+            if(event == "DELETE" ||
+               event == "CREATE" ||
+               event == "CLOSE_WRITE"){
+            }
+        }
+
+        MusicFile * file = Collection::getFile(filepath);
+        if(file){
+            json j;
+
+            j["title"] = file->getTitle();
+            j["artist"] = file->getArtist();
+            j["filepath"] = file->getFilepath();
+            j["genre"] = file->getGenre();
+            j["album"] = file->getAlbum();
+            j["rating"] = file->getRating();
+            j["keywords"] = file->getSplittedKeywords();
+            j["uuid"] = file->getUUID();
+            j["duration"] = file->getDurationInSeconds();
+
+            std::cout << j.dump(4) << std::endl;
+        }
     }
     */
+} catch(std::exception& e){
+    qDebug() << e.what();
+    return 0;
 }

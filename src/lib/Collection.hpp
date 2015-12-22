@@ -42,7 +42,7 @@ class Collection {
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
         static MusicFile * getFile(const std::string& filepath, bool _regen=false);
-        void loadAll();
+        void loadAll(bool refresh=false);
         void buildTree();
         Tree& getTree();
 

@@ -149,7 +149,7 @@ void Collection::buildTree() {
     }
 }
 
-void Collection::loadAll(){
+void Collection::loadAll(bool refresh){
     try {
         while(factory()) {
             /*
@@ -161,6 +161,10 @@ void Collection::loadAll(){
         buildTree();
     } catch (boost::filesystem::filesystem_error& fex) {
         cout << "Exception " + std::string(fex.what());
+    }
+
+    if(refresh){
+        refreshPlaylists();
     }
 }
 
@@ -253,6 +257,7 @@ void Collection::refreshPlaylists(){
 	for(Playlists::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
 		playlist->second->load();
 		playlist->second->refresh(musics);
+        playlist->second->save();
 	}
 }
 
