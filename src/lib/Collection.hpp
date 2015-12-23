@@ -24,7 +24,8 @@ class Collection {
         Collection();
 
         void setRegen(bool regen);
-        void setFolder(const std::string& folder);
+        void setRoot(const std::string& folder);
+        const std::string& getRoot()const;
 
 		bool factory();
 		void refreshPlaylists();

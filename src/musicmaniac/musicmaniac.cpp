@@ -1,6 +1,4 @@
-#include "fs/wrap.hpp"
 #include "fs/MusicFileSystem.hpp"
-#include <fuse.h>
 
 #include "common/Utility.hpp"
 #include "db/MusicDb.hpp"
@@ -69,10 +67,9 @@ int main(int argc, char * argv[]) try {
         "--usage" // Flag token.
     );
 
-    opt.add("", 0, 0, 0, "Regen UUID", "-r", "--regen");
-    opt.add("", 0, 0, 0, "Start GUI", "-g", "--gui");
-    opt.add("", 0, 1, 0, "FUSE mode", "-f", "--filesystem");
-    opt.add("", 0, 1, 0, "Music folder", "-m", "--music");
+    opt.add("", 0, 0, 0, "Regen UUID", "--regen");
+    opt.add("", 0, 1, 0, "FUSE mode", "-f", "--filesystem", "--fuse");
+    opt.add("", 0, 1, 0, "Music folder, if not there, start GUI", "-m", "--music");
     opt.add("", 0, 1, 0, "SQLite Database", "-d", "--database", "--db");
 
     const char ** cargv = const_cast<const char **> (argv);
@@ -80,11 +77,6 @@ int main(int argc, char * argv[]) try {
     if (opt.isSet("-h")) {
         Usage(opt);
         return 1;
-    }
-
-    if (opt.isSet("-g")) {
-        cout << "Starting GUI.\n";
-        return 0;
     }
 
     std::vector<std::string> badOptions;
@@ -109,51 +101,40 @@ int main(int argc, char * argv[]) try {
         cout << "Database selected : " << dbpath << '\n';
     }
 
-    bool regen = false;
-    if (opt.isSet("-r")) {
-        regen = true;
-        cout << "Regen UUID selected : " << regen << '\n';
-        collection.setRegen(regen);
-    }
-
-    // filesystem mode
-    if (opt.isSet("-f")) {
-        int i;
-        for(i = 1; i < argc && (argv[i][0] == '-'); i++) {
-            if(i == argc) {
-                return (-1);
-            }
-        }
-        MusicFileSystem::instance().setRootDir(argv[1]);
-
-        for(; i < argc; i++) {
-            argv[i] = argv[i+1];
-        }
-        argc--;
-
-        int fuse_stat = fuse_main(argc, argv, &musicfs_oper, NULL);
-        cout << "fuse_main returned " << fuse_stat << "\n";
-        return fuse_stat;
-    }
-
-    if (opt.isSet("-g")) {
+    // if no root dir passed, start GUI
+    if (opt.isSet("-m")) {
+        std::string musicpath;
+        opt.get("-m")->getString(musicpath);
+        cout << "Music folder selected : " << musicpath << '\n';
+        collection.setRoot(musicpath);
+        collection.loadAll(true);
+    } else {
         QApplication a(argc, argv);
         MainWindow w;
         w.show();
         return a.exec();
     }
 
-    if (opt.isSet("-m")) {
-        std::string musicpath;
-        opt.get("-m")->getString(musicpath);
-        cout << "Music folder selected : " << musicpath << '\n';
-        collection.setFolder(musicpath);
+    bool regen = false;
+    if (opt.isSet("--regen")) {
+        regen = true;
+        cout << "Regen UUID selected : " << regen << '\n';
+        collection.setRegen(regen);
     }
 
-    collection.loadAll();
-    collection.consolidateTitles();
-    collection.generateBest();
-    collection.generateBestByKeyword();
+    // filesystem mode
+    if (opt.isSet("-f") && (opt.isSet("-m"))) {
+        std::string mountpoint;
+        opt.get("-f")->getString(mountpoint);
+
+        MusicFileSystem mfs(collection);
+        return mfs.run(mountpoint);
+    }
+
+    //collection.loadAll();
+    //collection.consolidateTitles();
+    //collection.generateBest();
+    //collection.generateBestByKeyword();
 
     //MusicDb db(dbpath.c_str());
     //db.save(collection);

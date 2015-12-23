@@ -25,7 +25,7 @@ void Collection::setRegen(bool _regen){
     regen = _regen;
 }
 
-void Collection::setFolder(const std::string& _folder){
+void Collection::setRoot(const std::string& _folder){
     folder = _folder;
     // "Constructing directory " + folder;
     try {
@@ -37,6 +37,10 @@ void Collection::setFolder(const std::string& _folder){
         // "Exception " + std::string(fex.what());
     }
     iterator = recursive_directory_iterator(folder);
+}
+
+const std::string& Collection::getRoot() const {
+    return folder;
 }
 
 void Collection::generateBest(){
@@ -168,6 +172,17 @@ void Collection::loadAll(bool refresh){
     }
 }
 
+bool Collection::factory() {
+    if(!valid()) {
+        return false;
+    }
+    readCount++;
+    Debugger::instance().setCurrentMusic(iterator->path().native());
+    loadFile(iterator->path().native());
+    ++iterator;
+    return true;
+}
+
 void Collection::loadFile(const std::string& filepath){ 
     if(boost::algorithm::ends_with(filepath, ".m3u")) {
 		if(playlists.count(filepath)){
@@ -259,15 +274,4 @@ void Collection::refreshPlaylists(){
 		playlist->second->refresh(musics);
         playlist->second->save();
 	}
-}
-
-bool Collection::factory() {
-	if(!valid()) {
-		return false;
-	}
-	readCount++;
-	Debugger::instance().setCurrentMusic(iterator->path().native());
-    loadFile(iterator->path().native());
-	++iterator;
-	return true;
 }

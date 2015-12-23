@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <set>
 using namespace std;
 
 const std::string HEADER = "#EXTM3U";
@@ -110,9 +111,13 @@ void Playlist::load() {
 		// line;
 		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
 			Common::split(line.substr(ARTISTS.size()), ",", artists);
+            std::set<std::string> s( artists.begin(), artists.end() );
+            artists.assign( s.begin(), s.end() );
 			//cout << "Getting artists : " + Common::implode(artists) + "\n";
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
 			Common::split(line.substr(GENRES.size()), ",", genres);
+            std::set<std::string> s( genres.begin(), genres.end() );
+            genres.assign( s.begin(), s.end() );
 			//cout << "Getting genres : " + Common::implode(genres) + "\n";
 		} else if(!line.compare(0, RATING.length(), RATING)) {
 			Common::fromString(line.substr(RATING.size()), rating);
@@ -125,9 +130,13 @@ void Playlist::load() {
 			//cout << "Getting max duration : " + maxDuration + "\n";
 		} else if(!line.compare(0, WITHOUT.length(), WITHOUT)) {
 			Common::split(line.substr(WITHOUT.size()), ",", without);
+            std::set<std::string> s( without.begin(), without.end() );
+            without.assign( s.begin(), s.end() );
 			//cout << "Getting without keywords : " + Common::implode(without) + "\n";
 		} else if(!line.compare(0, WITH.length(), WITH)) {
 			Common::split(line.substr(WITH.size()), ",", with);
+            std::set<std::string> s( with.begin(), with.end() );
+            with.assign( s.begin(), s.end() );
 			//cout << "Getting with keywords : " + Common::implode(with) + "\n";
 		} else {
 			//cout << "Unrecognized setting : " + line;

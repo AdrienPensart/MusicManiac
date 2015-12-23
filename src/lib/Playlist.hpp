@@ -41,10 +41,10 @@ class Playlist {
 		double rating;
 		std::string minDuration;
 		std::string maxDuration;
-		std::vector<std::string> genres;
-		std::vector<std::string> artists;
-		std::vector<std::string> without;
-		std::vector<std::string> with;
+        std::vector<std::string> genres;
+        std::vector<std::string> artists;
+        std::vector<std::string> without;
+        std::vector<std::string> with;
 		Musics musics;
 };
 

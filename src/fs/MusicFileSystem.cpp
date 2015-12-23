@@ -1,11 +1,13 @@
 #include "MusicFileSystem.hpp"
+#include "fs/wrap.hpp"
 #include <iostream>
+#include <memory>
 using namespace std;
 
 #define RETURN_ERRNO(x) (x) == 0 ? 0 : -errno
 
-MusicFileSystem::MusicFileSystem() :
-    collection(0),
+MusicFileSystem::MusicFileSystem(Collection& _collection) :
+    collection(_collection),
     playlist("whatever") {
     std::vector<std::string> without;
     without.push_back("cutoff");
@@ -14,22 +16,23 @@ MusicFileSystem::MusicFileSystem() :
     playlist.setWithout(without);
 }
 
-MusicFileSystem::~MusicFileSystem(){
-    delete collection;
+int MusicFileSystem::run(std::string mountpoint){
+    mfs = this;
+    const int argc = 4;
+    std::unique_ptr<char*[]> argv2 (new char * [argc]);
+    argv2[0] = strdup("musicmaniac");
+    argv2[1] = strdup(mountpoint.c_str());
+    argv2[2] = strdup("-f");
+    argv2[3] = strdup("-s");
+    int fuse_stat = fuse_main(argc, argv2.get(), &musicfs_oper, NULL);
+    cout << "fuse_main returned " << fuse_stat << "\n";
+    return fuse_stat;
 }
 
 void MusicFileSystem::AbsPath(char dest[PATH_MAX], const char *path) {
-	strcpy(dest, _root);
+    strcpy(dest, collection.getRoot().c_str());
 	strncat(dest, path, PATH_MAX);
 	//printf("translated path: %s to %s\n", path, dest);
-}
-
-void MusicFileSystem::setRootDir(const char *path) {
-	printf("setting FS root to: %s\n", path);
-	_root = path;
-    collection = new Collection();
-    collection->setFolder(path);
-    collection->loadAll(true);
 }
 
 int MusicFileSystem::Getattr(const char *path, struct stat *stbuf) {
@@ -244,7 +247,7 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
 		return -errno;
 	} else {
         do {
-            boost::filesystem::path fsroot (_root);
+            boost::filesystem::path fsroot (collection.getRoot());
             boost::filesystem::path fspath (path);
             boost::filesystem::path fsfile (de->d_name);
             boost::filesystem::path folderpath = fsroot / fspath;
@@ -257,8 +260,8 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                         continue;
                     }
                 } else {
-                    auto musics = collection->getMusics();
-                    auto playlists = collection->getPlaylists();
+                    auto musics = collection.getMusics();
+                    auto playlists = collection.getPlaylists();
                     bool show = false;
 
                     Musics::const_iterator m;

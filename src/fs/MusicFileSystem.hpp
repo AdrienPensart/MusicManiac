@@ -10,18 +10,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <fuse.h>
 #include <sys/types.h>
 #include <sys/xattr.h>
-#include <common/Singleton.hpp>
 #include "lib/Collection.hpp"
 #include "lib/Playlist.hpp"
 
-class MusicFileSystem : public Common::Singleton<MusicFileSystem> {
+class MusicFileSystem {
 
     private:
 
-        const char *_root;
-        Collection * collection;
+        Collection& collection;
         Playlist playlist;
         void AbsPath(char dest[PATH_MAX], const char *path);
         std::map<std::string, bool> filesListed;
@@ -29,9 +28,8 @@ class MusicFileSystem : public Common::Singleton<MusicFileSystem> {
 
     public:
 
-        MusicFileSystem();
-        ~MusicFileSystem();
-        void setRootDir(const char *path);
+        MusicFileSystem(Collection& collection);
+        int run(std::string mountpoint);
         int Getattr(const char *path, struct stat *statbuf);
         int Readlink(const char *path, char *link, size_t size);
         int Mknod(const char *path, mode_t mode, dev_t dev);

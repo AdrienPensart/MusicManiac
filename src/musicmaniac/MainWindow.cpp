@@ -254,7 +254,7 @@ void MainWindow::rescanFolder(bool regen){
 	}
 
     cout << "Loading " << basefolder.toStdString() << "\n";
-    collection.setFolder(basefolder.toStdString());
+    collection.setRoot(basefolder.toStdString());
     collection.setRegen(regen);
 
 	QProgressDialog progress("Loading your music...", "Abort", 0, collection.getTotalCount(), this);
