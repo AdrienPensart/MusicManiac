@@ -294,7 +294,7 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                         foldersListed[folderpath.c_str()] += 1;
                     }
                 }
-            }/* else if(de->d_type == DT_DIR){
+            } else if(de->d_type == DT_DIR){
                 if(folderpath != folderpath){
                     std::map<std::string, unsigned int>::const_iterator already2 = foldersListed.find(folderpath.c_str());
                     if(already2 != foldersListed.end()){
@@ -309,7 +309,6 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                     }
                 }
             }
-            */
             if(filler(buf, de->d_name, NULL, 0) != 0) {
 				return -ENOMEM;
 			}

@@ -43,18 +43,18 @@ class Collection {
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
         static MusicFile * getFile(const std::string& filepath, bool _regen=false);
-        void loadAll(bool refresh=false);
-        void buildTree();
-        Tree& getTree();
+        void load(bool refresh=false);
+        Tree buildTree();
+        Tree buildFilterTree(Playlist& filter);
 
 	private:
 
+        void build(Tree& tree, MusicFile * music);
 		void push(MusicFile * );
 		boost::filesystem::recursive_directory_iterator iterator;
         std::string folder;
 		unsigned int totalCount;
 		unsigned int readCount;
-        Tree tree;
 		Musics musics;
 		Playlists playlists;
 		Artists artists;

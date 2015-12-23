@@ -122,38 +122,54 @@ const Musics& Collection::getMusics() const{
 	return musics;
 }
 
-void Collection::buildTree() {
-    // build tree
+Tree Collection::buildTree() {
+    Tree tree;
     for(auto music_pair : musics){
         MusicFile * music = music_pair.second;
-        bool artist_found = false;
-        for(auto &artist : tree){
-            if(music->getArtist() == artist.first){
-                artist_found = true;
-                bool album_found = false;
-                for(auto &album : artist.second){
-                    if(music->getAlbum() == album.first){
-                        album_found = true;
-                        album.second.push_back(music);
-                        break;
-                    }
-                }
-                if(!album_found){
-                    artist.second.push_back(make_pair(music->getAlbum(), MusicVector{music}));
+        build(tree, music);
+    }
+    return tree;
+}
+
+Tree Collection::buildFilterTree(Playlist& filter){
+    Tree tree;
+    for(auto music_pair : musics){
+        MusicFile * music = music_pair.second;
+        if(filter.conform(music)){
+            build(tree, music);
+        }
+    }
+    return tree;
+}
+
+void Collection::build(Tree& tree, MusicFile * music) {
+    bool artist_found = false;
+    for(auto &artist : tree){
+        if(music->getArtist() == artist.first){
+            artist_found = true;
+            bool album_found = false;
+            for(auto &album : artist.second){
+                if(music->getAlbum() == album.first){
+                    album_found = true;
+                    album.second.push_back(music);
                     break;
                 }
             }
-            if(artist_found){
+            if(!album_found){
+                artist.second.push_back(make_pair(music->getAlbum(), MusicVector{music}));
                 break;
             }
         }
-        if(!artist_found){
-            tree.push_back(make_pair(music->getArtist(), MusicVectorByAlbum {make_pair(music->getAlbum(), MusicVector{music})}));
+        if(artist_found){
+            break;
         }
+    }
+    if(!artist_found){
+        tree.push_back(make_pair(music->getArtist(), MusicVectorByAlbum {make_pair(music->getAlbum(), MusicVector{music})}));
     }
 }
 
-void Collection::loadAll(bool refresh){
+void Collection::load(bool refresh){
     try {
         while(factory()) {
             /*
@@ -250,10 +266,6 @@ void Collection::push(MusicFile * music){
             keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
         }
     }
-}
-
-Tree& Collection::getTree() {
-    return tree;
 }
 
 const Artists& Collection::getArtists()const{

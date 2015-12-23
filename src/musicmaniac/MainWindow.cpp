@@ -277,10 +277,10 @@ void MainWindow::rescanFolder(bool regen){
     progress.close();
 
     cout << "Loading tree view\n";
-    collection.buildTree();
+    auto tree = collection.buildTree();
     musicModel.clear();
     musicModel.setHorizontalHeaderLabels(headerLabels);
-    for(const auto& artist : collection.getTree()){
+    for(const auto& artist : tree){
         QStandardItem * artistItem = new QStandardItem(artist.first.c_str());
         auto albums = artist.second;
         QStandardItem * albumHeaderItem = new QStandardItem("Album");

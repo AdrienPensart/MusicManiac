@@ -107,7 +107,7 @@ int main(int argc, char * argv[]) try {
         opt.get("-m")->getString(musicpath);
         cout << "Music folder selected : " << musicpath << '\n';
         collection.setRoot(musicpath);
-        collection.loadAll(true);
+        collection.load(true);
     } else {
         QApplication a(argc, argv);
         MainWindow w;
