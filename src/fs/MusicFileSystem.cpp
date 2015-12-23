@@ -253,60 +253,33 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
             boost::filesystem::path folderpath = fsroot / fspath;
             if(de->d_type == DT_REG){
                 boost::filesystem::path full_path = folderpath / fsfile;
+                auto musics = collection.getMusics();
+                auto playlists = collection.getPlaylists();
 
-                std::map<std::string, bool>::const_iterator already = filesListed.find(full_path.c_str());
-                if(already != filesListed.end()){
-                    if(!already->second){
+                Musics::const_iterator m;
+                if((m = musics.find(full_path.c_str())) != musics.end()){
+                    if(!playlist.conform(m->second)){
+                        //cout << full_path << " = file does not conform\n";
                         continue;
                     }
-                } else {
-                    auto musics = collection.getMusics();
-                    auto playlists = collection.getPlaylists();
-                    bool show = false;
-
-                    Musics::const_iterator m;
-                    if((m = musics.find(full_path.c_str())) != musics.end()){
-                        if(!playlist.conform(m->second)){
-                            cout << full_path << " = file does not conform\n";
-                        } else {
-                            cout << full_path << " = file does conform\n";
-                            show = true;
-                        }
+                } else if(playlists.find(full_path.c_str()) != playlists.end()) {
+                    auto p = playlists[full_path.c_str()];
+                    if(!p->size()){
+                        continue;
                     } else {
-                        auto iter = playlists.find(full_path.c_str());
-                        if(iter != playlists.end()) {
-                            if(!iter->second->size()){
-                                cout << full_path << " = is an empty playlist !\n";
-                            } else {
-                                show = true;
+                        // if one file in the playlist does not conform, evict
+                        bool conform = true;
+                        for(auto music : p->getMusics()){
+                            if(!playlist.conform(music.second)){
+                                conform = false;
                             }
-                        } else {
-                            cout << full_path << " = file not in collection\n";
                         }
-                    }
-
-                    if(!show){
-                        filesListed[full_path.c_str()] = 0;
-                        foldersListed[folderpath.c_str()] += 0;
-                        continue;
-                    } else {
-                        filesListed[full_path.c_str()] = 1;
-                        foldersListed[folderpath.c_str()] += 1;
-                    }
-                }
-            } else if(de->d_type == DT_DIR){
-                if(folderpath != folderpath){
-                    std::map<std::string, unsigned int>::const_iterator already2 = foldersListed.find(folderpath.c_str());
-                    if(already2 != foldersListed.end()){
-                        if(foldersListed[folderpath.c_str()]){
-                            cout << "Folder " << folderpath << " not empty with " << foldersListed[folderpath.c_str()] << " files!\n";
-                        } else {
-                            cout << "Folder " << folderpath << " is empty\n";
+                        if(!conform){
                             continue;
                         }
-                    } else {
-                        cout << "Folder " << folderpath << " not yet listed!\n";
                     }
+                } else {
+                    continue;
                 }
             }
             if(filler(buf, de->d_name, NULL, 0) != 0) {

@@ -35,6 +35,10 @@ size_t Playlist::size()const {
 	return musics.size();
 }
 
+const Musics& Playlist::getMusics(){
+    return musics;
+}
+
 bool Playlist::conform(MusicFile *music){
     if (artists.size() && std::find(artists.begin(), artists.end(), music->getArtist()) == artists.end()) {
         //cout << "Artist criteria does not match\n";

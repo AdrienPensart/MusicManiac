@@ -23,8 +23,6 @@ class MusicFileSystem {
         Collection& collection;
         Playlist playlist;
         void AbsPath(char dest[PATH_MAX], const char *path);
-        std::map<std::string, bool> filesListed;
-        std::map<std::string, unsigned int> foldersListed;
 
     public:
 

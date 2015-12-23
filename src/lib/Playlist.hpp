@@ -14,6 +14,7 @@ class Playlist {
         bool conform(MusicFile * music);
 		void refresh(Musics musics);
 		void save();
+        const Musics& getMusics();
 		size_t size()const;
 
 		std::string getFilename() const;
