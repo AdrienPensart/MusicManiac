@@ -50,42 +50,49 @@ extern "C" {
     int wrap_releasedir(const char *path, struct fuse_file_info *fileInfo);
     int wrap_fsyncdir(const char *path, int datasync, struct fuse_file_info *fileInfo);
     void * wrap_init(struct fuse_conn_info *conn);
+
 }
 
-static struct fuse_operations musicfs_oper = {
-    .getattr = wrap_getattr,
-    .mkdir = wrap_mkdir,
-    .unlink = wrap_unlink,
-    .rmdir = wrap_rmdir,
-    .symlink = wrap_symlink,
-    .rename = wrap_rename,
-    .link = wrap_link,
-    .chmod = wrap_chmod,
-    .chown = wrap_chown,
-    .truncate = wrap_truncate,
-#ifdef HAVE_UTIMENSAT
-    .utimens = wrap_utimens,
-#endif
-    .utime = wrap_utime,
-    .open = wrap_open,
-    .read = wrap_read,
-    .write = wrap_write,
-    .statfs = wrap_statfs,
-    .flush = wrap_flush,
-    .release = wrap_release,
-    .fsync = wrap_fsync,
-#ifdef HAVE_POSIX_FALLOCATE
-    .fallocate = wrap_fallocate,
-#endif
-#ifdef HAVE_SETXATTR
-    .setxattr = wrap_setxattr,
-    .getxattr = wrap_getxattr,
-    .listxattr = wrap_listxattr,
-    .removexattr = wrap_removexattr,
-#endif
-    .opendir = wrap_opendir,
-    .readdir = wrap_readdir,
-    .releasedir = wrap_releasedir,
-    .fsyncdir = wrap_fsyncdir,
-    .init = wrap_init
+struct musicfs_operations : fuse_operations
+{
+    musicfs_operations ()
+    {
+        getattr   = wrap_getattr;
+        mkdir     = wrap_mkdir;
+        unlink    = wrap_unlink;
+        rmdir     = wrap_rmdir;
+        symlink   = wrap_symlink;
+        rename    = wrap_rename;
+        link      = wrap_link;
+        chmod     = wrap_chmod;
+        chown     = wrap_chown;
+        truncate  = wrap_truncate;
+        #ifdef HAVE_UTIMENSAT
+        utimens   = wrap_utimens;
+        #endif
+        utime     = wrap_utime;
+        open      = wrap_open;
+        read      = wrap_read;
+        write     = wrap_write;
+        statfs    = wrap_statfs;
+        flush     = wrap_flush;
+        release   = wrap_release;
+        fsync     = wrap_fsync;
+        #ifdef HAVE_POSIX_FALLOCATE
+        fallocate = wrap_fallocate;
+        #endif
+        #ifdef HAVE_SETXATTR
+        setxattr  = wrap_setxattr;
+        getxattr  = wrap_getxattr;
+        listxattr = wrap_listxattr;
+        removexattr = wrap_removexattr;
+        #endif
+        opendir = wrap_opendir;
+        readdir = wrap_readdir;
+        releasedir = wrap_releasedir;
+        fsyncdir = wrap_fsyncdir;
+        init = wrap_init;
+    }
 };
+
+static struct musicfs_operations musicfs_oper;
