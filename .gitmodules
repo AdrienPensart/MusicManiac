@@ -10,3 +10,6 @@
 [submodule "src/taglib"]
 	path = src/taglib
 	url = https://github.com/taglib/taglib.git
+[submodule "src/catch"]
+	path = src/catch
+	url = git@github.com:philsquared/Catch.git

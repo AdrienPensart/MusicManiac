@@ -47,16 +47,16 @@ include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 #include_directories(${CMAKE_SOURCE_DIR}/src/taglib)
 #include_directories(${CMAKE_SOURCE_DIR}/src/taglib/taglib)
 
-# Main target
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DFUSE_USE_VERSION=30 -D_FILE_OFFSET_BITS=64 -Wnon-virtual-dtor")
-add_executable(musicmaniac ${MUSICMANIAC_SRC_FILES} ${FS_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
-target_include_directories(musicmaniac PRIVATE ${FUSE_INCLUDE_DIR})
-target_link_libraries(musicmaniac Qt5::Widgets Qt5::Sql uuid tag ${Boost_LIBRARIES} ${FUSE_LIBRARIES})
-
 # Includes Catch in the project:
-add_subdirectory(external/catch)
+set(CATCH_INCLUDE_DIR "src/catch/include" CACHE INTERNAL "Path to include folder for Catch")
 include_directories(${CATCH_INCLUDE_DIR} ${COMMON_INCLUDES})
 enable_testing(true)  # Enables unit-testing.
 
 add_executable(cta test/test.cpp)
 add_test(cta cta)
+
+# Main target
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DFUSE_USE_VERSION=30 -D_FILE_OFFSET_BITS=64 -Wnon-virtual-dtor")
+add_executable(musicmaniac ${MUSICMANIAC_SRC_FILES} ${FS_SRC_FILES} ${DB_SRC_FILES} ${INOTIFY_SRC_FILES} ${COMMON_SRC_FILES} ${LIB_SRC_FILES} ${UI_HEADERS} ${RESOURCES_RCC})
+target_include_directories(musicmaniac PRIVATE ${FUSE_INCLUDE_DIR})
+target_link_libraries(musicmaniac Qt5::Widgets Qt5::Sql uuid tag ${Boost_LIBRARIES} ${FUSE_LIBRARIES})
