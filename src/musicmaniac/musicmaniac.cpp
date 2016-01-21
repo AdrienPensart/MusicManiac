@@ -9,7 +9,7 @@
 using json = nlohmann::json;
 
 #include <boost/algorithm/string/predicate.hpp>
-using namespace boost::filesystem;
+namespace fs = boost::filesystem;
 
 #include "ezOptionParser.hpp"
 using namespace ez;
@@ -21,6 +21,7 @@ using namespace std;
 
 #include "MainWindow.hpp"
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QDebug>
 
 void Usage(ezOptionParser& opt) {
@@ -101,17 +102,21 @@ int main(int argc, char * argv[]) try {
         cout << "Database selected : " << dbpath << '\n';
     }
 
-    // if no root dir passed, start GUI
     if (opt.isSet("-m")) {
         std::string musicpath;
         opt.get("-m")->getString(musicpath);
         cout << "Music folder selected : " << musicpath << '\n';
-        collection.setRoot(musicpath);
+        collection.setRoot(musicpath.c_str());
         collection.load(true);
     } else {
+        // if no root dir passed, start GUI
         QApplication a(argc, argv);
-        MainWindow w;
-        w.show();
+        MainWindow mainWindow;
+        QRect screenGeometry = QApplication::desktop()->screenGeometry();
+        int x = (screenGeometry.width()-mainWindow.width()) / 2;
+        int y = (screenGeometry.height()-mainWindow.height()) / 2;
+        mainWindow.move(x, y);
+        mainWindow.show();
         return a.exec();
     }
 
@@ -123,7 +128,7 @@ int main(int argc, char * argv[]) try {
     }
 
     // filesystem mode
-    if (opt.isSet("-f") && (opt.isSet("-m"))) {
+    if (opt.isSet("-f") && opt.isSet("-m")) {
         std::string mountpoint;
         opt.get("-f")->getString(mountpoint);
 
@@ -133,8 +138,8 @@ int main(int argc, char * argv[]) try {
 
     //collection.loadAll();
     //collection.consolidateTitles();
-    //collection.generateBest();
-    //collection.generateBestByKeyword();
+    collection.generateBest();
+    collection.generateBestByKeyword();
 
     //MusicDb db(dbpath.c_str());
     //db.save(collection);

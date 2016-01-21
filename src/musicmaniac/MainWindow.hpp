@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow {
 		void deselectArtist();
 		void selectGenre();
 		void deselectGenre();
-		void loadPlaylist(QModelIndex);
+        void loadItem(QModelIndex);
 		void reset();
 		void rescanFolder(bool=false);
 
@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow {
 		void updateFilter();
 		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
 		void loadFolderWith(bool regen);
-        QStandardItemModel musicModel;
+        QStandardItemModel collectionModel;
         //CustomSortFilterProxyModel * musicProxyModel;
 		const QStringList empty;
 		QItemSelectionModel * withoutKeywordsSelection;

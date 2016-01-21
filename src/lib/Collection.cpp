@@ -11,8 +11,8 @@ using namespace std;
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lambda/bind.hpp>
-using namespace boost::filesystem;
-using namespace boost::lambda;
+namespace fs = boost::filesystem;
+namespace bl = boost::lambda;
 
 Collection::Collection() :
     regen(false),
@@ -26,17 +26,16 @@ void Collection::setRegen(bool _regen){
 }
 
 void Collection::setRoot(const std::string& _folder){
-    folder = _folder;
-    // "Constructing directory " + folder;
-    try {
-        for(recursive_directory_iterator it(folder); it != recursive_directory_iterator(); ++it) {
-            totalCount++;
-        }
-        // "Total count of files in " + folder + " : " + Common::toString(totalCount);
-    } catch (boost::filesystem::filesystem_error& fex) {
-        // "Exception " + std::string(fex.what());
+    if (!fs::is_directory(_folder)){
+        std::cout << _folder << " is not a valid directory\n";
+        return;
     }
-    iterator = recursive_directory_iterator(folder);
+    folder = _folder;
+    for(fs::recursive_directory_iterator it(folder); it != fs::recursive_directory_iterator(); ++it) {
+        totalCount++;
+    }
+    // "Total count of files in " + folder + " : " + Common::toString(totalCount);
+    iterator = fs::recursive_directory_iterator(folder);
 }
 
 const std::string& Collection::getRoot() const {
@@ -88,6 +87,34 @@ void Collection::generateBestByKeyword(){
 			}
 		}
 	}
+    /*
+    // generate 2 tags playlist
+    for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
+        for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+            for (Keywords::const_iterator h = i->second.begin(); h != i->second.end(); h++) {
+                if(j == h){
+                    continue;
+                }
+                Playlist playlist(folder+"/"+i->first+"/"+j->first+"_"+h->first+".m3u");
+                playlist.setRating(4);
+                std::vector<std::string> artists;
+                artists.push_back(i->first);
+                std::vector<std::string> with;
+                with.push_back(j->first);
+                with.push_back(h->first);
+                playlist.setWith(with);
+                playlist.setWithout(without);
+                playlist.setArtists(artists);
+                playlist.refresh(j->second);
+
+                if(playlist.size() >= 3){
+                    playlist.save();
+                    std::cout << "Generating " << playlist.getFilepath().data() << endl;
+                }
+            }
+        }
+    }
+    */
 }
 
 void Collection::consolidateTitles(){
@@ -111,7 +138,7 @@ double Collection::progression() const {
 }
 
 bool Collection::valid() {
-	return iterator != recursive_directory_iterator();
+    return iterator != fs::recursive_directory_iterator();
 }
 
 const Playlists& Collection::getPlaylists() const {
@@ -208,6 +235,12 @@ void Collection::loadFile(const std::string& filepath){
 		auto playlist = new Playlist(filepath);
 		playlist->load();
 		playlists[filepath] = playlist;
+
+        auto artists = playlist->getArtists();
+        for(const auto& artist : artists)
+        {
+            playlistsByArtist[artist].push_back(playlist);
+        }
     } else {
         MusicFile * file = getFile(filepath, regen);
         if(musics.count(filepath)){
@@ -278,6 +311,10 @@ const Keywords& Collection::getKeywords()const{
 
 const Genres& Collection::getGenres()const{
 	return genres;
+}
+
+const PlaylistsByArtist& Collection::getPlaylistsByArtist()const{
+    return playlistsByArtist;
 }
 
 void Collection::refreshPlaylists(){

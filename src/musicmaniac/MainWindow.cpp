@@ -28,6 +28,10 @@ std::vector<std::string> stringListToVector(const QStringList& input) {
 	return output;
 }
 
+enum CollectionRoles {
+    ItemTypeRole = Qt::UserRole + 1
+};
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
@@ -46,20 +50,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->outWithoutButton, SIGNAL(clicked()), this, SLOT(withoutToAvailable()));
 	connect(ui->inArtistButton, SIGNAL(clicked()), this, SLOT(selectArtist()));
 	connect(ui->outArtistButton, SIGNAL(clicked()), this, SLOT(deselectArtist()));
-	connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
 	connect(ui->inGenreButton, SIGNAL(clicked()), this, SLOT(selectGenre()));
 	connect(ui->outGenreButton, SIGNAL(clicked()), this, SLOT(deselectGenre()));
 	connect(ui->actionReset, SIGNAL(triggered()), this, SLOT(reset()));
-
-    /*
-    musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
-    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
-	connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
-	connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
-    */
+    connect(ui->collectionView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadItem(QModelIndex)));
 
     headerLabels.append("Artist");
-
 	withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
 	ui->withoutKeywordsView->setModel(&withoutKeywordsModel);
 	ui->withoutKeywordsView->setSelectionModel(withoutKeywordsSelection);
@@ -88,15 +84,20 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->selectedGenresView->setModel(&selectedGenresModel);
 	ui->selectedGenresView->setSelectionModel(selectedGenresSelection);
 
-	playlistModel = new PlaylistModel(this);
     /*
+    connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
+    musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
+    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
+    connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
+    connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
+	playlistModel = new PlaylistModel(this);
     musicModel = new MusicModel(collection, this);
 	musicProxyModel->setSourceModel(musicModel);
-    */
 	ui->playlistView->setModel(playlistModel);
 	ui->playlistView->setSortingEnabled(true);
 	ui->playlistView->sortByColumn(PlaylistModel::COLUMN_ARTISTS, Qt::AscendingOrder);
 	ui->playlistView->horizontalHeader()->setStretchLastSection(true);
+    */
 
     //ui->musicView->setModel(musicProxyModel);
     //ui->musicView->setModel(&musicModel);
@@ -194,27 +195,39 @@ void MainWindow::withToAvailable() {
 	selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);
 }
 
-void MainWindow::loadPlaylist(QModelIndex index) {
-    /*
-	QString playlistFilepath = playlistModel->itemData(index).first().toString();
-	// playlistFilepath.toStdString();
-	Playlist playlist(playlistFilepath.toStdString());
-	playlist.load();
-	ui->ratingSpinBox->setValue(playlist.getRating());
-	ui->maxDurationEdit->setText(playlist.getMaxDuration().c_str());
-	ui->minDurationEdit->setText(playlist.getMinDuration().c_str());
+void MainWindow::loadItem(QModelIndex index){
+    auto item = collectionModel.itemFromIndex(index);
+    auto type = item->data(CollectionRoles::ItemTypeRole).toString();
+    if(type == "playlist"){
+        auto artistIndex = index.parent().parent();
+        auto playlists = collection.getPlaylistsByArtist();
+        auto artistItem = collectionModel.itemFromIndex(artistIndex);
 
-	availableArtistsModel.setStringList(empty);
-	selectedArtistsModel.setStringList(vectorToStringList(playlist.getArtists()));
+        auto playlistName = item->data(Qt::DisplayRole).toString();
+        auto artistName = artistItem->text();
+        qDebug() << "Playlist " << playlistName << " of artist " << artistName;
+        for(const auto& playlist : playlists[artistName.toStdString()]) {
+            if(playlistName.toStdString() == playlist->getFilename()) {
+                ui->ratingSpinBox->setValue(playlist->getRating());
+                ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
+                ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
 
-	availableGenresModel.setStringList(empty);
-	selectedGenresModel.setStringList(vectorToStringList(playlist.getGenres()));
+                availableArtistsModel.setStringList(empty);
+                selectedArtistsModel.setStringList(vectorToStringList(playlist->getArtists()));
 
-	withKeywordsModel.setStringList(vectorToStringList(playlist.getWith()));
-	withoutKeywordsModel.setStringList(vectorToStringList(playlist.getWithout()));
-    musicProxyModel->refilter();
-    availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
-    */
+                availableGenresModel.setStringList(empty);
+                selectedGenresModel.setStringList(vectorToStringList(playlist->getGenres()));
+
+                withKeywordsModel.setStringList(vectorToStringList(playlist->getWith()));
+                withoutKeywordsModel.setStringList(vectorToStringList(playlist->getWithout()));
+
+                //musicProxyModel->refilter();
+                //availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
+                return;
+            }
+        }
+        qDebug() << " was not found";
+    }
 }
 
 void MainWindow::reset() {
@@ -271,45 +284,54 @@ void MainWindow::rescanFolder(bool regen){
 			QApplication::processEvents();
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
-		// "Exception " + std::string(fex.what());
+        cout << "Exception " + std::string(fex.what());
 		progress.cancel();
 	}
     progress.close();
 
     cout << "Loading tree view\n";
     auto tree = collection.buildTree();
-    musicModel.clear();
-    musicModel.setHorizontalHeaderLabels(headerLabels);
+    auto playlistsByArtist = collection.getPlaylistsByArtist();
+    collectionModel.clear();
+    collectionModel.setHorizontalHeaderLabels(headerLabels);
     for(const auto& artist : tree){
         QStandardItem * artistItem = new QStandardItem(artist.first.c_str());
+        artistItem->setData("artist", CollectionRoles::ItemTypeRole);
         auto albums = artist.second;
-        QStandardItem * albumHeaderItem = new QStandardItem("Album");
-        artistItem->appendRow(albumHeaderItem);
+        QStandardItem * albumHeadersItem = new QStandardItem("Albums");
+        albumHeadersItem->setBackground(Qt::green);
+        albumHeadersItem->setData("albums", CollectionRoles::ItemTypeRole);
         for(const auto& album : albums){
             QStandardItem * albumItem = new QStandardItem(album.first.c_str());
+            albumItem->setData("album", CollectionRoles::ItemTypeRole);
             auto songs = album.second;
             QStandardItem * songHeaderItem = new QStandardItem("Song");
             albumItem->appendRow(songHeaderItem);
             for(const auto& song : songs){
                 QStandardItem * songItem = new QStandardItem(song->getTitle().c_str());
+                songItem->setData("song", CollectionRoles::ItemTypeRole);
                 albumItem->appendRow(songItem);
             }
-            artistItem->appendRow(albumItem);
+            albumHeadersItem->appendRow(albumItem);
         }
-        musicModel.appendRow(artistItem);
-    }
-    ui->musicView->setModel(&musicModel);
+        artistItem->appendRow(albumHeadersItem);
 
-    /*
-	auto playlists = collection.getPlaylists();
-	playlistModel->clear();
-	for(Playlists::iterator i = playlists.begin(); i != playlists.end(); i++){
-		playlistModel->add(i->second);
-	}
-	reset();
-	collection.generateBest();
-	collection.generateBestByKeyword();
-    */
+        auto playlists = playlistsByArtist[artist.first];
+        if(playlists.size())
+        {
+            QStandardItem * playlistsItem = new QStandardItem("Playlists");
+            playlistsItem->setData("playlists", CollectionRoles::ItemTypeRole);
+            playlistsItem->setBackground(Qt::yellow);
+            for(const auto& playlist : playlists){
+                QStandardItem * playlistItem = new QStandardItem(playlist->getFilename().c_str());
+                playlistItem->setData("playlist", CollectionRoles::ItemTypeRole);
+                playlistsItem->appendRow(playlistItem);
+            }
+            artistItem->appendRow(playlistsItem);
+        }
+        collectionModel.appendRow(artistItem);
+    }
+    ui->collectionView->setModel(&collectionModel);
 }
 
 void MainWindow::aboutQt() {

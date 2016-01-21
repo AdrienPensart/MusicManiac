@@ -12,7 +12,12 @@ typedef std::map<std::string, Musics > Artists;
 typedef std::map<std::string, Musics > Albums;
 typedef std::map<std::string, Musics > Keywords;
 typedef std::map<std::string, Musics > Genres;
+typedef std::map<std::string, Playlist*> Playlists;
+
 typedef std::map<std::string, Keywords > KeywordsByArtist;
+
+typedef std::vector<Playlist*> PlaylistVector;
+typedef std::map<std::string, PlaylistVector > PlaylistsByArtist;
 
 typedef std::vector<MusicFile*> MusicVector;
 typedef std::vector<std::pair<std::string, MusicVector>> MusicVectorByAlbum;
@@ -20,7 +25,6 @@ typedef std::vector<std::pair<std::string, MusicVectorByAlbum>> Tree;
 
 class Collection {
 	public:
-
         Collection();
 
         void setRegen(bool regen);
@@ -37,6 +41,7 @@ class Collection {
 		const Artists& getArtists()const;
 		const Keywords& getKeywords()const;
 		const Genres& getGenres()const;
+        const PlaylistsByArtist& getPlaylistsByArtist()const;
 		bool valid();
         double progression() const;
 		int getTotalCount() const;
@@ -58,8 +63,9 @@ class Collection {
 		Musics musics;
 		Playlists playlists;
 		Artists artists;
-		Keywords keywords;
+        Keywords keywords;
 		Genres genres;
 		KeywordsByArtist keywordsByArtist;
+        PlaylistsByArtist playlistsByArtist;
         bool regen;
 };
