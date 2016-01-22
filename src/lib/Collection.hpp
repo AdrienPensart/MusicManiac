@@ -1,27 +1,11 @@
 #pragma once
 
 #include <string>
-#include <map>
 #include <vector>
 #include "MusicFile.hpp"
 #include "Playlist.hpp"
 
 #include <boost/filesystem.hpp>
-
-typedef std::map<std::string, Musics > Artists;
-typedef std::map<std::string, Musics > Albums;
-typedef std::map<std::string, Musics > Keywords;
-typedef std::map<std::string, Musics > Genres;
-typedef std::map<std::string, Playlist*> Playlists;
-
-typedef std::map<std::string, Keywords > KeywordsByArtist;
-
-typedef std::vector<Playlist*> PlaylistVector;
-typedef std::map<std::string, PlaylistVector > PlaylistsByArtist;
-
-typedef std::vector<MusicFile*> MusicVector;
-typedef std::vector<std::pair<std::string, MusicVector>> MusicVectorByAlbum;
-typedef std::vector<std::pair<std::string, MusicVectorByAlbum>> Tree;
 
 class Collection {
 	public:

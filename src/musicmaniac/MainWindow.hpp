@@ -39,6 +39,9 @@ class MainWindow : public QMainWindow {
         void loadItem(QModelIndex);
 		void reset();
 		void rescanFolder(bool=false);
+        void ratingChanged(double);
+        void minDurationChanged(QString);
+        void maxDurationChanged(QString);
 
 	private:
 
@@ -69,7 +72,7 @@ class MainWindow : public QMainWindow {
 		QItemSelectionModel * selectedGenresSelection;
 		QStringListModel selectedGenresModel;
 
-		PlaylistModel * playlistModel;
+        PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
         Collection collection;

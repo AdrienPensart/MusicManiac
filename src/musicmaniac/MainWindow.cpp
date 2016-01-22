@@ -34,7 +34,7 @@ enum CollectionRoles {
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 
@@ -84,34 +84,27 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->selectedGenresView->setModel(&selectedGenresModel);
 	ui->selectedGenresView->setSelectionModel(selectedGenresSelection);
 
-    /*
-    connect(ui->playlistView, SIGNAL(clicked(QModelIndex)), this, SLOT(loadPlaylist(QModelIndex)));
-    musicProxyModel = new CustomSortFilterProxyModel(selectedGenresModel, selectedArtistsModel, withoutKeywordsModel, withKeywordsModel, this);
-    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), musicProxyModel, SLOT(ratingChanged(double)));
-    connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(minDurationChanged(QString)));
-    connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), musicProxyModel, SLOT(maxDurationChanged(QString)));
-	playlistModel = new PlaylistModel(this);
-    musicModel = new MusicModel(collection, this);
-	musicProxyModel->setSourceModel(musicModel);
-	ui->playlistView->setModel(playlistModel);
-	ui->playlistView->setSortingEnabled(true);
-	ui->playlistView->sortByColumn(PlaylistModel::COLUMN_ARTISTS, Qt::AscendingOrder);
-	ui->playlistView->horizontalHeader()->setStretchLastSection(true);
-    */
+    connect(ui->ratingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(ratingChanged(double)));
+    connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), this, SLOT(minDurationChanged(QString)));
+    connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), this, SLOT(maxDurationChanged(QString)));
 
-    //ui->musicView->setModel(musicProxyModel);
-    //ui->musicView->setModel(&musicModel);
-    /*
-	ui->musicView->setSortingEnabled(true);
-    ui->musicView->sortByColumn(MusicModel::COLUMN_ARTIST, Qt::AscendingOrder);
-    ui->musicView->horizontalHeader()->setStretchLastSection(true);
-    musicProxyModel->setFilterKeyColumn(MusicModel::COLUMN_KEYWORDS);
-	musicProxyModel->setDynamicSortFilter(true);
-    */
+    playlistModel = new PlaylistModel(this);
 }
 
 MainWindow::~MainWindow() {
 	delete ui;
+}
+
+void MainWindow::ratingChanged(double){
+
+}
+
+void MainWindow::minDurationChanged(QString minDuration){
+
+}
+
+void MainWindow::maxDurationChanged(QString maxDuration){
+
 }
 
 void MainWindow::generatePlaylist() {
@@ -198,13 +191,20 @@ void MainWindow::withToAvailable() {
 void MainWindow::loadItem(QModelIndex index){
     auto item = collectionModel.itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
-    if(type == "playlist"){
-        auto artistIndex = index.parent().parent();
-        auto playlists = collection.getPlaylistsByArtist();
+    if(type == "playlists") {
+        auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
-
-        auto playlistName = item->data(Qt::DisplayRole).toString();
         auto artistName = artistItem->text();
+        auto playlistsByArtist = collection.getPlaylistsByArtist();
+
+        ui->multiView->setModel(playlistModel);
+        playlistModel->set(playlistsByArtist[artistName.toStdString()]);
+    } else if(type == "playlist"){
+        auto artistIndex = index.parent().parent();
+        auto artistItem = collectionModel.itemFromIndex(artistIndex);
+        auto artistName = artistItem->text();
+        auto playlists = collection.getPlaylistsByArtist();
+        auto playlistName = item->data(Qt::DisplayRole).toString();
         qDebug() << "Playlist " << playlistName << " of artist " << artistName;
         for(const auto& playlist : playlists[artistName.toStdString()]) {
             if(playlistName.toStdString() == playlist->getFilename()) {
@@ -227,6 +227,12 @@ void MainWindow::loadItem(QModelIndex index){
             }
         }
         qDebug() << " was not found";
+    } else if(type == "albums"){
+
+    } else if(type == "album"){
+
+    } else if(type == "song"){
+
     }
 }
 

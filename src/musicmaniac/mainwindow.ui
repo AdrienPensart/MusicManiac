@@ -43,7 +43,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QTableView" name="playlistView">
+      <widget class="QTableView" name="multiView">
        <property name="enabled">
         <bool>true</bool>
        </property>

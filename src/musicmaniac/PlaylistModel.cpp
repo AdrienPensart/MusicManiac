@@ -1,44 +1,28 @@
 #include "PlaylistModel.hpp"
 #include "common/Utility.hpp"
+#include <QDebug>
 
 PlaylistModel::PlaylistModel(QObject *parent) :
-	QAbstractTableModel(parent) {
+    QAbstractTableModel(parent) {
 }
 
 PlaylistModel::~PlaylistModel() {
-	clear();
 }
 
-const std::vector<Playlist*>& PlaylistModel::getPlaylists() const {
-	return playlists;
+int PlaylistModel::rowCount(const QModelIndex& parent) const {
+    return parent.isValid() ? 0 : (int)playlists.size();
 }
 
-void PlaylistModel::clear() {
-	beginResetModel();
-	for(std::vector<Playlist*>::const_iterator ci = playlists.begin(); ci != playlists.end() ; ci++) {
-		delete *ci;
-	}
-	playlists.clear();
-	endResetModel();
-}
-
-int PlaylistModel::rowCount(const QModelIndex& /* parent */) const {
-	return playlists.size();
-}
-
-int PlaylistModel::columnCount(const QModelIndex& /* parent */) const {
-	return COLUMN_COUNT;
-}
-
-void PlaylistModel::add(Playlist* pl) {
-	beginInsertRows(QModelIndex(), playlists.size(), playlists.size());
-	playlists.push_back(pl);
-	endInsertRows();
+int PlaylistModel::columnCount(const QModelIndex& parent) const {
+    return parent.isValid() ? 0 : COLUMN_COUNT;
 }
 
 Playlist * PlaylistModel::playlistAt(int row) const {
-	if(row >= 0 && row < (int)playlists.size()) {
-		return playlists[row];
+    qDebug() << "This = " << this;
+    qDebug() << "PlaylistAt : " << row << " with playlists size : " << rowCount();
+    qDebug() << "At address : " << &playlists;
+    if(row >= 0 && row < rowCount()) {
+        return playlists[row];
 	}
 	return 0;
 }
@@ -56,25 +40,34 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
 }
 
 QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
+    qDebug() << "This = " << this;
+    qDebug() << "Playlists size : " << rowCount();
+    qDebug() << "At address : " << &playlists;
 	if(!index.isValid()) {
+        qDebug() << "Index invalide";
 		return QVariant();
 	}
 
-	if (index.row() >= (int)playlists.size()) {
+    if (index.row() >= rowCount()) {
+        qDebug() << "Row invalide : " << index.row();
 		return QVariant();
 	}
-	/*
+
 	if(role == Qt::TextAlignmentRole) {
 		return int(Qt::AlignHCenter | Qt::AlignVCenter);
 	}
-	*/
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole) {
 		Playlist * rowPlaylist = playlistAt(index.row());
 		if(rowPlaylist) {
-			return infoAtColumn(rowPlaylist, index.column());
-		}
+            auto info = infoAtColumn(rowPlaylist, index.column());
+            qDebug() << "info : " << info.toString();
+            return info;
+        } else {
+            qDebug() << "Bad playlist";
+        }
 	}
+    qDebug() << "Bad role : " << role;
 	return QVariant();
 }
 
@@ -137,36 +130,44 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 
 QVariant PlaylistModel::infoAtColumn(Playlist * pl, int row) const {
 	if(!pl) {
-		return "Undefined";
+        return tr("Undefined");
 	}
 
 	switch(row) {
 		case COLUMN_FILEPATH:
-			return pl->getFilename().c_str();
+            qDebug() << pl->getFilename().c_str();
+            return pl->getFilename().c_str();
 			break;
 		case COLUMN_ARTISTS:
+            qDebug() << Common::implode(pl->getArtists()).c_str();
 			return Common::implode(pl->getArtists()).c_str();
 			break;
 		case COLUMN_GENRES:
+            qDebug() << Common::implode(pl->getGenres()).c_str();
 			return Common::implode(pl->getGenres()).c_str();
 			break;
-		case COLUMN_MIN_DURATION:
+        case COLUMN_MIN_DURATION:
+            qDebug() << pl->getMinDuration().c_str();
 			return pl->getMinDuration().c_str();
 			break;
 		case COLUMN_MAX_DURATION:
+            qDebug() << pl->getMaxDuration().c_str();
 			return pl->getMaxDuration().c_str();
 			break;
 		case COLUMN_RATING:
+            qDebug() << pl->getRating();
 			return pl->getRating();
 			break;
 		case COLUMN_WITH_KEYWORDS:
+            qDebug() << Common::implode(pl->getWith()).c_str();
 			return Common::implode(pl->getWith()).c_str();
 			break;
 		case COLUMN_WITHOUT_KEYWORDS:
+            qDebug() << Common::implode(pl->getWithout()).c_str();
 			return Common::implode(pl->getWithout()).c_str();
 			break;
 		default:
 			return tr("Undefined");
 	}
-	return "Undefined";
+    return tr("Undefined");
 }

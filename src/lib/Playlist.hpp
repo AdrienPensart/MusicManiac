@@ -2,8 +2,15 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "MusicFile.hpp"
 #include "common/Utility.hpp"
+
+class Playlist;
+
+typedef std::map<std::string, Playlist*> Playlists;
+typedef std::vector<Playlist*> PlaylistVector;
+typedef std::map<std::string, PlaylistVector > PlaylistsByArtist;
 
 class Playlist {
 	public:
@@ -48,5 +55,3 @@ class Playlist {
         std::vector<std::string> with;
 		Musics musics;
 };
-
-typedef std::map<std::string, Playlist*> Playlists;
