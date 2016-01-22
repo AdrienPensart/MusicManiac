@@ -9,8 +9,7 @@
 #include "MainWindow.hpp"
 #include "Collection.hpp"
 #include "PlaylistModel.hpp"
-
-using std::cout;
+#include "PlaylistsModel.hpp"
 
 QStringList vectorToStringList(const std::vector<std::string>& input) {
 	QStringList output;
@@ -88,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->minDurationEdit, SIGNAL(textChanged(QString)), this, SLOT(minDurationChanged(QString)));
     connect(ui->maxDurationEdit, SIGNAL(textChanged(QString)), this, SLOT(maxDurationChanged(QString)));
 
+    playlistsModel = new PlaylistsModel(this);
     playlistModel = new PlaylistModel(this);
 }
 
@@ -196,16 +196,15 @@ void MainWindow::loadItem(QModelIndex index){
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto playlistsByArtist = collection.getPlaylistsByArtist();
-
-        ui->multiView->setModel(playlistModel);
-        playlistModel->set(playlistsByArtist[artistName.toStdString()]);
+        ui->multiView->setModel(playlistsModel);
+        playlistsModel->set(playlistsByArtist[artistName.toStdString()]);
     } else if(type == "playlist"){
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto playlists = collection.getPlaylistsByArtist();
         auto playlistName = item->data(Qt::DisplayRole).toString();
-        qDebug() << "Playlist " << playlistName << " of artist " << artistName;
+        qDebug() << "Artist = " << artistName << " and playlist = " << playlistName;
         for(const auto& playlist : playlists[artistName.toStdString()]) {
             if(playlistName.toStdString() == playlist->getFilename()) {
                 ui->ratingSpinBox->setValue(playlist->getRating());
@@ -223,6 +222,8 @@ void MainWindow::loadItem(QModelIndex index){
 
                 //musicProxyModel->refilter();
                 //availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
+                ui->multiView->setModel(playlistModel);
+                playlistModel->set(playlist);
                 return;
             }
         }
@@ -237,20 +238,17 @@ void MainWindow::loadItem(QModelIndex index){
 }
 
 void MainWindow::reset() {
-    /*
 	withoutKeywordsModel.setStringList(empty);
 	withKeywordsModel.setStringList(empty);
 	availableArtistsModel.setStringList(empty);
 	availableGenresModel.setStringList(empty);
 
-    selectedArtistsModel.setStringList(musicModel->getArtists());
-    availableKeywordsModel.setStringList(musicModel->getKeywords());
-    selectedGenresModel.setStringList(musicModel->getGenres());
+    //selectedArtistsModel.setStringList(vectorToStringList(collection.getArtists()));
+    //availableKeywordsModel.setStringList(vectorToStringList(collection.getKeywords()));
+    //selectedGenresModel.setStringList(vectorToStringList(collection.getGenres()));
 
-    ui->musicView->resizeColumnsToContents();
-    ui->musicView->reset();
-    musicProxyModel->refilter();
-    */
+    //ui->musicView->resizeColumnsToContents();
+    //ui->musicView->reset();
 }
 
 void MainWindow::loadFolder() {
@@ -268,11 +266,11 @@ void MainWindow::loadFolderWith(bool regen) {
 
 void MainWindow::rescanFolder(bool regen){
 	if(!basefolder.size()) {
-        cout << "Invalid folder\n";
+        qDebug() << "Invalid folder";
 		return;
 	}
 
-    cout << "Loading " << basefolder.toStdString() << "\n";
+    qDebug() << "Loading " << basefolder;
     collection.setRoot(basefolder.toStdString());
     collection.setRegen(regen);
 
@@ -283,19 +281,20 @@ void MainWindow::rescanFolder(bool regen){
 	try {
 		while(collection.factory()) {
 			if (progress.wasCanceled()) {
-                cout << "Loading canceled\n";
+                qDebug() << "Loading canceled";
 				return;
 			}
 			progress.setValue(collection.getReadCount());
 			QApplication::processEvents();
 		}
 	} catch (boost::filesystem::filesystem_error& fex) {
-        cout << "Exception " + std::string(fex.what());
+        qDebug() << "Exception " + QString(fex.what());
 		progress.cancel();
 	}
     progress.close();
+    collection.refreshPlaylists();
 
-    cout << "Loading tree view\n";
+    qDebug() << "Loading tree view";
     auto tree = collection.buildTree();
     auto playlistsByArtist = collection.getPlaylistsByArtist();
     collectionModel.clear();

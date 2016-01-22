@@ -10,19 +10,16 @@ PlaylistModel::~PlaylistModel() {
 }
 
 int PlaylistModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : (int)playlists.size();
+    return parent.isValid() ? 0 : (int)mv.size();
 }
 
 int PlaylistModel::columnCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : COLUMN_COUNT;
 }
 
-Playlist * PlaylistModel::playlistAt(int row) const {
-    qDebug() << "This = " << this;
-    qDebug() << "PlaylistAt : " << row << " with playlists size : " << rowCount();
-    qDebug() << "At address : " << &playlists;
+MusicFile * PlaylistModel::songAt(int row) const {
     if(row >= 0 && row < rowCount()) {
-        return playlists[row];
+        return mv.at(row);
 	}
 	return 0;
 }
@@ -40,16 +37,11 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
 }
 
 QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
-    qDebug() << "This = " << this;
-    qDebug() << "Playlists size : " << rowCount();
-    qDebug() << "At address : " << &playlists;
 	if(!index.isValid()) {
-        qDebug() << "Index invalide";
 		return QVariant();
 	}
 
     if (index.row() >= rowCount()) {
-        qDebug() << "Row invalide : " << index.row();
 		return QVariant();
 	}
 
@@ -58,16 +50,11 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
 	}
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole) {
-		Playlist * rowPlaylist = playlistAt(index.row());
+        auto rowPlaylist = songAt(index.row());
 		if(rowPlaylist) {
-            auto info = infoAtColumn(rowPlaylist, index.column());
-            qDebug() << "info : " << info.toString();
-            return info;
-        } else {
-            qDebug() << "Bad playlist";
+            return infoAtColumn(rowPlaylist, index.column());
         }
 	}
-    qDebug() << "Bad role : " << role;
 	return QVariant();
 }
 
@@ -97,74 +84,60 @@ bool PlaylistModel::setData (const QModelIndex & index, const QVariant & value, 
 }
 
 QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int role) const {
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+    if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
-			case COLUMN_FILEPATH:
-				return tr("File");
+            case COLUMN_TITLE:
+                return tr("Title");
 				break;
-			case COLUMN_ARTISTS:
-				return tr("Artists");
+            case COLUMN_ARTIST:
+                return tr("Artist");
 				break;
-			case COLUMN_GENRES:
-				return tr("Genres");
+            case COLUMN_GENRE:
+                return tr("Genre");
 				break;
-			case COLUMN_MIN_DURATION:
-				return tr("Min dur.");
+            case COLUMN_ALBUM:
+                return tr("Album");
 				break;
-			case COLUMN_MAX_DURATION:
-				return tr("Max dur.");
+            case COLUMN_RATING:
+                return tr("Rating");
 				break;
-			case COLUMN_RATING:
-				return tr("Rating");
+            case COLUMN_KEYWORDS:
+                return tr("Tags");
 				break;
-			case COLUMN_WITH_KEYWORDS:
-				return tr("W/ Tags");
-				break;
-			case COLUMN_WITHOUT_KEYWORDS:
-				return tr("W/O Tags");
+            case COLUMN_UUID:
+                return tr("UUID");
 				break;
 		}
 	}
 	return QVariant();
 }
 
-QVariant PlaylistModel::infoAtColumn(Playlist * pl, int row) const {
-	if(!pl) {
+QVariant PlaylistModel::infoAtColumn(MusicFile * mf, int row) const {
+    if(!mf) {
         return tr("Undefined");
 	}
 
 	switch(row) {
-		case COLUMN_FILEPATH:
-            qDebug() << pl->getFilename().c_str();
-            return pl->getFilename().c_str();
+        case COLUMN_TITLE:
+            return mf->getTitle().c_str();
 			break;
-		case COLUMN_ARTISTS:
-            qDebug() << Common::implode(pl->getArtists()).c_str();
-			return Common::implode(pl->getArtists()).c_str();
+        case COLUMN_ARTIST:
+            return mf->getArtist().c_str();
 			break;
-		case COLUMN_GENRES:
-            qDebug() << Common::implode(pl->getGenres()).c_str();
-			return Common::implode(pl->getGenres()).c_str();
+        case COLUMN_GENRE:
+            return mf->getGenre().c_str();
 			break;
-        case COLUMN_MIN_DURATION:
-            qDebug() << pl->getMinDuration().c_str();
-			return pl->getMinDuration().c_str();
-			break;
-		case COLUMN_MAX_DURATION:
-            qDebug() << pl->getMaxDuration().c_str();
-			return pl->getMaxDuration().c_str();
+        case COLUMN_ALBUM:
+            return mf->getAlbum().c_str();
 			break;
 		case COLUMN_RATING:
-            qDebug() << pl->getRating();
-			return pl->getRating();
+            return mf->getRating();
 			break;
-		case COLUMN_WITH_KEYWORDS:
-            qDebug() << Common::implode(pl->getWith()).c_str();
-			return Common::implode(pl->getWith()).c_str();
+        case COLUMN_KEYWORDS:
+            return mf->getKeywords().c_str();
 			break;
-		case COLUMN_WITHOUT_KEYWORDS:
-            qDebug() << Common::implode(pl->getWithout()).c_str();
-			return Common::implode(pl->getWithout()).c_str();
+        case COLUMN_UUID:
+            return mf->getUUID().c_str();
 			break;
 		default:
 			return tr("Undefined");

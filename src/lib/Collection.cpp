@@ -54,7 +54,7 @@ void Collection::generateBest(){
 		artists.push_back(i->first);
 		playlist.setWithout(without);
 		playlist.setArtists(artists);
-		playlist.refresh(i->second);
+        playlist.refreshWith(i->second);
 		if(!playlist.size()){
 			unlink(playlist.getFilepath().c_str());
 		} else {
@@ -79,7 +79,7 @@ void Collection::generateBestByKeyword(){
 			playlist.setWith(with);
 			playlist.setWithout(without);
 			playlist.setArtists(artists);
-			playlist.refresh(j->second);
+            playlist.refreshWith(j->second);
 
 			if(playlist.size() >= 3){
 				playlist.save();
@@ -320,7 +320,7 @@ const PlaylistsByArtist& Collection::getPlaylistsByArtist()const{
 void Collection::refreshPlaylists(){
 	for(Playlists::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
 		playlist->second->load();
-		playlist->second->refresh(musics);
+        playlist->second->refreshWith(musics);
         playlist->second->save();
 	}
 }

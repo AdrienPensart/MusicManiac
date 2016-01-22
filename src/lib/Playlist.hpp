@@ -19,7 +19,7 @@ class Playlist {
 		void add(MusicFile * file);
 		void load();
         bool conform(MusicFile * music);
-		void refresh(Musics musics);
+        void refreshWith(const Musics& musics);
 		void save();
         const Musics& getMusics();
 		size_t size()const;

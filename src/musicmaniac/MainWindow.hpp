@@ -12,6 +12,7 @@ namespace Ui {
 
 class MusicFile;
 class PlaylistModel;
+class PlaylistsModel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -72,6 +73,7 @@ class MainWindow : public QMainWindow {
 		QItemSelectionModel * selectedGenresSelection;
 		QStringListModel selectedGenresModel;
 
+        PlaylistsModel * playlistsModel;
         PlaylistModel * playlistModel;
 		Ui::MainWindow * ui;
 		QString basefolder;
