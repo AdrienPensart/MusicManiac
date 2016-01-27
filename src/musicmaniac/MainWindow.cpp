@@ -13,6 +13,7 @@
 #include "AlbumsModel.hpp"
 #include "AlbumModel.hpp"
 #include "ArtistModel.hpp"
+#include "MusicModel.hpp"
 
 QStringList vectorToStringList(const std::vector<std::string>& input) {
 	QStringList output;
@@ -102,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     albumsModel = new AlbumsModel(this);
     albumModel = new AlbumModel(this);
     artistModel = new ArtistModel(this);
+    musicModel = new MusicModel(this);
 }
 
 MainWindow::~MainWindow() {
@@ -272,7 +274,20 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(albumModel);
         albumModel->set(musics);
     } else if(type == "song"){
+        auto albumIndex = index.parent();
+        auto albumItem = collectionModel.itemFromIndex(albumIndex);
+        auto albumName = albumItem->text();
 
+        auto artistIndex = albumIndex.parent().parent();
+        auto artistItem = collectionModel.itemFromIndex(artistIndex);
+        auto artistName = artistItem->text();
+
+        auto musicName = item->data(Qt::DisplayRole).toString();
+        auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
+        auto music = musicsByArtistsAlbums[artistName.toStdString()][albumName.toStdString()][musicName.toStdString()];
+
+        ui->multiView->setModel(musicModel);
+        musicModel->set(music);
     }
 }
 

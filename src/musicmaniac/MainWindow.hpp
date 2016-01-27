@@ -16,6 +16,7 @@ class PlaylistsModel;
 class AlbumsModel;
 class AlbumModel;
 class ArtistModel;
+class MusicModel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -81,6 +82,7 @@ class MainWindow : public QMainWindow {
         AlbumsModel * albumsModel;
         AlbumModel * albumModel;
         ArtistModel * artistModel;
+        MusicModel * musicModel;
 
 		Ui::MainWindow * ui;
 		QString basefolder;
