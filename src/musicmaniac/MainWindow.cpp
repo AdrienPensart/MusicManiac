@@ -14,6 +14,7 @@
 #include "AlbumModel.hpp"
 #include "ArtistModel.hpp"
 #include "MusicModel.hpp"
+#include "HorizontalProxyModel.hpp"
 
 QStringList vectorToStringList(const std::vector<std::string>& input) {
 	QStringList output;
@@ -104,6 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     albumModel = new AlbumModel(this);
     artistModel = new ArtistModel(this);
     musicModel = new MusicModel(this);
+    horizontalProxyModel = new HorizontalProxyModel(this);
 }
 
 MainWindow::~MainWindow() {

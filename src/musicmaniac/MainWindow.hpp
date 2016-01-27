@@ -17,6 +17,7 @@ class AlbumsModel;
 class AlbumModel;
 class ArtistModel;
 class MusicModel;
+class HorizontalProxyModel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -77,6 +78,7 @@ class MainWindow : public QMainWindow {
 		QItemSelectionModel * selectedGenresSelection;
 		QStringListModel selectedGenresModel;
 
+        HorizontalProxyModel * horizontalProxyModel;
         PlaylistsModel * playlistsModel;
         PlaylistModel * playlistModel;
         AlbumsModel * albumsModel;

@@ -4,7 +4,7 @@
 #include <QDebug>
 
 MusicModel::MusicModel(QObject *parent) :
-    QAbstractTableModel(parent), mf(0) {
+    QAbstractTableModel(parent), mf(nullptr) {
 }
 
 MusicModel::~MusicModel() {
