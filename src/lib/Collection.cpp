@@ -17,8 +17,7 @@ namespace bl = boost::lambda;
 Collection::Collection() :
     regen(false),
 	totalCount(0),
-    readCount(0)
-{
+    readCount(0) {
 }
 
 void Collection::setRegen(bool _regen){
@@ -47,11 +46,11 @@ void Collection::generateBest(){
 	without.push_back("cutoff");
 	// generate best.m3u playlists
 	// mainly for sync purpose
-	for (Artists::const_iterator i = artists.begin(); i != artists.end(); i++) {
+    for (MusicsByArtists::const_iterator i = musicsByArtists.begin(); i != musicsByArtists.end(); i++) {
 		Playlist playlist(folder+"/"+i->first+"/best.m3u");
 		playlist.setRating(4);
 		std::vector<std::string> artists;
-		artists.push_back(i->first);
+        artists.push_back(i->first);
 		playlist.setWithout(without);
 		playlist.setArtists(artists);
         playlist.refreshWith(i->second);
@@ -69,7 +68,7 @@ void Collection::generateBestByKeyword(){
 	without.push_back("cutoff");
 	// generate all keywords playlists for each artist
 	for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
-        for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+        for (MusicsByKeywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
 			Playlist playlist(folder+"/"+i->first+"/"+j->first+".m3u");
 			playlist.setRating(4);
 			std::vector<std::string> artists;
@@ -149,6 +148,7 @@ const Musics& Collection::getMusics() const{
 	return musics;
 }
 
+/*
 Tree Collection::buildTree() {
     Tree tree;
     for(auto music_pair : musics){
@@ -168,33 +168,7 @@ Tree Collection::buildFilterTree(Playlist& filter){
     }
     return tree;
 }
-
-void Collection::build(Tree& tree, MusicFile * music) {
-    bool artist_found = false;
-    for(auto &artist : tree){
-        if(music->getArtist() == artist.first){
-            artist_found = true;
-            bool album_found = false;
-            for(auto &album : artist.second){
-                if(music->getAlbum() == album.first){
-                    album_found = true;
-                    album.second.push_back(music);
-                    break;
-                }
-            }
-            if(!album_found){
-                artist.second.push_back(make_pair(music->getAlbum(), MusicVector{music}));
-                break;
-            }
-        }
-        if(artist_found){
-            break;
-        }
-    }
-    if(!artist_found){
-        tree.push_back(make_pair(music->getArtist(), MusicVectorByAlbum {make_pair(music->getAlbum(), MusicVector{music})}));
-    }
-}
+*/
 
 void Collection::load(bool refresh){
     try {
@@ -205,7 +179,6 @@ void Collection::load(bool refresh){
                  << " : " << std::fixed << std::showpoint << std::setprecision(2) << progression()*100 << '\n';
             */
         }
-        buildTree();
     } catch (boost::filesystem::filesystem_error& fex) {
         cout << "Exception " + std::string(fex.what());
     }
@@ -291,30 +264,35 @@ MusicFile * Collection::getFile(const std::string& filepath, bool _regen) {
 
 void Collection::push(MusicFile * music){
     if(music){
+        musicsByArtistsAlbums[music->getArtist()][music->getAlbum()][music->getTitle()] = music;
         musics[music->getFilepath()] = music;
-        artists[music->getArtist()][music->getFilepath()] = music;
-        genres[music->getGenre()][music->getFilepath()] = music;
+        musicsByArtists[music->getArtist()][music->getFilepath()] = music;
+        musicsByGenres[music->getGenre()][music->getFilepath()] = music;
         for(auto keyword : music->getSplittedKeywords()){
-            keywords[keyword][music->getFilepath()] = music;
+            musicsByKeywords[keyword][music->getFilepath()] = music;
             keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
         }
     }
 }
 
-const Artists& Collection::getArtists()const{
-	return artists;
+const MusicsByArtists& Collection::getMusicsByArtists() const {
+    return musicsByArtists;
 }
 
-const Keywords& Collection::getKeywords()const{
-	return keywords;
+const MusicsByKeywords& Collection::getMusicsByKeywords() const {
+    return musicsByKeywords;
 }
 
-const Genres& Collection::getGenres()const{
-	return genres;
+const MusicsByGenres& Collection::getMusicsByGenres() const {
+    return musicsByGenres;
 }
 
-const PlaylistsByArtist& Collection::getPlaylistsByArtist()const{
+const PlaylistsByArtist& Collection::getPlaylistsByArtist() const {
     return playlistsByArtist;
+}
+
+const MusicsByArtistAlbums& Collection::getMusicsByArtistsAlbums() const {
+    return musicsByArtistsAlbums;
 }
 
 void Collection::refreshPlaylists(){

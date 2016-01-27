@@ -27,11 +27,13 @@ class Playlist {
 		std::string getFilename() const;
 		const std::string& getFilepath()const;
 		double getRating();
+        double getAverageRating();
 		void setRating(double _rating);
 		std::string getMaxDuration();
 		void setMaxDuration(const std::string& _maxDuration);
 		std::string getMinDuration();
 		void setMinDuration(const std::string& _minDuration);
+        std::string getDuration();
 		const std::vector<std::string>& getWith();
 		void setWith(const std::vector<std::string>& _with);
 		const std::vector<std::string>& getWithout();

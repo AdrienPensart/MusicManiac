@@ -9,17 +9,24 @@ PlaylistModel::PlaylistModel(QObject *parent) :
 PlaylistModel::~PlaylistModel() {
 }
 
+void PlaylistModel::set(Playlist * _playlist) {
+    beginResetModel();
+    playlist = _playlist;
+    MapToVec(playlist->getMusics(), items);
+    endResetModel();
+}
+
 int PlaylistModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : (int)mv.size();
+    return parent.isValid() ? 0 : (int)items.size();
 }
 
 int PlaylistModel::columnCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : COLUMN_COUNT;
 }
 
-MusicFile * PlaylistModel::songAt(int row) const {
+MusicFile * PlaylistModel::itemAt(int row) const {
     if(row >= 0 && row < rowCount()) {
-        return mv.at(row);
+        return items.at(row);
 	}
 	return 0;
 }
@@ -50,9 +57,9 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
 	}
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        auto rowPlaylist = songAt(index.row());
-		if(rowPlaylist) {
-            return infoAtColumn(rowPlaylist, index.column());
+        auto item = itemAt(index.row());
+        if(item) {
+            return infoAtColumn(item, index.column());
         }
 	}
 	return QVariant();
@@ -112,32 +119,32 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 	return QVariant();
 }
 
-QVariant PlaylistModel::infoAtColumn(MusicFile * mf, int row) const {
-    if(!mf) {
+QVariant PlaylistModel::infoAtColumn(MusicFile * item, int row) const {
+    if(!item) {
         return tr("Undefined");
 	}
 
 	switch(row) {
         case COLUMN_TITLE:
-            return mf->getTitle().c_str();
+            return item->getTitle().c_str();
 			break;
         case COLUMN_ARTIST:
-            return mf->getArtist().c_str();
+            return item->getArtist().c_str();
 			break;
         case COLUMN_GENRE:
-            return mf->getGenre().c_str();
+            return item->getGenre().c_str();
 			break;
         case COLUMN_ALBUM:
-            return mf->getAlbum().c_str();
-			break;
+            return item->getAlbum().c_str();
+			break;        
 		case COLUMN_RATING:
-            return mf->getRating();
+            return item->getRating();
 			break;
         case COLUMN_KEYWORDS:
-            return mf->getKeywords().c_str();
+            return item->getKeywords().c_str();
 			break;
         case COLUMN_UUID:
-            return mf->getUUID().c_str();
+            return item->getUUID().c_str();
 			break;
 		default:
 			return tr("Undefined");

@@ -13,6 +13,9 @@ namespace Ui {
 class MusicFile;
 class PlaylistModel;
 class PlaylistsModel;
+class AlbumsModel;
+class AlbumModel;
+class ArtistModel;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -75,6 +78,10 @@ class MainWindow : public QMainWindow {
 
         PlaylistsModel * playlistsModel;
         PlaylistModel * playlistModel;
+        AlbumsModel * albumsModel;
+        AlbumModel * albumModel;
+        ArtistModel * artistModel;
+
 		Ui::MainWindow * ui;
 		QString basefolder;
         Collection collection;

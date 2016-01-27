@@ -10,16 +10,16 @@ PlaylistsModel::~PlaylistsModel() {
 }
 
 int PlaylistsModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : (int)playlists.size();
+    return parent.isValid() ? 0 : (int)items.size();
 }
 
 int PlaylistsModel::columnCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : COLUMN_COUNT;
 }
 
-Playlist * PlaylistsModel::playlistAt(int row) const {
+Playlist * PlaylistsModel::itemAt(int row) const {
     if(row >= 0 && row < rowCount()) {
-        return playlists[row];
+        return items[row];
 	}
 	return 0;
 }
@@ -50,9 +50,9 @@ QVariant PlaylistsModel::data(const QModelIndex& index, int role) const {
 	}
 
 	if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        auto rowPlaylist = playlistAt(index.row());
-		if(rowPlaylist) {
-            return infoAtColumn(rowPlaylist, index.column());
+        auto item = itemAt(index.row());
+        if(item) {
+            return infoAtColumn(item, index.column());
         }
 	}
 	return QVariant();
@@ -95,12 +95,18 @@ QVariant PlaylistsModel::headerData(int section, Qt::Orientation orientation, in
 			case COLUMN_GENRES:
 				return tr("Genres");
 				break;
+            case COLUMN_DURATION:
+                return tr("Duration");
+                break;
 			case COLUMN_MIN_DURATION:
 				return tr("Min dur.");
 				break;
 			case COLUMN_MAX_DURATION:
 				return tr("Max dur.");
 				break;
+            case COLUMN_AVR_RATING:
+                return tr("Avr. Rating");
+                break;
 			case COLUMN_RATING:
 				return tr("Rating");
 				break;
@@ -115,35 +121,41 @@ QVariant PlaylistsModel::headerData(int section, Qt::Orientation orientation, in
 	return QVariant();
 }
 
-QVariant PlaylistsModel::infoAtColumn(Playlist * pl, int row) const {
-	if(!pl) {
+QVariant PlaylistsModel::infoAtColumn(Playlist * item, int row) const {
+    if(!item) {
         return tr("Undefined");
 	}
 
 	switch(row) {
 		case COLUMN_FILEPATH:
-            return pl->getFilename().c_str();
+            return item->getFilename().c_str();
 			break;
 		case COLUMN_ARTISTS:
-			return Common::implode(pl->getArtists()).c_str();
+            return Common::implode(item->getArtists()).c_str();
 			break;
+        case COLUMN_DURATION:
+            return item->getDuration().c_str();
+            break;
 		case COLUMN_GENRES:
-			return Common::implode(pl->getGenres()).c_str();
+            return Common::implode(item->getGenres()).c_str();
 			break;
         case COLUMN_MIN_DURATION:
-			return pl->getMinDuration().c_str();
+            return item->getMinDuration().c_str();
 			break;
 		case COLUMN_MAX_DURATION:
-			return pl->getMaxDuration().c_str();
+            return item->getMaxDuration().c_str();
 			break;
 		case COLUMN_RATING:
-			return pl->getRating();
+            return item->getRating();
 			break;
+        case COLUMN_AVR_RATING:
+            return item->getAverageRating();
+            break;
 		case COLUMN_WITH_KEYWORDS:
-			return Common::implode(pl->getWith()).c_str();
+            return Common::implode(item->getWith()).c_str();
 			break;
 		case COLUMN_WITHOUT_KEYWORDS:
-			return Common::implode(pl->getWithout()).c_str();
+            return Common::implode(item->getWithout()).c_str();
 			break;
 		default:
 			return tr("Undefined");

@@ -20,12 +20,14 @@ class Collection {
 		void generateBest();
 		void generateBestByKeyword();
 		void consolidateTitles();
-		const Musics& getMusics()const;
-		const Playlists& getPlaylists()const;
-		const Artists& getArtists()const;
-		const Keywords& getKeywords()const;
-		const Genres& getGenres()const;
-        const PlaylistsByArtist& getPlaylistsByArtist()const;
+        const Musics& getMusics() const;
+        const Playlists& getPlaylists() const;
+        const MusicsByArtistAlbums& getMusicsByArtistsAlbums() const;
+        const MusicsByArtists& getMusicsByArtists() const;
+        const MusicsByKeywords& getMusicsByKeywords() const;
+        const MusicsByGenres& getMusicsByGenres() const;
+        const PlaylistsByArtist& getPlaylistsByArtist() const;
+        const MusicsByAlbums& getMusicsByAlbums() const;
 		bool valid();
         double progression() const;
 		int getTotalCount() const;
@@ -33,22 +35,20 @@ class Collection {
         void loadFile(const std::string& filepath);
         static MusicFile * getFile(const std::string& filepath, bool _regen=false);
         void load(bool refresh=false);
-        Tree buildTree();
-        Tree buildFilterTree(Playlist& filter);
 
 	private:
 
-        void build(Tree& tree, MusicFile * music);
 		void push(MusicFile * );
 		boost::filesystem::recursive_directory_iterator iterator;
         std::string folder;
 		unsigned int totalCount;
 		unsigned int readCount;
 		Musics musics;
-		Playlists playlists;
-		Artists artists;
-        Keywords keywords;
-		Genres genres;
+        Playlists playlists;
+        MusicsByArtistAlbums musicsByArtistsAlbums;
+        MusicsByArtists musicsByArtists;
+        MusicsByKeywords musicsByKeywords;
+        MusicsByGenres musicsByGenres;
 		KeywordsByArtist keywordsByArtist;
         PlaylistsByArtist playlistsByArtist;
         bool regen;

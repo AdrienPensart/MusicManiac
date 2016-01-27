@@ -9,21 +9,22 @@
 class MusicFile;
 
 typedef std::map<std::string, MusicFile*> Musics;
-typedef std::map<std::string, Musics > Artists;
-typedef std::map<std::string, Musics > Albums;
-typedef std::map<std::string, Musics > Keywords;
-typedef std::map<std::string, Musics > Genres;
-typedef std::map<std::string, Keywords > KeywordsByArtist;
+typedef std::map<std::string, Musics > MusicsByArtists;
+typedef std::map<std::string, Musics > MusicsByAlbums;
+typedef std::map<std::string, Musics > MusicsByKeywords;
+typedef std::map<std::string, Musics > MusicsByGenres;
+typedef std::map<std::string, MusicsByKeywords > KeywordsByArtist;
+typedef std::map<std::string, MusicsByAlbums > MusicsByArtistAlbums;
+
 typedef std::vector<MusicFile*> MusicVector;
-typedef std::vector<std::pair<std::string, MusicVector>> MusicVectorByAlbum;
-typedef std::vector<std::pair<std::string, MusicVectorByAlbum>> Tree;
+std::string secondsToString(int seconds);
 
 class MusicFile {
     public:
         MusicFile(const std::string& filepath, TagLib::File *);
         virtual ~MusicFile();
         std::string getDuration() const;
-        unsigned int getDurationInSeconds() const;
+        int getDurationInSeconds() const;
         std::string getPath() const;
         const std::string& getFilepath() const;
         std::string getFilename() const;

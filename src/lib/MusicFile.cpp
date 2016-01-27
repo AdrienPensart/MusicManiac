@@ -4,26 +4,26 @@
 #include <cstdio>
 #include <string>
 
+std::string secondsToString(int totalSeconds){
+    int hours = floor(totalSeconds / 3600);
+    int minutes = floor((totalSeconds - hours * 3600) / 60);
+    int seconds = floor(totalSeconds - hours * 3600 - minutes * 60);
+
+    char buffer[256];
+    if(hours <= 0) {
+        snprintf(buffer, sizeof(buffer), "%02d:%02d", minutes, seconds);
+    } else {
+        snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
+    }
+    return buffer;
+}
+
 MusicFile::MusicFile(const std::string& _filepath, TagLib::File * _file)
 	:totalSeconds(-1), filepath(_filepath), file(_file), modified(false), rating(0) {
 	TagLib::AudioProperties * properties = file->audioProperties();
 	if(properties) {
-		int seconds;
-		int minutes;
-		int hours;
-
-		totalSeconds = properties->length();
-		hours = floor(totalSeconds / 3600);
-		minutes = floor((totalSeconds - hours * 3600) / 60);
-		seconds = floor(totalSeconds - hours * 3600 - minutes * 60);
-
-		char buffer[256];
-		if(hours <= 0) {
-			snprintf(buffer, sizeof(buffer), "%02d:%02d", minutes, seconds);
-		} else {
-			snprintf(buffer, sizeof(buffer), "%d:%02d:%02d", hours, minutes, seconds);
-		}
-		duration = buffer;
+        totalSeconds = properties->length();
+        duration = secondsToString(totalSeconds);
 		// filepath + ", duration : " + duration;
 	} else {
 		// filepath + ", no duration";
@@ -78,7 +78,7 @@ std::string MusicFile::getTitle() const {
 	return title;
 }
 
-unsigned int MusicFile::getDurationInSeconds() const {
+int MusicFile::getDurationInSeconds() const {
 	return totalSeconds;
 }
 

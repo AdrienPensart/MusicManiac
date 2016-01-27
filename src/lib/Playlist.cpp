@@ -205,6 +205,22 @@ void Playlist::setRating(double _rating) {
 	rating = _rating;
 }
 
+std::string Playlist::getDuration(){
+    int totalSeconds = 0;
+    for(const auto& song : musics){
+        totalSeconds += song.second->getDurationInSeconds();
+    }
+    return secondsToString(totalSeconds);
+}
+
+double Playlist::getAverageRating() {
+    double totalRating = 0.0;
+    for(const auto& song : musics){
+        totalRating += song.second->getRating();
+    }
+    return totalRating /= (double)size();
+}
+
 std::string Playlist::getMaxDuration() {
 	return maxDuration;
 }

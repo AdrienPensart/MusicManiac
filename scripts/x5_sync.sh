@@ -9,7 +9,8 @@ echo "folder to scan = $1"
 echo "destination folder = $2"
 echo "base folder = $3"
 
-rsync --prune-empty-dirs -Prtvu --delete --append --inplace --ignore-times --size-only $1/ $2/
+#rsync --prune-empty-dirs -Prtvu --delete --append --inplace --ignore-times --size-only $1/ $2/
+rsync --prune-empty-dirs -Prtvu --delete $1/ $2/
 
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
