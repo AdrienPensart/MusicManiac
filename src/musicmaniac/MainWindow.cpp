@@ -193,6 +193,7 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
     playlist->setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
     auto musics = collection.getMusics();
     playlist->refreshWith(musics);
+    playlistModel->set(playlist);
 }
 
 void MainWindow::loadItem(QModelIndex index){
