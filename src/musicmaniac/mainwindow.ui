@@ -560,7 +560,6 @@
      <string>Playlist</string>
     </property>
     <addaction name="actionGenerate"/>
-    <addaction name="actionReset"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

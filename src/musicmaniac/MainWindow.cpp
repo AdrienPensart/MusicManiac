@@ -54,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	setWindowIcon(QIcon(":/musicmaniac.ico"));
     connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
-    connect(ui->actionReset, &QAction::triggered, this, &MainWindow::reset);
     connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::loadFolder);
     connect(ui->actionOpenRegenFolder, &QAction::triggered, this, &MainWindow::loadFolderWithRegen);
     connect(ui->actionRescanFolder, &QAction::triggered, this, &MainWindow::rescanFolder);
@@ -327,21 +326,6 @@ void MainWindow::loadItem(QModelIndex index){
     } else {
         qDebug() << "Type was not found : " << type;
     }
-}
-
-void MainWindow::reset() {
-    /*
-	withoutKeywordsModel.setStringList(empty);
-	withKeywordsModel.setStringList(empty);
-	availableArtistsModel.setStringList(empty);
-	availableGenresModel.setStringList(empty);
-    */
-    //selectedArtistsModel.setStringList(vectorToStringList(collection.getArtists()));
-    //availableKeywordsModel.setStringList(vectorToStringList(collection.getKeywords()));
-    //selectedGenresModel.setStringList(vectorToStringList(collection.getGenres()));
-
-    //ui->musicView->resizeColumnsToContents();
-    //ui->musicView->reset();
 }
 
 void MainWindow::loadFolder() {

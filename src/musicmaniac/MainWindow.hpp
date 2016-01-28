@@ -43,7 +43,6 @@ class MainWindow : public QMainWindow {
 		void selectGenre();
 		void deselectGenre();
         void loadItem(QModelIndex);
-		void reset();
 		void rescanFolder(bool=false);
         void ratingChanged(double);
         void minDurationChanged(QString);
