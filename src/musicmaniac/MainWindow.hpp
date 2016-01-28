@@ -34,14 +34,6 @@ class MainWindow : public QMainWindow {
 		void generatePlaylist();
 		void loadFolder();
 		void loadFolderWithRegen();
-		void withoutToAvailable();
-		void availableToWithout();
-		void availableToWith();
-		void withToAvailable();
-		void selectArtist();
-		void deselectArtist();
-		void selectGenre();
-		void deselectGenre();
         void loadItem(QModelIndex);
 		void rescanFolder(bool=false);
         void ratingChanged(double);

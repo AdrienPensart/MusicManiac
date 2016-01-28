@@ -57,14 +57,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::loadFolder);
     connect(ui->actionOpenRegenFolder, &QAction::triggered, this, &MainWindow::loadFolderWithRegen);
     connect(ui->actionRescanFolder, &QAction::triggered, this, &MainWindow::rescanFolder);
-    connect(ui->inWithButton, &QPushButton::clicked, this, &MainWindow::availableToWith);
-    connect(ui->outWithButton, &QPushButton::clicked, this, &MainWindow::withToAvailable);
-    connect(ui->inWithoutButton, &QPushButton::clicked, this, &MainWindow::availableToWithout);
-    connect(ui->outWithoutButton, &QPushButton::clicked, this, &MainWindow::withoutToAvailable);
-    connect(ui->inArtistButton, &QPushButton::clicked, this, &MainWindow::selectArtist);
-    connect(ui->outArtistButton, &QPushButton::clicked, this, &MainWindow::deselectArtist);
-    connect(ui->inGenreButton, &QPushButton::clicked, this, &MainWindow::selectGenre);
-    connect(ui->outGenreButton, &QPushButton::clicked, this, &MainWindow::deselectGenre);
+
+    connect(ui->inWithButton, &QPushButton::clicked, this, [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withKeywordsModel);});
+    connect(ui->outWithButton, &QPushButton::clicked, this, [=](){selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);});
+    connect(ui->inWithoutButton, &QPushButton::clicked, this, [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);});
+    connect(ui->outWithoutButton, &QPushButton::clicked, this, [=](){selectionToModel(withoutKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);});
+    connect(ui->inArtistButton, &QPushButton::clicked, this, [=](){selectionToModel(availableArtistsSelection, availableArtistsModel, selectedArtistsModel);});
+    connect(ui->outArtistButton, &QPushButton::clicked, this, [=](){selectionToModel(selectedArtistsSelection, selectedArtistsModel, availableArtistsModel);});
+    connect(ui->inGenreButton, &QPushButton::clicked, this, [=](){selectionToModel(availableGenresSelection, availableGenresModel, selectedGenresModel);});
+    connect(ui->outGenreButton, &QPushButton::clicked, this, [=](){selectionToModel(selectedGenresSelection, selectedGenresModel, availableGenresModel);});
     connect(ui->collectionView, &QTreeView::clicked, this, &MainWindow::loadItem);
 
     headerLabels.append("Artist");
@@ -172,38 +173,6 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
 	list.sort();
 	destinationModel.setStringList(list);
     //musicProxyModel->refilter();
-}
-
-void MainWindow::selectGenre() {
-	selectionToModel(availableGenresSelection, availableGenresModel, selectedGenresModel);
-}
-
-void MainWindow::deselectGenre() {
-	selectionToModel(selectedGenresSelection, selectedGenresModel, availableGenresModel);
-}
-
-void MainWindow::selectArtist() {
-	selectionToModel(availableArtistsSelection, availableArtistsModel, selectedArtistsModel);
-}
-
-void MainWindow::deselectArtist() {
-	selectionToModel(selectedArtistsSelection, selectedArtistsModel, availableArtistsModel);
-}
-
-void MainWindow::withoutToAvailable() {
-	selectionToModel(withoutKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);
-}
-
-void MainWindow::availableToWithout() {
-	selectionToModel(availableKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);
-}
-
-void MainWindow::availableToWith() {
-	selectionToModel(availableKeywordsSelection, availableKeywordsModel, withKeywordsModel);
-}
-
-void MainWindow::withToAvailable() {
-	selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);
 }
 
 void MainWindow::loadItem(QModelIndex index){
