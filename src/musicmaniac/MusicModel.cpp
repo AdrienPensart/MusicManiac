@@ -111,7 +111,18 @@ bool MusicModel::setData (const QModelIndex & index, const QVariant & value, int
 }
 
 QVariant MusicModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+    if(role != Qt::DisplayRole){
+        return QVariant();
+    }
+    if(orientation == Qt::Vertical) {
+        switch(section) {
+            case 0:
+                return tr("Value");
+                break;
+            default:
+                break;
+        }
+    } else if(orientation == Qt::Horizontal) {
         switch(section) {
             case COLUMN_TITLE:
                 return tr("Title");

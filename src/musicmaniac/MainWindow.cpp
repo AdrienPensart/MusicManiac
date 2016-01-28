@@ -47,26 +47,33 @@ template<typename... Args> struct SELECT {
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+    ui(new Ui::MainWindow) {
 	ui->setupUi(this);
-
 	setWindowIcon(QIcon(":/musicmaniac.ico"));
     connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
     connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::loadFolder);
     connect(ui->actionOpenRegenFolder, &QAction::triggered, this, &MainWindow::loadFolderWithRegen);
     connect(ui->actionRescanFolder, &QAction::triggered, this, &MainWindow::rescanFolder);
-
-    connect(ui->inWithButton, &QPushButton::clicked, this, [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withKeywordsModel);});
-    connect(ui->outWithButton, &QPushButton::clicked, this, [=](){selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);});
-    connect(ui->inWithoutButton, &QPushButton::clicked, this, [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);});
-    connect(ui->outWithoutButton, &QPushButton::clicked, this, [=](){selectionToModel(withoutKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);});
-    connect(ui->inArtistButton, &QPushButton::clicked, this, [=](){selectionToModel(availableArtistsSelection, availableArtistsModel, selectedArtistsModel);});
-    connect(ui->outArtistButton, &QPushButton::clicked, this, [=](){selectionToModel(selectedArtistsSelection, selectedArtistsModel, availableArtistsModel);});
-    connect(ui->inGenreButton, &QPushButton::clicked, this, [=](){selectionToModel(availableGenresSelection, availableGenresModel, selectedGenresModel);});
-    connect(ui->outGenreButton, &QPushButton::clicked, this, [=](){selectionToModel(selectedGenresSelection, selectedGenresModel, availableGenresModel);});
     connect(ui->collectionView, &QTreeView::clicked, this, &MainWindow::loadItem);
+
+    connect(ui->inWithButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withKeywordsModel);});
+    connect(ui->outWithButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(withKeywordsSelection, withKeywordsModel, availableKeywordsModel);});
+    connect(ui->inWithoutButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(availableKeywordsSelection, availableKeywordsModel, withoutKeywordsModel);});
+    connect(ui->outWithoutButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(withoutKeywordsSelection, withoutKeywordsModel, availableKeywordsModel);});
+    connect(ui->inArtistButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(availableArtistsSelection, availableArtistsModel, selectedArtistsModel);});
+    connect(ui->outArtistButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(selectedArtistsSelection, selectedArtistsModel, availableArtistsModel);});
+    connect(ui->inGenreButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(availableGenresSelection, availableGenresModel, selectedGenresModel);});
+    connect(ui->outGenreButton, &QPushButton::clicked, this,
+            [=](){selectionToModel(selectedGenresSelection, selectedGenresModel, availableGenresModel);});
+
 
     headerLabels.append("Artist");
 	withoutKeywordsSelection = new QItemSelectionModel(&withoutKeywordsModel);
@@ -100,6 +107,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ratingSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &MainWindow::ratingChanged);
     connect(ui->minDurationEdit, &QLineEdit::textChanged, this, &MainWindow::minDurationChanged);
     connect(ui->maxDurationEdit, &QLineEdit::textChanged, this, &MainWindow::maxDurationChanged);
+
+    ui->playlistSettingsBox->setVisible(false);
+    ui->multiView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     playlistsModel = new PlaylistsModel(this);
     playlistModel = new PlaylistModel(this);
@@ -172,13 +182,13 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
 	}
 	list.sort();
 	destinationModel.setStringList(list);
-    //musicProxyModel->refilter();
 }
 
 void MainWindow::loadItem(QModelIndex index){
     auto item = collectionModel.itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
     if(type == "artist"){
+        ui->playlistSettingsBox->setVisible(false);
         auto artistName = item->text();
         auto playlistsByArtist = collection.getPlaylistsByArtist();
         auto musicsByArtists = collection.getMusicsByArtists();
@@ -193,6 +203,7 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(horizontalProxyModel);
         ui->multiView->reset();
     } else if(type == "playlists") {
+        ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
@@ -201,12 +212,12 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
     } else if(type == "playlist"){
+        ui->playlistSettingsBox->setVisible(true);
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto playlistsByArtists = collection.getPlaylistsByArtist();
         auto playlistName = item->data(Qt::DisplayRole).toString();
-        qDebug() << "Artist = " << artistName << " and playlist = " << playlistName;
         auto playlists = playlistsByArtists[artistName.toStdString()];
         auto playlistIter = playlists.find(playlistName.toStdString());
         if(playlistIter == playlists.end()){
@@ -258,6 +269,7 @@ void MainWindow::loadItem(QModelIndex index){
         playlistModel->set(playlist);
         return;
     } else if(type == "albums"){
+        ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
@@ -266,6 +278,7 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(albumsModel);
         albumsModel->set(albums);
     } else if(type == "album"){
+        ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
@@ -275,6 +288,7 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(albumModel);
         albumModel->set(musics);
     } else if(type == "song"){
+        ui->playlistSettingsBox->setVisible(false);
         auto albumIndex = index.parent();
         auto albumItem = collectionModel.itemFromIndex(albumIndex);
         auto albumName = albumItem->text();
