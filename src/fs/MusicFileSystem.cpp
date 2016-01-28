@@ -9,9 +9,9 @@ using namespace std;
 MusicFileSystem::MusicFileSystem(Collection& _collection) :
     collection(_collection),
     playlist("whatever") {
-    std::vector<std::string> without;
-    without.push_back("cutoff");
-    without.push_back("nosync");
+    std::set<std::string> without;
+    without.insert("cutoff");
+    without.insert("nosync");
     playlist.setRating(4);
     playlist.setWithout(without);
 }

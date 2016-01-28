@@ -112,39 +112,21 @@ void Playlist::load() {
 	std::string line;
 	while(line != ENDHEADER) {
 		std::getline(playlist, line);
-		// line;
 		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
-			Common::split(line.substr(ARTISTS.size()), ",", artists);
-            std::set<std::string> s( artists.begin(), artists.end() );
-            artists.assign( s.begin(), s.end() );
-			//cout << "Getting artists : " + Common::implode(artists) + "\n";
+            Common::split(line.substr(ARTISTS.size()), ",", artists);
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
-			Common::split(line.substr(GENRES.size()), ",", genres);
-            std::set<std::string> s( genres.begin(), genres.end() );
-            genres.assign( s.begin(), s.end() );
-			//cout << "Getting genres : " + Common::implode(genres) + "\n";
+            Common::split(line.substr(GENRES.size()), ",", genres);
 		} else if(!line.compare(0, RATING.length(), RATING)) {
 			Common::fromString(line.substr(RATING.size()), rating);
-			//cout << "Getting rating : " + Common::toString(rating) + "\n";
 		} else if(!line.compare(0, MIN_DURATION.length(), MIN_DURATION)) {
 			minDuration = line.substr(MIN_DURATION.size());
-			//cout << "Getting min duration : " + minDuration + "\n";
 		} else if(!line.compare(0, MAX_DURATION.length(), MAX_DURATION)) {
 			maxDuration = line.substr(MAX_DURATION.size());
-			//cout << "Getting max duration : " + maxDuration + "\n";
 		} else if(!line.compare(0, WITHOUT.length(), WITHOUT)) {
-			Common::split(line.substr(WITHOUT.size()), ",", without);
-            std::set<std::string> s( without.begin(), without.end() );
-            without.assign( s.begin(), s.end() );
-			//cout << "Getting without keywords : " + Common::implode(without) + "\n";
+            Common::split(line.substr(WITHOUT.size()), ",", without);
 		} else if(!line.compare(0, WITH.length(), WITH)) {
 			Common::split(line.substr(WITH.size()), ",", with);
-            std::set<std::string> s( with.begin(), with.end() );
-            with.assign( s.begin(), s.end() );
-			//cout << "Getting with keywords : " + Common::implode(with) + "\n";
-		} else {
-			//cout << "Unrecognized setting : " + line;
-		}
+        }
 	}
 
     cout << "Loading of playlist " << filepath << " ok\n";
@@ -229,11 +211,11 @@ void Playlist::setMaxDuration(const std::string& _maxDuration) {
 	maxDuration = _maxDuration;
 }
 
-const std::vector<std::string>& Playlist::getArtists() {
+const std::set<std::string>& Playlist::getArtists() {
 	return artists;
 }
 
-void Playlist::setArtists(const std::vector<std::string>& _artists) {
+void Playlist::setArtists(const std::set<std::string>& _artists) {
 	artists = _artists;
 }
 
@@ -245,26 +227,26 @@ void Playlist::setMinDuration(const std::string& _minDuration) {
 	minDuration = _minDuration;
 }
 
-const std::vector<std::string>& Playlist::getWith() {
+const std::set<std::string>& Playlist::getWith() {
 	return with;
 }
 
-void Playlist::setWith(const std::vector<std::string>& _with) {
+void Playlist::setWith(const std::set<std::string>& _with) {
 	with = _with;
 }
 
-const std::vector<std::string>& Playlist::getWithout() {
+const std::set<std::string>& Playlist::getWithout() {
 	return without;
 }
 
-void Playlist::setWithout(const std::vector<std::string>& _without) {
+void Playlist::setWithout(const std::set<std::string>& _without) {
 	without = _without;
 }
 
-const std::vector<std::string>& Playlist::getGenres() {
+const std::set<std::string>& Playlist::getGenres() {
 	return genres;
 }
 
-void Playlist::setGenres(const std::vector<std::string>& _genres) {
+void Playlist::setGenres(const std::set<std::string>& _genres) {
 	genres = _genres;
 }

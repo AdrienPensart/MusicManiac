@@ -42,18 +42,18 @@ const std::string& Collection::getRoot() const {
 }
 
 void Collection::generateBest(){
-	std::vector<std::string> without;
-	without.push_back("cutoff");
+    std::set<std::string> without;
+    without.insert("cutoff");
 	// generate best.m3u playlists
 	// mainly for sync purpose
-    for (MusicsByArtists::const_iterator i = musicsByArtists.begin(); i != musicsByArtists.end(); i++) {
-		Playlist playlist(folder+"/"+i->first+"/best.m3u");
+    for (const auto& i : musicsByArtists) {
+        Playlist playlist(folder+"/"+i.first+"/best.m3u");
 		playlist.setRating(4);
-		std::vector<std::string> artists;
-        artists.push_back(i->first);
+        std::set<std::string> artists;
+        artists.insert(i.first);
 		playlist.setWithout(without);
 		playlist.setArtists(artists);
-        playlist.refreshWith(i->second);
+        playlist.refreshWith(i.second);
 		if(!playlist.size()){
 			unlink(playlist.getFilepath().c_str());
 		} else {
@@ -64,21 +64,21 @@ void Collection::generateBest(){
 }
 
 void Collection::generateBestByKeyword(){
-	std::vector<std::string> without;
-	without.push_back("cutoff");
+    std::set<std::string> without;
+    without.insert("cutoff");
 	// generate all keywords playlists for each artist
-	for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
-        for (MusicsByKeywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
-			Playlist playlist(folder+"/"+i->first+"/"+j->first+".m3u");
+    for (auto const& i : keywordsByArtist) {
+        for (auto const& j : i.second) {
+            Playlist playlist(folder+"/"+i.first+"/"+j.first+".m3u");
 			playlist.setRating(4);
-			std::vector<std::string> artists;
-			artists.push_back(i->first);
-			std::vector<std::string> with;
-			with.push_back(j->first);
+            std::set<std::string> artists;
+            artists.insert(i.first);
+            std::set<std::string> with;
+            with.insert(j.first);
 			playlist.setWith(with);
 			playlist.setWithout(without);
 			playlist.setArtists(artists);
-            playlist.refreshWith(j->second);
+            playlist.refreshWith(j.second);
 
 			if(playlist.size() >= 3){
 				playlist.save();
@@ -144,31 +144,16 @@ const Playlists& Collection::getPlaylists() const {
 	return playlists;
 }
 
-const Musics& Collection::getMusics() const{
+const Musics& Collection::getMusics() const {
 	return musics;
 }
 
-/*
-Tree Collection::buildTree() {
-    Tree tree;
-    for(auto music_pair : musics){
-        MusicFile * music = music_pair.second;
-        build(tree, music);
-    }
-    return tree;
+std::set<std::string> Collection::getKeywords() const {
+    std::set<std::string> keywords;
+    for(auto k: keywordsByArtist)
+        keywords.insert(k.first);
+    return keywords;
 }
-
-Tree Collection::buildFilterTree(Playlist& filter){
-    Tree tree;
-    for(auto music_pair : musics){
-        MusicFile * music = music_pair.second;
-        if(filter.conform(music)){
-            build(tree, music);
-        }
-    }
-    return tree;
-}
-*/
 
 void Collection::load(bool refresh){
     try {

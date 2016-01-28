@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "MusicFile.hpp"
 #include "Playlist.hpp"
 
@@ -20,6 +21,7 @@ class Collection {
 		void generateBest();
 		void generateBestByKeyword();
 		void consolidateTitles();
+        std::set<std::string> getKeywords() const;
         const Musics& getMusics() const;
         const Playlists& getPlaylists() const;
         const MusicsByArtistAlbums& getMusicsByArtistsAlbums() const;

@@ -16,18 +16,20 @@
 #include "MusicModel.hpp"
 #include "HorizontalProxyModel.hpp"
 
-QStringList vectorToStringList(const std::vector<std::string>& input) {
+template<class Container>
+QStringList toStringList(const Container& input) {
 	QStringList output;
-	for(std::vector<std::string>::const_iterator iter = input.begin(); iter != input.end(); iter++) {
-		output.append(iter->c_str());
+    for(const auto& str : input) {
+        output.append(str.c_str());
 	}
 	return output;
 }
 
-std::vector<std::string> stringListToVector(const QStringList& input) {
-	std::vector<std::string> output;
-    for(auto str : input) {
-		output.push_back(str.toStdString());
+template<class Container>
+Container fromStringList(const QStringList& input) {
+    Container output;
+    for(const auto& str : input) {
+        output.insert(output.end(), str.toStdString());
 	}
 	return output;
 }
@@ -146,9 +148,9 @@ void MainWindow::generatePlaylist() {
 	playlist.setRating(ui->ratingSpinBox->value());
 	playlist.setMaxDuration(ui->maxDurationEdit->text().toStdString());
 	playlist.setMinDuration(ui->minDurationEdit->text().toStdString());
-	playlist.setArtists(stringListToVector(selectedArtistsModel.stringList()));
-	playlist.setWith(stringListToVector(withKeywordsModel.stringList()));
-	playlist.setWithout(stringListToVector(withoutKeywordsModel.stringList()));
+    playlist.setArtists(fromStringList<std::set<std::string>>(selectedArtistsModel.stringList()));
+    playlist.setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
+    playlist.setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
 
     /*
 	for(int i = 0; i < musicProxyModel->rowCount(); i++) {
@@ -242,19 +244,19 @@ void MainWindow::loadItem(QModelIndex index){
         if(playlistIter == playlists.end()){
             return;
         }
-
+        auto playlist = playlistIter->second;
         ui->ratingSpinBox->setValue(playlist->getRating());
         ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
         ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
 
         availableArtistsModel.setStringList(empty);
-        selectedArtistsModel.setStringList(vectorToStringList(playlist->getArtists()));
+        selectedArtistsModel.setStringList(toStringList(playlist->getArtists()));
 
         availableGenresModel.setStringList(empty);
-        selectedGenresModel.setStringList(vectorToStringList(playlist->getGenres()));
+        selectedGenresModel.setStringList(toStringList(playlist->getGenres()));
 
-        withKeywordsModel.setStringList(vectorToStringList(playlist->getWith()));
-        withoutKeywordsModel.setStringList(vectorToStringList(playlist->getWithout()));
+        withKeywordsModel.setStringList(toStringList(playlist->getWith()));
+        withoutKeywordsModel.setStringList(toStringList(playlist->getWithout()));
 
         ui->multiView->setModel(playlistModel);
         playlistModel->set(playlist);
