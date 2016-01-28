@@ -119,12 +119,12 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 	return QVariant();
 }
 
-QVariant PlaylistModel::infoAtColumn(MusicFile * item, int row) const {
+QVariant PlaylistModel::infoAtColumn(MusicFile * item, int column) const {
     if(!item) {
-        return tr("Undefined");
+        return QVariant();
 	}
 
-	switch(row) {
+    switch(column) {
         case COLUMN_TITLE:
             return item->getTitle().c_str();
 			break;
@@ -149,5 +149,5 @@ QVariant PlaylistModel::infoAtColumn(MusicFile * item, int row) const {
 		default:
 			return tr("Undefined");
 	}
-    return tr("Undefined");
+    return QVariant();
 }

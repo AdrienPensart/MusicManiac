@@ -218,15 +218,17 @@ void MainWindow::loadItem(QModelIndex index){
         auto playlists = playlistsByArtist[artistName.toStdString()];
         auto albums = musicsByArtistsAlbums[artistName.toStdString()];
 
-        ui->multiView->setModel(artistModel);
         artistModel->set(artistName, musics, albums, playlists);
+        horizontalProxyModel->setSourceModel(artistModel);
+        ui->multiView->setModel(horizontalProxyModel);
+        ui->multiView->reset();
     } else if(type == "playlists") {
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto playlistsByArtist = collection.getPlaylistsByArtist();
-        ui->multiView->setModel(playlistsModel);
         auto playlists = playlistsByArtist[artistName.toStdString()];
+        ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
     } else if(type == "playlist"){
         auto artistIndex = index.parent().parent();
@@ -257,14 +259,13 @@ void MainWindow::loadItem(QModelIndex index){
                 return;
             }
         }
-        qDebug() << " was not found";
     } else if(type == "albums"){
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
-        ui->multiView->setModel(albumsModel);
         auto albums = musicsByArtistsAlbums[artistName.toStdString()];
+        ui->multiView->setModel(albumsModel);
         albumsModel->set(albums);
     } else if(type == "album"){
         auto artistIndex = index.parent().parent();
@@ -288,8 +289,13 @@ void MainWindow::loadItem(QModelIndex index){
         auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
         auto music = musicsByArtistsAlbums[artistName.toStdString()][albumName.toStdString()][musicName.toStdString()];
 
-        ui->multiView->setModel(musicModel);
         musicModel->set(music);
+        horizontalProxyModel->setSourceModel(musicModel);
+        ui->multiView->setModel(horizontalProxyModel);
+        ui->multiView->reset();
+
+    } else {
+        qDebug() << "Type was not found : " << type;
     }
 }
 

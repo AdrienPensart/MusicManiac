@@ -115,12 +115,12 @@ QVariant AlbumsModel::headerData(int section, Qt::Orientation orientation, int r
 	return QVariant();
 }
 
-QVariant AlbumsModel::infoAtColumn(const Album * item, int row) const {
+QVariant AlbumsModel::infoAtColumn(const Album * item, int column) const {
     if(!item) {
-        return tr("Undefined");
+        return QVariant();
 	}
 
-	switch(row) {
+    switch(column) {
         case COLUMN_NAME:
             return item->first.c_str();
 			break;
@@ -177,5 +177,5 @@ QVariant AlbumsModel::infoAtColumn(const Album * item, int row) const {
 		default:
 			return tr("Undefined");
 	}
-    return tr("Undefined");
+    return QVariant();
 }

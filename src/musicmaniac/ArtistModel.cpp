@@ -41,7 +41,7 @@ void ArtistModel::set(QString _artist, const Musics& musics, const MusicsByAlbum
 }
 
 int ArtistModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : ROW_COUNT;
+    return parent.isValid() ? 0 : 1;
 }
 
 int ArtistModel::columnCount(const QModelIndex& parent) const {
@@ -74,36 +74,36 @@ QVariant ArtistModel::data(const QModelIndex& index, int role) const {
     }
 
     if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        switch(index.row()){
-            case ROW_NAME:
-                return index.column() == 0 ? tr("Name") : artist;
+        switch(index.column()){
+            case COLUMN_NAME:
+                return artist;
                 break;
-            case ROW_MUSICS_COUNT:
-                return index.column() == 0 ? tr("Musics count") : QString::number(musicsCount);
+            case COLUMN_MUSICS_COUNT:
+                return QString::number(musicsCount);
                 break;
-            case ROW_ALBUMS_COUNT:
-                return index.column() == 0 ? tr("Albums count") : QString::number(albumsCount);
+            case COLUMN_ALBUMS_COUNT:
+                return QString::number(albumsCount);
                 break;
-            case ROW_PLAYLISTS_COUNT:
-                return index.column() == 0 ? tr("Playlists count") : QString::number(playlistsCount);
+            case COLUMN_PLAYLISTS_COUNT:
+                return QString::number(playlistsCount);
                 break;
-            case ROW_AVR_RATING:
-                return index.column() == 0 ? tr("Average rating") : QString::number(averageRating);
+            case COLUMN_AVR_RATING:
+                return QString::number(averageRating);
                 break;
-            case ROW_KEYWORDS:
-                return index.column() == 0 ? tr("Keywords") : keywords;
+            case COLUMN_KEYWORDS:
+                return keywords;
                 break;
-            case ROW_GENRES:
-                return index.column() == 0 ? tr("Genres") : genres;
+            case COLUMN_GENRES:
+                return genres;
                 break;
-            case ROW_DURATION:
-                return index.column() == 0 ? tr("Duration") : duration;
+            case COLUMN_DURATION:
+                return duration;
                 break;
             default:
                 return tr("Undefined");
         }
     }
-    return tr("Undefined");
+    return QVariant();
 }
 
 bool ArtistModel::setData (const QModelIndex & index, const QVariant & value, int role) {
@@ -134,14 +134,32 @@ bool ArtistModel::setData (const QModelIndex & index, const QVariant & value, in
 QVariant ArtistModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch(section) {
-            case COLUMN_KEY:
-                return tr("Key");
+            case COLUMN_NAME:
+                return tr("Name");
                 break;
-            case COLUMN_VALUE:
-                return tr("Value");
+            case COLUMN_MUSICS_COUNT:
+                return tr("Musics count");
+                break;
+            case COLUMN_ALBUMS_COUNT:
+                return tr("Albums count");
+                break;
+            case COLUMN_PLAYLISTS_COUNT:
+                return tr("Playlists count");
+                break;
+            case COLUMN_AVR_RATING:
+                return tr("Average rating");
+                break;
+            case COLUMN_KEYWORDS:
+                return tr("Keywords");
+                break;
+            case COLUMN_GENRES:
+                return tr("Genres");
+                break;
+            case COLUMN_DURATION:
+                return tr("Duration");
                 break;
             default:
-                return tr("Undefined column");
+                return tr("Undefined");
         }
     }
     return QVariant();

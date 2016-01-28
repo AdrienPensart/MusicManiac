@@ -7,21 +7,15 @@ class MusicModel : public QAbstractTableModel {
     Q_OBJECT
     public:
         enum {
-            ROW_TITLE,
-            ROW_ARTIST,
-            ROW_ALBUM,
-            ROW_RATING,
-            ROW_KEYWORDS,
-            ROW_GENRE,
-            ROW_DURATION,
-            ROW_FILEPATH,
-            ROW_UUID,
-            ROW_COUNT,
-            ROW_MAX=ROW_COUNT-1
-        };
-        enum {
-            COLUMN_KEY,
-            COLUMN_VALUE,
+            COLUMN_TITLE,
+            COLUMN_ARTIST,
+            COLUMN_ALBUM,
+            COLUMN_RATING,
+            COLUMN_KEYWORDS,
+            COLUMN_GENRE,
+            COLUMN_DURATION,
+            COLUMN_FILEPATH,
+            COLUMN_UUID,
             COLUMN_COUNT,
             COLUMN_MAX=COLUMN_COUNT-1
         };

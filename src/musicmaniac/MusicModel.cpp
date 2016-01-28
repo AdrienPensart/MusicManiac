@@ -17,7 +17,7 @@ void MusicModel::set(MusicFile * _mf) {
 }
 
 int MusicModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : ROW_COUNT;
+    return parent.isValid() ? 0 : 1;
 }
 
 int MusicModel::columnCount(const QModelIndex& parent) const {
@@ -50,39 +50,39 @@ QVariant MusicModel::data(const QModelIndex& index, int role) const {
     }
 
     if(role == Qt::DisplayRole || role == Qt::EditRole) {
-        switch(index.row()){
-            case ROW_TITLE:
-                return index.column() == 0 ? tr("Title") : mf->getTitle().c_str();
+        switch(index.column()){
+            case COLUMN_TITLE:
+                return mf->getTitle().c_str();
                 break;
-            case ROW_FILEPATH:
-                return index.column() == 0 ? tr("Filepath") : mf->getFilepath().c_str();
+            case COLUMN_FILEPATH:
+                return mf->getFilepath().c_str();
                 break;
-            case ROW_ARTIST:
-                return index.column() == 0 ? tr("Artist") : mf->getArtist().c_str();
+            case COLUMN_ARTIST:
+                return mf->getArtist().c_str();
                 break;
-            case ROW_ALBUM:
-                return index.column() == 0 ? tr("Album") : mf->getAlbum().c_str();
+            case COLUMN_ALBUM:
+                return mf->getAlbum().c_str();
                 break;
-            case ROW_UUID:
-                return index.column() == 0 ? tr("UUID") : mf->getUUID().c_str();
+            case COLUMN_UUID:
+                return mf->getUUID().c_str();
                 break;
-            case ROW_RATING:
-                return index.column() == 0 ? tr("Rating") : QString::number(mf->getRating());
+            case COLUMN_RATING:
+                return QString::number(mf->getRating());
                 break;
-            case ROW_KEYWORDS:
-                return index.column() == 0 ? tr("Keywords") : mf->getKeywords().c_str();
+            case COLUMN_KEYWORDS:
+                return mf->getKeywords().c_str();
                 break;
-            case ROW_GENRE:
-                return index.column() == 0 ? tr("Genre") : mf->getGenre().c_str();
+            case COLUMN_GENRE:
+                return mf->getGenre().c_str();
                 break;
-            case ROW_DURATION:
-                return index.column() == 0 ? tr("Duration") : mf->getDuration().c_str();
+            case COLUMN_DURATION:
+                return mf->getDuration().c_str();
                 break;
             default:
                 return tr("Undefined");
         }
     }
-    return tr("Undefined");
+    return QVariant();
 }
 
 bool MusicModel::setData (const QModelIndex & index, const QVariant & value, int role) {
@@ -113,14 +113,35 @@ bool MusicModel::setData (const QModelIndex & index, const QVariant & value, int
 QVariant MusicModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch(section) {
-            case COLUMN_KEY:
-                return tr("Key");
+            case COLUMN_TITLE:
+                return tr("Title");
                 break;
-            case COLUMN_VALUE:
-                return tr("Value");
+            case COLUMN_FILEPATH:
+                return tr("Filepath");
+                break;
+            case COLUMN_ARTIST:
+                return tr("Artist");
+                break;
+            case COLUMN_ALBUM:
+                return tr("Album");
+                break;
+            case COLUMN_UUID:
+                return tr("UUID");
+                break;
+            case COLUMN_RATING:
+                return tr("Rating");
+                break;
+            case COLUMN_KEYWORDS:
+                return tr("Keywords");
+                break;
+            case COLUMN_GENRE:
+                return tr("Genre");
+                break;
+            case COLUMN_DURATION:
+                return tr("Duration");
                 break;
             default:
-                return tr("Undefined column");
+                return tr("Undefined");
         }
     }
     return QVariant();
