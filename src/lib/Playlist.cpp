@@ -79,14 +79,12 @@ bool Playlist::conform(MusicFile *music){
     return true;
 }
 
-void Playlist::refreshWith(const Musics& musics) {
+void Playlist::refreshWith(const Musics& musicsCollection) {
     if(!valid){
 		return;
 	}
-
-	// "Refreshing playlist " + filepath;
-	// filtering
-    for(const auto& p : musics) {
+    musics.clear();
+    for(const auto& p : musicsCollection) {
         MusicFile * music = p.second;
         if(conform(music)) {
             // "ADDING : " + music->getFilepath();

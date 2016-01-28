@@ -21,6 +21,7 @@ class PlaylistModel : public QAbstractTableModel {
         explicit PlaylistModel(QObject *parent = 0);
 		virtual ~PlaylistModel();
 
+        Playlist * getPlaylist(){return playlist;}
         void set(Playlist * _playlist);
         int rowCount(const QModelIndex& parent = QModelIndex()) const;
         int columnCount(const QModelIndex& parent = QModelIndex()) const;

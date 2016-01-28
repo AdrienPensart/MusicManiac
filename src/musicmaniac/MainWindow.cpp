@@ -182,6 +182,17 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
 	}
 	list.sort();
 	destinationModel.setStringList(list);
+
+    auto playlist = playlistModel->getPlaylist();
+    playlist->setRating(ui->ratingSpinBox->value());
+    playlist->setMinDuration(ui->minDurationEdit->text().toStdString());
+    playlist->setMaxDuration(ui->maxDurationEdit->text().toStdString());
+    playlist->setArtists(fromStringList<std::set<std::string>>(selectedArtistsModel.stringList()));
+    playlist->setGenres(fromStringList<std::set<std::string>>(selectedGenresModel.stringList()));
+    playlist->setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
+    playlist->setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
+    auto musics = collection.getMusics();
+    playlist->refreshWith(musics);
 }
 
 void MainWindow::loadItem(QModelIndex index){

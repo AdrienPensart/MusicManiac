@@ -150,7 +150,7 @@ const Musics& Collection::getMusics() const {
 
 std::set<std::string> Collection::getKeywords() const {
     std::set<std::string> keywords;
-    for(auto k: keywordsByArtist)
+    for(auto k: musicsByKeywords)
         keywords.insert(k.first);
     return keywords;
 }
