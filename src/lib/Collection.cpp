@@ -155,6 +155,20 @@ std::set<std::string> Collection::getKeywords() const {
     return keywords;
 }
 
+std::set<std::string> Collection::getArtists() const {
+    std::set<std::string> artists;
+    for(auto k: musicsByArtists)
+        artists.insert(k.first);
+    return artists;
+}
+
+std::set<std::string> Collection::getGenres() const {
+    std::set<std::string> genres;
+    for(auto k: musicsByGenres)
+        genres.insert(k.first);
+    return genres;
+}
+
 void Collection::load(bool refresh){
     try {
         while(factory()) {

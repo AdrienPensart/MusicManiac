@@ -249,14 +249,42 @@ void MainWindow::loadItem(QModelIndex index){
         ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
         ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
 
-        availableArtistsModel.setStringList(empty);
-        selectedArtistsModel.setStringList(toStringList(playlist->getArtists()));
+        // fill artists lists
+        auto artists = playlist->getArtists();
+        auto allArtists = collection.getArtists();
+        decltype(artists) diffArtists;
+        std::set_difference(allArtists.begin(), allArtists.end(),
+                            artists.begin(), artists.end(),
+                            std::inserter(diffArtists, diffArtists.begin()));
+        availableArtistsModel.setStringList(toStringList(diffArtists));
+        selectedArtistsModel.setStringList(toStringList(artists));
 
-        availableGenresModel.setStringList(empty);
-        selectedGenresModel.setStringList(toStringList(playlist->getGenres()));
+        // fill genres lists
+        auto genres = playlist->getGenres();
+        auto allGenres = collection.getGenres();
+        decltype(genres) diffGenres;
+        std::set_difference(allGenres.begin(), allGenres.end(),
+                            genres.begin(), genres.end(),
+                            std::inserter(diffGenres, diffGenres.begin()));
+        availableGenresModel.setStringList(toStringList(diffGenres));
+        selectedGenresModel.setStringList(toStringList(genres));
 
-        withKeywordsModel.setStringList(toStringList(playlist->getWith()));
-        withoutKeywordsModel.setStringList(toStringList(playlist->getWithout()));
+        // fill keywords lists
+        auto allKeywords = collection.getKeywords();
+        auto withKeywords = playlist->getWith();
+        auto withoutKeywords = playlist->getWithout();
+        decltype(allKeywords) diffKeywords;
+        decltype(allKeywords) usedKeywords;
+        std::set_union(withKeywords.begin(), withKeywords.end(),
+                       withoutKeywords.begin(), withoutKeywords.end(),
+                       std::inserter(usedKeywords, usedKeywords.begin()));
+        std::set_difference(allKeywords.begin(), allKeywords.end(),
+                            usedKeywords.begin(), usedKeywords.end(),
+                            std::inserter(diffKeywords, diffKeywords.begin()));
+
+        availableKeywordsModel.setStringList(toStringList(diffKeywords));
+        withKeywordsModel.setStringList(toStringList(withKeywords));
+        withoutKeywordsModel.setStringList(toStringList(withoutKeywords));
 
         ui->multiView->setModel(playlistModel);
         playlistModel->set(playlist);
@@ -302,11 +330,12 @@ void MainWindow::loadItem(QModelIndex index){
 }
 
 void MainWindow::reset() {
+    /*
 	withoutKeywordsModel.setStringList(empty);
 	withKeywordsModel.setStringList(empty);
 	availableArtistsModel.setStringList(empty);
 	availableGenresModel.setStringList(empty);
-
+    */
     //selectedArtistsModel.setStringList(vectorToStringList(collection.getArtists()));
     //availableKeywordsModel.setStringList(vectorToStringList(collection.getKeywords()));
     //selectedGenresModel.setStringList(vectorToStringList(collection.getGenres()));

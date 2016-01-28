@@ -21,7 +21,11 @@ class Collection {
 		void generateBest();
 		void generateBestByKeyword();
 		void consolidateTitles();
+
+        std::set<std::string> getArtists() const;
         std::set<std::string> getKeywords() const;
+        std::set<std::string> getGenres() const;
+
         const Musics& getMusics() const;
         const Playlists& getPlaylists() const;
         const MusicsByArtistAlbums& getMusicsByArtistsAlbums() const;
