@@ -234,31 +234,31 @@ void MainWindow::loadItem(QModelIndex index){
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
-        auto playlists = collection.getPlaylistsByArtist();
+        auto playlistsByArtists = collection.getPlaylistsByArtist();
         auto playlistName = item->data(Qt::DisplayRole).toString();
         qDebug() << "Artist = " << artistName << " and playlist = " << playlistName;
-        for(const auto& playlist : playlists[artistName.toStdString()]) {
-            if(playlistName.toStdString() == playlist->getFilename()) {
-                ui->ratingSpinBox->setValue(playlist->getRating());
-                ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
-                ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
-
-                availableArtistsModel.setStringList(empty);
-                selectedArtistsModel.setStringList(vectorToStringList(playlist->getArtists()));
-
-                availableGenresModel.setStringList(empty);
-                selectedGenresModel.setStringList(vectorToStringList(playlist->getGenres()));
-
-                withKeywordsModel.setStringList(vectorToStringList(playlist->getWith()));
-                withoutKeywordsModel.setStringList(vectorToStringList(playlist->getWithout()));
-
-                //musicProxyModel->refilter();
-                //availableKeywordsModel.setStringList(musicProxyModel->getKeywords());
-                ui->multiView->setModel(playlistModel);
-                playlistModel->set(playlist);
-                return;
-            }
+        auto playlists = playlistsByArtists[artistName.toStdString()];
+        auto playlistIter = playlists.find(playlistName.toStdString());
+        if(playlistIter == playlists.end()){
+            return;
         }
+
+        ui->ratingSpinBox->setValue(playlist->getRating());
+        ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
+        ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
+
+        availableArtistsModel.setStringList(empty);
+        selectedArtistsModel.setStringList(vectorToStringList(playlist->getArtists()));
+
+        availableGenresModel.setStringList(empty);
+        selectedGenresModel.setStringList(vectorToStringList(playlist->getGenres()));
+
+        withKeywordsModel.setStringList(vectorToStringList(playlist->getWith()));
+        withoutKeywordsModel.setStringList(vectorToStringList(playlist->getWithout()));
+
+        ui->multiView->setModel(playlistModel);
+        playlistModel->set(playlist);
+        return;
     } else if(type == "albums"){
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
@@ -390,7 +390,7 @@ void MainWindow::rescanFolder(bool regen){
             playlistsItem->setData("playlists", CollectionRoles::ItemTypeRole);
             playlistsItem->setBackground(Qt::yellow);
             for(const auto& playlist : playlists){
-                QStandardItem * playlistItem = new QStandardItem(playlist->getFilename().c_str());
+                QStandardItem * playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
                 playlistItem->setData("playlist", CollectionRoles::ItemTypeRole);
                 playlistsItem->appendRow(playlistItem);
             }

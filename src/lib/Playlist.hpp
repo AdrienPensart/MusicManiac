@@ -9,8 +9,7 @@
 class Playlist;
 
 typedef std::map<std::string, Playlist*> Playlists;
-typedef std::vector<Playlist*> PlaylistVector;
-typedef std::map<std::string, PlaylistVector > PlaylistsByArtist;
+typedef std::map<std::string, Playlists> PlaylistsByArtist;
 
 class Playlist {
 	public:

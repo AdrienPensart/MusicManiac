@@ -14,7 +14,7 @@ ArtistModel::ArtistModel(QObject *parent) :
 ArtistModel::~ArtistModel() {
 }
 
-void ArtistModel::set(QString _artist, const Musics& musics, const MusicsByAlbums& albums, const PlaylistVector& playlists) {
+void ArtistModel::set(QString _artist, const Musics& musics, const MusicsByAlbums& albums, const Playlists& playlists) {
     beginResetModel();
     artist = _artist;
     musicsCount = musics.size();

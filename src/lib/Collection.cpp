@@ -212,7 +212,7 @@ void Collection::loadFile(const std::string& filepath){
         auto artists = playlist->getArtists();
         for(const auto& artist : artists)
         {
-            playlistsByArtist[artist].push_back(playlist);
+            playlistsByArtist[artist][playlist->getFilename()] = playlist;
         }
     } else {
         MusicFile * file = getFile(filepath, regen);

@@ -3,14 +3,6 @@
 #include <QAbstractTableModel>
 #include "Playlist.hpp"
 
-template <typename M, typename V>
-void MapToVec( const  M & m, V & v ) {
-    v.clear();
-    for( typename M::const_iterator it = m.begin(); it != m.end(); ++it ) {
-        v.push_back( it->second );
-    }
-}
-
 class PlaylistModel : public QAbstractTableModel {
     Q_OBJECT
 	public:

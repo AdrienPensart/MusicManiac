@@ -21,7 +21,7 @@ class ArtistModel : public QAbstractTableModel {
         explicit ArtistModel(QObject *parent = 0);
         virtual ~ArtistModel();
 
-        void set(QString _artist, const Musics& musics, const MusicsByAlbums& albums, const PlaylistVector& playlists);
+        void set(QString _artist, const Musics& musics, const MusicsByAlbums& albums, const Playlists& playlists);
         int rowCount(const QModelIndex& parent = QModelIndex()) const;
         int columnCount(const QModelIndex& parent = QModelIndex()) const;
         QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;

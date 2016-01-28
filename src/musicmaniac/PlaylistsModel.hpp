@@ -27,8 +27,7 @@ class PlaylistsModel : public QAbstractTableModel {
         template<class Container>
         void set(const Container& _items) {
             beginResetModel();
-            items.clear();
-            items.insert(items.begin(), _items.begin(), _items.end());
+            Common::MapToVec(_items, items);
             endResetModel();
         }
 
@@ -43,5 +42,5 @@ class PlaylistsModel : public QAbstractTableModel {
 	private:
 
 		QVariant infoAtColumn(Playlist * ptr, int row) const;
-        PlaylistVector items;
+        std::vector<Playlist*> items;
 };

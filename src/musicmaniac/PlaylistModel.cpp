@@ -12,7 +12,7 @@ PlaylistModel::~PlaylistModel() {
 void PlaylistModel::set(Playlist * _playlist) {
     beginResetModel();
     playlist = _playlist;
-    MapToVec(playlist->getMusics(), items);
+    Common::MapToVec(playlist->getMusics(), items);
     endResetModel();
 }
 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "Playlist.hpp"
+#include "common/Utility.hpp"
+#include "MusicModel.hpp"
 
 class AlbumModel : public QAbstractTableModel {
     Q_OBJECT
@@ -24,7 +25,7 @@ class AlbumModel : public QAbstractTableModel {
         template<class Container>
         void set(const Container& _items) {
             beginResetModel();
-            MapToVec(_items, items);
+            Common::MapToVec(_items, items);
             endResetModel();
         }
 

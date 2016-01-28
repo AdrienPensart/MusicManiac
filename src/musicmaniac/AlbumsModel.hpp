@@ -28,9 +28,7 @@ class AlbumsModel : public QAbstractTableModel {
         void set(const Container& _items) {
             beginResetModel();
             items.clear();
-            for(const auto& _item : _items){
-                items.push_back(_item);
-            }
+            items.insert(items.begin(), _items.begin(), _items.end());
             endResetModel();
         }
 
