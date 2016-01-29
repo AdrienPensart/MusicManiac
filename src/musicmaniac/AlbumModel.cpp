@@ -104,9 +104,6 @@ QVariant AlbumModel::headerData(int section, Qt::Orientation orientation, int ro
             case COLUMN_KEYWORDS:
                 return tr("Tags");
                 break;
-            case COLUMN_UUID:
-                return tr("UUID");
-                break;
             default:
                 return tr("Undefined column");
         }
@@ -137,9 +134,6 @@ QVariant AlbumModel::infoAtColumn(MusicFile * item, int column) const {
             break;
         case COLUMN_KEYWORDS:
             return item->getKeywords().c_str();
-            break;
-        case COLUMN_UUID:
-            return item->getUUID().c_str();
             break;
         default:
             return tr("Undefined");

@@ -17,7 +17,8 @@ class Collection {
         const std::string& getRoot()const;
 
 		bool factory();
-		void refreshPlaylists();
+        void addPlaylist(Playlist *);
+        void generatePlaylists();
 		void generateBest();
 		void generateBestByKeyword();
 		void consolidateTitles();
@@ -40,7 +41,7 @@ class Collection {
 		int getReadCount() const;
         void loadFile(const std::string& filepath);
         static MusicFile * getFile(const std::string& filepath, bool _regen=false);
-        void load(bool refresh=false);
+        void load();
 
 	private:
 

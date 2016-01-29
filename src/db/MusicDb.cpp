@@ -252,8 +252,8 @@ void MusicDb::generateBest(){
 		best.bindValue(":artist", artist);
 		exec(best);
 		while (best.next()){
-			for(int i = 0; i < best.record().count(); i++){
-				qDebug() << best.value(i).toString();
+            for(int i = 0; i < best.record().count(); i++){
+                qDebug() << best.value(i).toString();
 			}
 		}
 	}

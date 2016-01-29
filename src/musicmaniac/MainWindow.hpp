@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow {
 
 		void about();
 		void aboutQt();
-		void generatePlaylist();
+        void generatePlaylist();
 		void loadFolder();
 		void loadFolderWithRegen();
         void loadItem(QModelIndex);

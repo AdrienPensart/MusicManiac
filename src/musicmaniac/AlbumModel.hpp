@@ -15,7 +15,6 @@ class AlbumModel : public QAbstractTableModel {
             COLUMN_GENRE,
             COLUMN_RATING,
             COLUMN_KEYWORDS,
-            COLUMN_UUID,
             COLUMN_COUNT,
             COLUMN_MAX=COLUMN_COUNT-1
         };

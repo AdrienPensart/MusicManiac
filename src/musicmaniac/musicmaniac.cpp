@@ -28,6 +28,28 @@ void Usage(ezOptionParser& opt) {
     std::string usage;
     opt.getUsage(usage);
     std::cout << usage;
+}
+
+class MusicManiac : public QApplication {
+    public:
+
+        MusicManiac(int &argc, char ** argv)
+            : QApplication(argc, argv){
+        }
+        virtual ~MusicManiac(){
+
+        }
+
+    private:
+
+        bool notify(QObject *receiver, QEvent *event){
+            try {
+                return QApplication::notify( receiver, event );
+            } catch ( std::exception& e ) {
+                qDebug() << e.what();
+                return false;
+            }
+        }
 };
 
 int main(int argc, char * argv[]) try {
@@ -107,17 +129,17 @@ int main(int argc, char * argv[]) try {
         opt.get("-m")->getString(musicpath);
         cout << "Music folder selected : " << musicpath << '\n';
         collection.setRoot(musicpath.c_str());
-        collection.load(true);
+        collection.load();
     } else {
         // if no root dir passed, start GUI
-        QApplication a(argc, argv);
+        MusicManiac musicManiac(argc, argv);
         MainWindow mainWindow;
         QRect screenGeometry = QApplication::desktop()->screenGeometry();
         int x = (screenGeometry.width()-mainWindow.width()) / 2;
         int y = (screenGeometry.height()-mainWindow.height()) / 2;
         mainWindow.move(x, y);
         mainWindow.show();
-        return a.exec();
+        return musicManiac.exec();
     }
 
     bool regen = false;

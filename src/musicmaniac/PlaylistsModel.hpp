@@ -18,6 +18,7 @@ class PlaylistsModel : public QAbstractTableModel {
             COLUMN_RATING,
             COLUMN_WITH_KEYWORDS,
             COLUMN_WITHOUT_KEYWORDS,
+            COLUMN_AUTOGEN,
             COLUMN_COUNT,
             COLUMN_MAX=COLUMN_COUNT-1
         };

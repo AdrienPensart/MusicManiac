@@ -22,6 +22,8 @@ class Playlist {
         bool conform(MusicFile * music);
         void refreshWith(const Musics& musics);
 		void save();
+        void setAutogen(bool autogen);
+        bool isAutogen();
         const Musics& getMusics();
 		size_t size()const;
 
@@ -46,6 +48,7 @@ class Playlist {
 
 	private:
 
+        bool autogen;
 		bool valid;
 		std::string filecontent;
 		std::string filepath;

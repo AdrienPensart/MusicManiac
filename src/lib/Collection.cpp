@@ -42,78 +42,52 @@ const std::string& Collection::getRoot() const {
 }
 
 void Collection::generateBest(){
-    std::set<std::string> without;
-    without.insert("cutoff");
+    std::set<std::string> without {"cutoff"};
 	// generate best.m3u playlists
 	// mainly for sync purpose
     for (const auto& i : musicsByArtists) {
-        Playlist playlist(folder+"/"+i.first+"/best.m3u");
-		playlist.setRating(4);
-        std::set<std::string> artists;
-        artists.insert(i.first);
-		playlist.setWithout(without);
-		playlist.setArtists(artists);
-        playlist.refreshWith(i.second);
-		if(!playlist.size()){
-			unlink(playlist.getFilepath().c_str());
+        auto playlistPath = folder+"/"+i.first+"/best.m3u";
+        auto playlist = new Playlist(playlistPath);
+        playlist->setRating(4);
+        playlist->setAutogen(true);
+        std::set<std::string> artists {i.first};
+        playlist->setWithout(without);
+        playlist->setArtists(artists);
+        playlist->refreshWith(i.second);
+        if(!playlist->size()){
+            unlink(playlist->getFilepath().c_str());
+            delete playlist;
 		} else {
-			std::cout << "Generating " << playlist.getFilepath().data() << '\n';
-			playlist.save();
+            std::cout << "Generating " << playlist->getFilepath().data() << '\n';
+            playlist->save();
+            addPlaylist(playlist);
 		}
 	}
 }
 
 void Collection::generateBestByKeyword(){
-    std::set<std::string> without;
-    without.insert("cutoff");
-	// generate all keywords playlists for each artist
+    std::set<std::string> without {"cutoff"};
     for (auto const& i : keywordsByArtist) {
         for (auto const& j : i.second) {
-            Playlist playlist(folder+"/"+i.first+"/"+j.first+".m3u");
-			playlist.setRating(4);
-            std::set<std::string> artists;
-            artists.insert(i.first);
-            std::set<std::string> with;
-            with.insert(j.first);
-			playlist.setWith(with);
-			playlist.setWithout(without);
-			playlist.setArtists(artists);
-            playlist.refreshWith(j.second);
+            auto playlist = new Playlist(folder+"/"+i.first+"/"+j.first+".m3u");
+            playlist->setRating(4);
+            playlist->setAutogen(true);
+            std::set<std::string> artists {i.first};
+            std::set<std::string> with {j.first};
+            playlist->setWith(with);
+            playlist->setWithout(without);
+            playlist->setArtists(artists);
+            playlist->refreshWith(j.second);
 
-			if(playlist.size() >= 3){
-				playlist.save();
-				std::cout << "Generating " << playlist.getFilepath().data() << endl;
-			}
+            if(playlist->size() >= 3){
+                playlist->save();
+                addPlaylist(playlist);
+                std::cout << "Generating " << playlist->getFilepath().data() << endl;
+            } else {
+                delete playlist;
+            }
 		}
 	}
-    /*
-    // generate 2 tags playlist
-    for (KeywordsByArtist::const_iterator i = keywordsByArtist.begin(); i != keywordsByArtist.end(); i++) {
-        for (Keywords::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
-            for (Keywords::const_iterator h = i->second.begin(); h != i->second.end(); h++) {
-                if(j == h){
-                    continue;
-                }
-                Playlist playlist(folder+"/"+i->first+"/"+j->first+"_"+h->first+".m3u");
-                playlist.setRating(4);
-                std::vector<std::string> artists;
-                artists.push_back(i->first);
-                std::vector<std::string> with;
-                with.push_back(j->first);
-                with.push_back(h->first);
-                playlist.setWith(with);
-                playlist.setWithout(without);
-                playlist.setArtists(artists);
-                playlist.refresh(j->second);
-
-                if(playlist.size() >= 3){
-                    playlist.save();
-                    std::cout << "Generating " << playlist.getFilepath().data() << endl;
-                }
-            }
-        }
-    }
-    */
 }
 
 void Collection::consolidateTitles(){
@@ -169,7 +143,7 @@ std::set<std::string> Collection::getGenres() const {
     return genres;
 }
 
-void Collection::load(bool refresh){
+void Collection::load(){
     try {
         while(factory()) {
             /*
@@ -180,10 +154,6 @@ void Collection::load(bool refresh){
         }
     } catch (boost::filesystem::filesystem_error& fex) {
         cout << "Exception " + std::string(fex.what());
-    }
-
-    if(refresh){
-        refreshPlaylists();
     }
 }
 
@@ -205,14 +175,7 @@ void Collection::loadFile(const std::string& filepath){
 			delete playlists[filepath];
 		}
 		auto playlist = new Playlist(filepath);
-		playlist->load();
-		playlists[filepath] = playlist;
-
-        auto artists = playlist->getArtists();
-        for(const auto& artist : artists)
-        {
-            playlistsByArtist[artist][playlist->getFilename()] = playlist;
-        }
+        addPlaylist(playlist);
     } else {
         MusicFile * file = getFile(filepath, regen);
         if(musics.count(filepath)){
@@ -267,7 +230,7 @@ void Collection::push(MusicFile * music){
         musics[music->getFilepath()] = music;
         musicsByArtists[music->getArtist()][music->getFilepath()] = music;
         musicsByGenres[music->getGenre()][music->getFilepath()] = music;
-        for(auto keyword : music->getSplittedKeywords()){
+        for(const auto& keyword : music->getSplittedKeywords()){
             musicsByKeywords[keyword][music->getFilepath()] = music;
             keywordsByArtist[music->getArtist()][keyword][music->getFilepath()] = music;
         }
@@ -294,10 +257,29 @@ const MusicsByArtistAlbums& Collection::getMusicsByArtistsAlbums() const {
     return musicsByArtistsAlbums;
 }
 
-void Collection::refreshPlaylists(){
-	for(Playlists::iterator playlist = playlists.begin(); playlist != playlists.end(); playlist++) {
-		playlist->second->load();
-        playlist->second->refreshWith(musics);
-        playlist->second->save();
+void Collection::generatePlaylists(){
+    generateBest();
+    generateBestByKeyword();
+    for(auto& playlist : playlists) {
+        if(!playlist.second->isAutogen()){
+            playlist.second->load();
+            playlist.second->refreshWith(musics);
+            playlist.second->save();
+        }
 	}
+}
+
+void Collection::addPlaylist(Playlist * playlist){
+    if(playlist){
+        if(playlists.count(playlist->getFilepath())){
+            delete playlists[playlist->getFilepath()];
+        }
+        playlists[playlist->getFilepath()] = playlist;
+
+        auto artists = playlist->getArtists();
+        for(const auto& artist : artists)
+        {
+            playlistsByArtist[artist][playlist->getFilename()] = playlist;
+        }
+    }
 }

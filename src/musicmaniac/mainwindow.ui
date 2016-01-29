@@ -538,9 +538,6 @@
          </layout>
         </item>
        </layout>
-       <zorder></zorder>
-       <zorder></zorder>
-       <zorder>verticalLayoutWidget</zorder>
       </widget>
      </widget>
     </item>
@@ -565,12 +562,6 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuPlaylist">
-    <property name="title">
-     <string>Playlist</string>
-    </property>
-    <addaction name="actionGenerate"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -579,7 +570,6 @@
     <addaction name="actionAboutQt"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuPlaylist"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionOpenFolder">
@@ -648,6 +638,11 @@
   <action name="actionGenerateBest">
    <property name="text">
     <string>Auto Generate</string>
+   </property>
+  </action>
+  <action name="actionRefreshAll">
+   <property name="text">
+    <string>Refresh All</string>
    </property>
   </action>
  </widget>

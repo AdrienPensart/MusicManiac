@@ -116,6 +116,9 @@ QVariant PlaylistsModel::headerData(int section, Qt::Orientation orientation, in
 			case COLUMN_WITHOUT_KEYWORDS:
 				return tr("W/O Tags");
 				break;
+            case COLUMN_AUTOGEN:
+                return tr("Autogen?");
+                break;
 		}
 	}
 	return QVariant();
@@ -157,6 +160,9 @@ QVariant PlaylistsModel::infoAtColumn(Playlist * item, int column) const {
 		case COLUMN_WITHOUT_KEYWORDS:
             return Common::implode(item->getWithout()).c_str();
 			break;
+        case COLUMN_AUTOGEN:
+            return item->isAutogen();
+            break;
 		default:
 			return tr("Undefined");
 	}

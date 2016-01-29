@@ -8,6 +8,7 @@ using namespace std;
 
 const std::string HEADER = "#EXTM3U";
 const std::string MUSICMANIAC = "#EXTREM:musicmaniac";
+const std::string AUTOGEN = "#EXTREM:autogen";
 const std::string ENDHEADER = "#EXTREM:endheader";
 const std::string ARTISTS = "#EXTREM:artists:";
 const std::string GENRES = "#EXTREM:genres:";
@@ -20,7 +21,7 @@ const std::string INF = "#EXTINF: ";
 const std::string UUID = "#EXTREM:uuid ";
 
 Playlist::Playlist(const std::string& _filepath) :
-	filepath(_filepath), rating(0), valid(true), minDuration("00:00"), maxDuration("100:00") {
+    filepath(_filepath), rating(0), valid(true), minDuration("00:00"), maxDuration("100:00"), autogen(false) {
 }
 
 const std::string& Playlist::getFilepath()const {
@@ -37,6 +38,14 @@ size_t Playlist::size()const {
 
 const Musics& Playlist::getMusics(){
     return musics;
+}
+
+void Playlist::setAutogen(bool _autogen){
+    autogen = _autogen;
+}
+
+bool Playlist::isAutogen(){
+    return autogen;
 }
 
 bool Playlist::conform(MusicFile *music){
@@ -110,7 +119,9 @@ void Playlist::load() {
 	std::string line;
 	while(line != ENDHEADER) {
 		std::getline(playlist, line);
-		if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
+        if(line == AUTOGEN){
+            autogen = true;
+        } else if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
             Common::split(line.substr(ARTISTS.size()), ",", artists);
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
             Common::split(line.substr(GENRES.size()), ",", genres);
@@ -144,8 +155,11 @@ void Playlist::save() {
 
 	ostringstream m3u_content;
 	m3u_content << HEADER << '\n'
-				<< MUSICMANIAC << '\n'
-				<< ARTISTS << Common::implode(artists) << '\n'
+                << MUSICMANIAC << '\n';
+    if(autogen){
+        m3u_content << AUTOGEN << '\n';
+    }
+    m3u_content << ARTISTS << Common::implode(artists) << '\n'
 				<< GENRES << Common::implode(genres) << '\n'
 				<< RATING << rating << '\n'
 				<< MIN_DURATION << minDuration << '\n'
@@ -154,11 +168,11 @@ void Playlist::save() {
 				<< WITH << Common::implode(with) << '\n'
 				<< ENDHEADER << '\n';
 
-	for(Musics::const_iterator i = musics.begin(); i != musics.end(); i++) {
+    for(const auto& m : musics) {
 		size_t found = filepath.find_last_of("/");
-		m3u_content << INF << i->second->getDurationInSeconds() << "," << i->first.substr(found+1) << '\n'
-					<< UUID << i->second->getUUID() << '\n'
-					<< i->first << '\n';
+        m3u_content << INF << m.second->getDurationInSeconds() << "," << m.first.substr(found+1) << '\n'
+                    << UUID << m.second->getUUID() << '\n'
+                    << m.first << '\n';
 	}
 
 	if(filecontent != m3u_content.str()){

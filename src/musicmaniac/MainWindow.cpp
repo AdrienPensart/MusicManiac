@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->playlistSettingsBox->setVisible(false);
     ui->multiView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->actionRescanFolder->setEnabled(false);
 
     playlistsModel = new PlaylistsModel(this);
     playlistModel = new PlaylistModel(this);
@@ -153,23 +154,19 @@ void MainWindow::generatePlaylist() {
 	}
 	QString finalPath = basefolder + "//" + fileName;
 	// "Final path : " + finalPath.toStdString();
-	Playlist playlist(finalPath.toStdString());
+    auto playlist = new Playlist(finalPath.toStdString());
+    playlist->setRating(ui->ratingSpinBox->value());
+    playlist->setMaxDuration(ui->maxDurationEdit->text().toStdString());
+    playlist->setMinDuration(ui->minDurationEdit->text().toStdString());
+    playlist->setArtists(fromStringList<std::set<std::string>>(selectedArtistsModel.stringList()));
+    playlist->setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
+    playlist->setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
 
-	playlist.setRating(ui->ratingSpinBox->value());
-	playlist.setMaxDuration(ui->maxDurationEdit->text().toStdString());
-	playlist.setMinDuration(ui->minDurationEdit->text().toStdString());
-    playlist.setArtists(fromStringList<std::set<std::string>>(selectedArtistsModel.stringList()));
-    playlist.setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
-    playlist.setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
-
-    /*
-	for(int i = 0; i < musicProxyModel->rowCount(); i++) {
-		QModelIndex index = musicProxyModel->index(i,0);
-		QModelIndex index2 = musicProxyModel->mapToSource(index);
-        playlist.add(musicModel->musicAt(index2.row()));
-	}
-    */
-	playlist.save();
+    auto musics = collection.getMusics();
+    playlist->refreshWith(musics);
+    playlist->save();
+    collection.addPlaylist(playlist);
+    playlistModel->set(playlist);
 }
 
 void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QStringListModel& sourceModel, QStringListModel& destinationModel) {
@@ -224,7 +221,6 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
     } else if(type == "playlist"){
-        ui->playlistSettingsBox->setVisible(true);
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
@@ -279,7 +275,13 @@ void MainWindow::loadItem(QModelIndex index){
 
         ui->multiView->setModel(playlistModel);
         playlistModel->set(playlist);
-        return;
+
+        ui->playlistSettingsBox->setVisible(true);
+        if(playlist->isAutogen()){
+            ui->playlistSettingsBox->setEnabled(false);
+        } else {
+            ui->playlistSettingsBox->setEnabled(true);
+        }
     } else if(type == "albums"){
         ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
@@ -364,8 +366,8 @@ void MainWindow::rescanFolder(bool regen){
 		progress.cancel();
 	}
     progress.close();
-    collection.refreshPlaylists();
 
+    collection.generatePlaylists();
     qDebug() << "Loading tree view";
     auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
     auto playlistsByArtist = collection.getPlaylistsByArtist();
@@ -409,6 +411,7 @@ void MainWindow::rescanFolder(bool regen){
         collectionModel.appendRow(artistItem);
     }
     ui->collectionView->setModel(&collectionModel);
+    ui->actionRescanFolder->setEnabled(true);
 }
 
 void MainWindow::aboutQt() {
