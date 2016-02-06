@@ -20,8 +20,22 @@ Collection::Collection() :
     readCount(0) {
 }
 
+Collection::~Collection(){
+    for(const auto& playlist : playlists){
+        delete playlist.second;
+    }
+
+    for(const auto& music : musics){
+        delete music.second;
+    }
+}
+
 void Collection::setRegen(bool _regen){
     regen = _regen;
+}
+
+void Collection::refreshPlaylist(Playlist * playlist){
+    playlist->refreshWith(musics);
 }
 
 void Collection::setRoot(const std::string& _folder){
@@ -145,13 +159,7 @@ std::set<std::string> Collection::getGenres() const {
 
 void Collection::load(){
     try {
-        while(factory()) {
-            /*
-            cout << getReadCount()
-                 << " / " << getTotalCount()
-                 << " : " << std::fixed << std::showpoint << std::setprecision(2) << progression()*100 << '\n';
-            */
-        }
+        while(factory());
     } catch (boost::filesystem::filesystem_error& fex) {
         cout << "Exception " + std::string(fex.what());
     }

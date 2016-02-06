@@ -31,18 +31,20 @@ class MainWindow : public QMainWindow {
 
 		void about();
 		void aboutQt();
-        void generatePlaylist();
+
 		void loadFolder();
 		void loadFolderWithRegen();
         void loadItem(QModelIndex);
 		void rescanFolder(bool=false);
-        void ratingChanged(double);
-        void minDurationChanged(QString);
-        void maxDurationChanged(QString);
+
+        // playlist management
+        void newPlaylist();
+        void updatePlaylist();
+        bool savePlaylist();
+        void loadPlaylist(Playlist * playlist);
 
 	private:
 
-		void updateFilter();
 		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
 		void loadFolderWith(bool regen);
         QStandardItemModel collectionModel;
@@ -82,4 +84,5 @@ class MainWindow : public QMainWindow {
         Collection collection;
         MusicDb db;
         QStringList headerLabels;
+        Playlist * playlist;
 };

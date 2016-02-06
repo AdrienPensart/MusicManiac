@@ -29,7 +29,7 @@ const std::string& Playlist::getFilepath()const {
 }
 
 std::string Playlist::getFilename() const {
-	return filepath.substr(filepath.find_last_of("/\\") + 1);
+    return (filepath.size() ? filepath.substr(filepath.find_last_of("/\\") + 1) : filepath);
 }
 
 size_t Playlist::size()const {
@@ -46,6 +46,10 @@ void Playlist::setAutogen(bool _autogen){
 
 bool Playlist::isAutogen(){
     return autogen;
+}
+
+void Playlist::setFilepath(const std::string& _filepath){
+    filepath = _filepath;
 }
 
 bool Playlist::conform(MusicFile *music){
@@ -103,6 +107,10 @@ void Playlist::refreshWith(const Musics& musicsCollection) {
 }
 
 void Playlist::load() {
+    if(!filepath.size()){
+        return;
+    }
+
 	Common::read_file (filepath, filecontent);
 	std::istringstream playlist(filecontent);
 
@@ -142,8 +150,8 @@ void Playlist::load() {
 }
 
 void Playlist::save() {
-	if(!valid){
-        cout << "Invalid playlist " << filepath << " not saving\n";
+    if(!valid || !filepath.size()){
+        cout << "Invalid playlist " << filepath << " not saving.\n";
 		return;
 	}
 
@@ -208,6 +216,10 @@ std::string Playlist::getDuration(){
 }
 
 double Playlist::getAverageRating() {
+    if(!size()){
+        return 0.0;
+    }
+
     double totalRating = 0.0;
     for(const auto& song : musics){
         totalRating += song.second->getRating();

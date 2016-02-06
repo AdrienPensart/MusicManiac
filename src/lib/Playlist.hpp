@@ -16,7 +16,7 @@ class Playlist {
 
 	public:
 
-		Playlist(const std::string& filepath);
+        Playlist(const std::string& filepath="");
 		void add(MusicFile * file);
 		void load();
         bool conform(MusicFile * music);
@@ -26,7 +26,7 @@ class Playlist {
         bool isAutogen();
         const Musics& getMusics();
 		size_t size()const;
-
+        void setFilepath(const std::string& filepath);
 		std::string getFilename() const;
 		const std::string& getFilepath()const;
 		double getRating();

@@ -11,13 +11,14 @@
 class Collection {
 	public:
         Collection();
-
+        ~Collection();
         void setRegen(bool regen);
         void setRoot(const std::string& folder);
         const std::string& getRoot()const;
 
 		bool factory();
         void addPlaylist(Playlist *);
+        void refreshPlaylist(Playlist *);
         void generatePlaylists();
 		void generateBest();
 		void generateBestByKeyword();

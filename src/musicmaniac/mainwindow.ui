@@ -558,6 +558,7 @@
     </property>
     <addaction name="actionOpenFolder"/>
     <addaction name="actionOpenRegenFolder"/>
+    <addaction name="actionNewPlaylist"/>
     <addaction name="actionRescanFolder"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -643,6 +644,11 @@
   <action name="actionRefreshAll">
    <property name="text">
     <string>Refresh All</string>
+   </property>
+  </action>
+  <action name="actionNewPlaylist">
+   <property name="text">
+    <string>New Playlist</string>
    </property>
   </action>
  </widget>

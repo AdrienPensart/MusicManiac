@@ -47,7 +47,8 @@ template<typename... Args> struct SELECT {
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-    ui(new Ui::MainWindow) {
+    ui(new Ui::MainWindow),
+    playlist(0){
 	ui->setupUi(this);
 	setWindowIcon(QIcon(":/musicmaniac.ico"));
     connect(ui->actionAboutQt, &QAction::triggered, this, &MainWindow::aboutQt);
@@ -55,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::loadFolder);
     connect(ui->actionOpenRegenFolder, &QAction::triggered, this, &MainWindow::loadFolderWithRegen);
     connect(ui->actionRescanFolder, &QAction::triggered, this, &MainWindow::rescanFolder);
+    connect(ui->actionNewPlaylist, &QAction::triggered, this, &MainWindow::newPlaylist);
     connect(ui->collectionView, &QTreeView::clicked, this, &MainWindow::loadItem);
 
     connect(ui->inWithButton, &QPushButton::clicked, this,
@@ -104,13 +106,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->selectedGenresView->setModel(&selectedGenresModel);
 	ui->selectedGenresView->setSelectionModel(selectedGenresSelection);
 
-    connect(ui->ratingSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &MainWindow::ratingChanged);
-    connect(ui->minDurationEdit, &QLineEdit::textChanged, this, &MainWindow::minDurationChanged);
-    connect(ui->maxDurationEdit, &QLineEdit::textChanged, this, &MainWindow::maxDurationChanged);
+    connect(ui->ratingSpinBox, SELECT<double>::OVERLOAD_OF(&QDoubleSpinBox::valueChanged), this, &MainWindow::updatePlaylist);
+    connect(ui->minDurationEdit, &QLineEdit::textChanged, this, &MainWindow::updatePlaylist);
+    connect(ui->maxDurationEdit, &QLineEdit::textChanged, this, &MainWindow::updatePlaylist);
 
     ui->playlistSettingsBox->setVisible(false);
     ui->multiView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->actionRescanFolder->setEnabled(false);
+    ui->actionNewPlaylist->setEnabled(false);
 
     playlistsModel = new PlaylistsModel(this);
     playlistModel = new PlaylistModel(this);
@@ -125,23 +128,41 @@ MainWindow::~MainWindow() {
 	delete ui;
 }
 
-void MainWindow::ratingChanged(double){
+void MainWindow::newPlaylist(){
+    if(!basefolder.size()) {
+        QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
+        return;
+    }
 
+    if(playlist){
+        return;
+    }
+
+    playlist = new Playlist();
+    collection.refreshPlaylist(playlist);
+    ui->multiView->setModel(playlistModel);
+    loadPlaylist(playlist);
 }
 
-void MainWindow::minDurationChanged(QString minDuration){
-
-}
-
-void MainWindow::maxDurationChanged(QString maxDuration){
-
-}
-
-void MainWindow::generatePlaylist() {
+bool MainWindow::savePlaylist(){
 	if(!basefolder.size()) {
 		QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
-		return;
+        return false;
 	}
+
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "Saving", "Do you want to save playlist ?", QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+    switch(reply) {
+        case QMessageBox::No:
+            delete playlist;
+            playlist = 0;
+            return true;
+            break;
+        case QMessageBox::Cancel:
+            return false;
+            break;
+        default:
+            break;
+    }
 
 	QString filename = withKeywordsModel.stringList().join('_');
 	if(!filename.size()) {
@@ -150,23 +171,14 @@ void MainWindow::generatePlaylist() {
 	QString filePath = basefolder + "//" + filename;
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
 	if(!fileName.size()) {
-		return;
+        return false;
 	}
 	QString finalPath = basefolder + "//" + fileName;
-	// "Final path : " + finalPath.toStdString();
-    auto playlist = new Playlist(finalPath.toStdString());
-    playlist->setRating(ui->ratingSpinBox->value());
-    playlist->setMaxDuration(ui->maxDurationEdit->text().toStdString());
-    playlist->setMinDuration(ui->minDurationEdit->text().toStdString());
-    playlist->setArtists(fromStringList<std::set<std::string>>(selectedArtistsModel.stringList()));
-    playlist->setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
-    playlist->setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
-
-    auto musics = collection.getMusics();
-    playlist->refreshWith(musics);
+    playlist->setFilepath(finalPath.toStdString());
     playlist->save();
     collection.addPlaylist(playlist);
-    playlistModel->set(playlist);
+    playlist = 0;
+    return true;
 }
 
 void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QStringListModel& sourceModel, QStringListModel& destinationModel) {
@@ -179,8 +191,17 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
 	}
 	list.sort();
 	destinationModel.setStringList(list);
+    updatePlaylist();
+}
 
+void MainWindow::updatePlaylist(){
+    qDebug() << "Update playlist triggered.";
     auto playlist = playlistModel->getPlaylist();
+    if(!playlist){
+        qDebug() << "Invalid playlist.";
+        return;
+    }
+
     playlist->setRating(ui->ratingSpinBox->value());
     playlist->setMinDuration(ui->minDurationEdit->text().toStdString());
     playlist->setMaxDuration(ui->maxDurationEdit->text().toStdString());
@@ -188,14 +209,21 @@ void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QString
     playlist->setGenres(fromStringList<std::set<std::string>>(selectedGenresModel.stringList()));
     playlist->setWith(fromStringList<std::set<std::string>>(withKeywordsModel.stringList()));
     playlist->setWithout(fromStringList<std::set<std::string>>(withoutKeywordsModel.stringList()));
-    auto musics = collection.getMusics();
-    playlist->refreshWith(musics);
+    collection.refreshPlaylist(playlist);
     playlistModel->set(playlist);
 }
 
 void MainWindow::loadItem(QModelIndex index){
+    if( (playlist && !savePlaylist()) || playlist){
+        qDebug() << "Playlist not saved, not loading any item.";
+        return;
+    }
+
+    ui->playlistSettingsBox->setEnabled(false);
+
     auto item = collectionModel.itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
+    qDebug() << "Loading item type " << type;
     if(type == "artist"){
         ui->playlistSettingsBox->setVisible(false);
         auto artistName = item->text();
@@ -224,64 +252,16 @@ void MainWindow::loadItem(QModelIndex index){
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
+        qDebug() << "Detected artist name " << artistName;
         auto playlistsByArtists = collection.getPlaylistsByArtist();
         auto playlistName = item->data(Qt::DisplayRole).toString();
+        qDebug() << "Detected playlist name " << playlistName;
         auto playlists = playlistsByArtists[artistName.toStdString()];
         auto playlistIter = playlists.find(playlistName.toStdString());
         if(playlistIter == playlists.end()){
             return;
         }
-        auto playlist = playlistIter->second;
-        ui->ratingSpinBox->setValue(playlist->getRating());
-        ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
-        ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
-
-        // fill artists lists
-        auto artists = playlist->getArtists();
-        auto allArtists = collection.getArtists();
-        decltype(artists) diffArtists;
-        std::set_difference(allArtists.begin(), allArtists.end(),
-                            artists.begin(), artists.end(),
-                            std::inserter(diffArtists, diffArtists.begin()));
-        availableArtistsModel.setStringList(toStringList(diffArtists));
-        selectedArtistsModel.setStringList(toStringList(artists));
-
-        // fill genres lists
-        auto genres = playlist->getGenres();
-        auto allGenres = collection.getGenres();
-        decltype(genres) diffGenres;
-        std::set_difference(allGenres.begin(), allGenres.end(),
-                            genres.begin(), genres.end(),
-                            std::inserter(diffGenres, diffGenres.begin()));
-        availableGenresModel.setStringList(toStringList(diffGenres));
-        selectedGenresModel.setStringList(toStringList(genres));
-
-        // fill keywords lists
-        auto allKeywords = collection.getKeywords();
-        auto withKeywords = playlist->getWith();
-        auto withoutKeywords = playlist->getWithout();
-        decltype(allKeywords) diffKeywords;
-        decltype(allKeywords) usedKeywords;
-        std::set_union(withKeywords.begin(), withKeywords.end(),
-                       withoutKeywords.begin(), withoutKeywords.end(),
-                       std::inserter(usedKeywords, usedKeywords.begin()));
-        std::set_difference(allKeywords.begin(), allKeywords.end(),
-                            usedKeywords.begin(), usedKeywords.end(),
-                            std::inserter(diffKeywords, diffKeywords.begin()));
-
-        availableKeywordsModel.setStringList(toStringList(diffKeywords));
-        withKeywordsModel.setStringList(toStringList(withKeywords));
-        withoutKeywordsModel.setStringList(toStringList(withoutKeywords));
-
-        ui->multiView->setModel(playlistModel);
-        playlistModel->set(playlist);
-
-        ui->playlistSettingsBox->setVisible(true);
-        if(playlist->isAutogen()){
-            ui->playlistSettingsBox->setEnabled(false);
-        } else {
-            ui->playlistSettingsBox->setEnabled(true);
-        }
+        loadPlaylist(playlistIter->second);
     } else if(type == "albums"){
         ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
@@ -323,6 +303,77 @@ void MainWindow::loadItem(QModelIndex index){
     } else {
         qDebug() << "Type was not found : " << type;
     }
+}
+
+void MainWindow::loadPlaylist(Playlist * playlist){
+
+    ui->ratingSpinBox->blockSignals(true);
+    ui->maxDurationEdit->blockSignals(true);
+    ui->minDurationEdit->blockSignals(true);
+
+    qDebug() << "Loading rating : " << playlist->getRating();
+    ui->ratingSpinBox->setValue(playlist->getRating());
+    qDebug() << "Loading max duration : " << playlist->getMaxDuration().c_str();
+    ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
+    qDebug() << "Loading min duration : " << playlist->getMinDuration().c_str();
+    ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
+
+    // fill artists lists
+    auto artists = playlist->getArtists();
+    auto allArtists = collection.getArtists();
+    decltype(artists) diffArtists;
+    std::set_difference(allArtists.begin(), allArtists.end(),
+                        artists.begin(), artists.end(),
+                        std::inserter(diffArtists, diffArtists.begin()));
+    qDebug() << "Setting available artists " << toStringList(diffArtists);
+    availableArtistsModel.setStringList(toStringList(diffArtists));
+    qDebug() << "Setting selected artists " << toStringList(artists);
+    selectedArtistsModel.setStringList(toStringList(artists));
+
+    // fill genres lists
+    auto genres = playlist->getGenres();
+    auto allGenres = collection.getGenres();
+    decltype(genres) diffGenres;
+    std::set_difference(allGenres.begin(), allGenres.end(),
+                        genres.begin(), genres.end(),
+                        std::inserter(diffGenres, diffGenres.begin()));
+    qDebug() << "Setting available genres " << toStringList(diffGenres);
+    availableGenresModel.setStringList(toStringList(diffGenres));
+    qDebug() << "Setting selected genres " << toStringList(genres);
+    selectedGenresModel.setStringList(toStringList(genres));
+
+    // fill keywords lists
+    auto allKeywords = collection.getKeywords();
+    auto withKeywords = playlist->getWith();
+    auto withoutKeywords = playlist->getWithout();
+    decltype(allKeywords) diffKeywords;
+    decltype(allKeywords) usedKeywords;
+    std::set_union(withKeywords.begin(), withKeywords.end(),
+                   withoutKeywords.begin(), withoutKeywords.end(),
+                   std::inserter(usedKeywords, usedKeywords.begin()));
+    std::set_difference(allKeywords.begin(), allKeywords.end(),
+                        usedKeywords.begin(), usedKeywords.end(),
+                        std::inserter(diffKeywords, diffKeywords.begin()));
+
+    qDebug() << "Setting available keywords : " << toStringList(diffKeywords);
+    availableKeywordsModel.setStringList(toStringList(diffKeywords));
+    qDebug() << "Setting with keywords : " << toStringList(withKeywords);
+    withKeywordsModel.setStringList(toStringList(withKeywords));
+    qDebug() << "Setting without keywords : " << toStringList(withoutKeywords);
+    withoutKeywordsModel.setStringList(toStringList(withoutKeywords));
+
+    playlistModel->set(playlist);
+    ui->multiView->setModel(playlistModel);
+    ui->playlistSettingsBox->setVisible(true);
+    if(playlist->isAutogen()){
+        ui->playlistSettingsBox->setEnabled(false);
+    } else {
+        ui->playlistSettingsBox->setEnabled(true);
+    }
+
+    ui->ratingSpinBox->blockSignals(false);
+    ui->maxDurationEdit->blockSignals(false);
+    ui->minDurationEdit->blockSignals(false);
 }
 
 void MainWindow::loadFolder() {
@@ -412,6 +463,7 @@ void MainWindow::rescanFolder(bool regen){
     }
     ui->collectionView->setModel(&collectionModel);
     ui->actionRescanFolder->setEnabled(true);
+    ui->actionNewPlaylist->setEnabled(true);
 }
 
 void MainWindow::aboutQt() {
