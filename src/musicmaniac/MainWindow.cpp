@@ -155,26 +155,30 @@ bool MainWindow::savePlaylist(){
         case QMessageBox::No:
             delete playlist;
             playlist = 0;
+            qDebug() << "No pressed";
             return true;
             break;
         case QMessageBox::Cancel:
+            qDebug() << "Cancel pressed";
             return false;
+            break;
+        case QMessageBox::Yes:
+            qDebug() << "Yes pressed";
             break;
         default:
             break;
     }
 
-	QString filename = withKeywordsModel.stringList().join('_');
-	if(!filename.size()) {
-		filename = "all";
-	}
+    auto filename = (selectedArtistsModel.stringList()+withKeywordsModel.stringList()).join('_');
 	QString filePath = basefolder + "//" + filename;
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
 	if(!fileName.size()) {
+        qDebug() << "Invalid filename";
         return false;
 	}
-	QString finalPath = basefolder + "//" + fileName;
-    playlist->setFilepath(finalPath.toStdString());
+
+    qDebug() << "Saving playlist to " << fileName;
+    playlist->setFilepath(fileName.toStdString());
     playlist->save();
     collection.addPlaylist(playlist);
     playlist = 0;
@@ -215,7 +219,7 @@ void MainWindow::updatePlaylist(){
 
 void MainWindow::loadItem(QModelIndex index){
     if( (playlist && !savePlaylist()) || playlist){
-        qDebug() << "Playlist not saved, not loading any item.";
+        qDebug() << "Playlist not saved, not loading any item";
         return;
     }
 
@@ -223,7 +227,7 @@ void MainWindow::loadItem(QModelIndex index){
 
     auto item = collectionModel.itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
-    qDebug() << "Loading item type " << type;
+    qDebug() << "Loading item type" << type;
     if(type == "artist"){
         ui->playlistSettingsBox->setVisible(false);
         auto artistName = item->text();
@@ -311,11 +315,11 @@ void MainWindow::loadPlaylist(Playlist * playlist){
     ui->maxDurationEdit->blockSignals(true);
     ui->minDurationEdit->blockSignals(true);
 
-    qDebug() << "Loading rating : " << playlist->getRating();
+    //qDebug() << "Loading rating : " << playlist->getRating();
     ui->ratingSpinBox->setValue(playlist->getRating());
-    qDebug() << "Loading max duration : " << playlist->getMaxDuration().c_str();
+    //qDebug() << "Loading max duration : " << playlist->getMaxDuration().c_str();
     ui->maxDurationEdit->setText(playlist->getMaxDuration().c_str());
-    qDebug() << "Loading min duration : " << playlist->getMinDuration().c_str();
+    //qDebug() << "Loading min duration : " << playlist->getMinDuration().c_str();
     ui->minDurationEdit->setText(playlist->getMinDuration().c_str());
 
     // fill artists lists
@@ -325,9 +329,9 @@ void MainWindow::loadPlaylist(Playlist * playlist){
     std::set_difference(allArtists.begin(), allArtists.end(),
                         artists.begin(), artists.end(),
                         std::inserter(diffArtists, diffArtists.begin()));
-    qDebug() << "Setting available artists " << toStringList(diffArtists);
+    //qDebug() << "Setting available artists " << toStringList(diffArtists);
     availableArtistsModel.setStringList(toStringList(diffArtists));
-    qDebug() << "Setting selected artists " << toStringList(artists);
+    //qDebug() << "Setting selected artists " << toStringList(artists);
     selectedArtistsModel.setStringList(toStringList(artists));
 
     // fill genres lists
@@ -337,9 +341,9 @@ void MainWindow::loadPlaylist(Playlist * playlist){
     std::set_difference(allGenres.begin(), allGenres.end(),
                         genres.begin(), genres.end(),
                         std::inserter(diffGenres, diffGenres.begin()));
-    qDebug() << "Setting available genres " << toStringList(diffGenres);
+    //qDebug() << "Setting available genres " << toStringList(diffGenres);
     availableGenresModel.setStringList(toStringList(diffGenres));
-    qDebug() << "Setting selected genres " << toStringList(genres);
+    //qDebug() << "Setting selected genres " << toStringList(genres);
     selectedGenresModel.setStringList(toStringList(genres));
 
     // fill keywords lists
@@ -355,11 +359,11 @@ void MainWindow::loadPlaylist(Playlist * playlist){
                         usedKeywords.begin(), usedKeywords.end(),
                         std::inserter(diffKeywords, diffKeywords.begin()));
 
-    qDebug() << "Setting available keywords : " << toStringList(diffKeywords);
+    //qDebug() << "Setting available keywords : " << toStringList(diffKeywords);
     availableKeywordsModel.setStringList(toStringList(diffKeywords));
-    qDebug() << "Setting with keywords : " << toStringList(withKeywords);
+    //qDebug() << "Setting with keywords : " << toStringList(withKeywords);
     withKeywordsModel.setStringList(toStringList(withKeywords));
-    qDebug() << "Setting without keywords : " << toStringList(withoutKeywords);
+    //qDebug() << "Setting without keywords : " << toStringList(withoutKeywords);
     withoutKeywordsModel.setStringList(toStringList(withoutKeywords));
 
     playlistModel->set(playlist);
