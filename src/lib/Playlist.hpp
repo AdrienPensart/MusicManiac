@@ -23,6 +23,7 @@ class Playlist {
         Playlist(const std::string& filepath="");
 		void add(MusicFile * file);
 		void load();
+
         bool conform(MusicFile * music);
         void refreshWith(const Musics& musics);
 		void save();
@@ -56,6 +57,7 @@ class Playlist {
 
 	private:
 
+        std::istringstream stream;
         std::string type;
 		std::string filecontent;
 		std::string filepath;

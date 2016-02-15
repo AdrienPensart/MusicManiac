@@ -95,6 +95,9 @@ QVariant PlaylistsModel::headerData(int section, Qt::Orientation orientation, in
 			case COLUMN_GENRES:
 				return tr("Genres");
 				break;
+            case COLUMN_SIZE:
+                return tr("Size");
+                break;
             case COLUMN_DURATION:
                 return tr("Duration");
                 break;
@@ -138,6 +141,13 @@ QVariant PlaylistsModel::infoAtColumn(Playlist * item, int column) const {
 			break;
         case COLUMN_DURATION:
             return item->getDuration().c_str();
+            break;
+        case COLUMN_SIZE:
+            {
+                QVariant v;
+                v.setValue(item->getMusics().size());
+                return v;
+            }
             break;
 		case COLUMN_GENRES:
             return Common::implode(item->getGenres()).c_str();

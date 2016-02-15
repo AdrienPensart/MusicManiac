@@ -25,11 +25,13 @@ class PlaylistModel : public QAbstractTableModel {
         void set(Playlist * _playlist);
         int rowCount(const QModelIndex& parent = QModelIndex()) const;
         int columnCount(const QModelIndex& parent = QModelIndex()) const;
-		QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;
-		QVariant headerData(int section, Qt::Orientation, int role) const;
-		Qt::ItemFlags flags(const QModelIndex &index) const;
-		bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
+        virtual QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;
+        virtual QVariant headerData(int section, Qt::Orientation, int role) const;
+        virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+        virtual bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
         MusicFile * itemAt(int row) const;
+        virtual Qt::DropActions supportedDropActions() const;
+        virtual bool dropMimeData(const QMimeData *data,Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
 	private:
 

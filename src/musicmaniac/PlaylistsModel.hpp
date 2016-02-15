@@ -11,6 +11,7 @@ class PlaylistsModel : public QAbstractTableModel {
             COLUMN_FILEPATH,
             COLUMN_ARTISTS,
             COLUMN_GENRES,
+            COLUMN_SIZE,
             COLUMN_DURATION,
             COLUMN_MIN_DURATION,
             COLUMN_MAX_DURATION,

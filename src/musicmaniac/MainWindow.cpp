@@ -135,6 +135,9 @@ MainWindow::MainWindow(QWidget *parent) :
     artistModel = new ArtistModel(this);
     musicModel = new MusicModel(this);
     horizontalProxyModel = new HorizontalProxyModel(this);
+
+    basefolder = "/home/crunch/music";
+    rescanFolder(false);
 }
 
 MainWindow::~MainWindow() {
@@ -510,20 +513,25 @@ void MainWindow::rebuild() {
     for(const auto& artist : musicsByArtistsAlbums){
         auto artistItem = new QStandardItem(artist.first.c_str());
         artistItem->setData(ARTIST, CollectionRoles::ItemTypeRole);
+        artistItem->setDragEnabled(false);
+
         auto albums = artist.second;
         auto albumHeadersItem = new QStandardItem("Albums");
         albumHeadersItem->setBackground(Qt::green);
         albumHeadersItem->setData(ALBUMS, CollectionRoles::ItemTypeRole);
+        albumHeadersItem->setDragEnabled(false);
 
         auto songsHeadersItem = new QStandardItem("All Songs");
         songsHeadersItem->setBackground(Qt::gray);
         songsHeadersItem->setData(SONGS, CollectionRoles::ItemTypeRole);
         songsHeadersItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
+        songsHeadersItem->setDragEnabled(false);
 
         for(const auto& song : songs[artist.first.c_str()]){
             auto songItem = new QStandardItem(song.second->getTitle().c_str());
             songItem->setData(SONG, CollectionRoles::ItemTypeRole);
             songItem->setData(song.first.c_str(), CollectionRoles::ItemKey);
+            songItem->setDragEnabled(true);
             songsHeadersItem->appendRow(songItem);
         }
 
@@ -536,6 +544,7 @@ void MainWindow::rebuild() {
                 auto songItem = new QStandardItem(song.first.c_str());
                 songItem->setData(SONG, CollectionRoles::ItemTypeRole);
                 songItem->setData(song.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+                songItem->setDragEnabled(true);
                 albumItem->appendRow(songItem);
             }
             albumHeadersItem->appendRow(albumItem);
@@ -548,11 +557,13 @@ void MainWindow::rebuild() {
             manualPlaylistsItem->setData(ARTIST_MANUAL_PLAYLISTS, CollectionRoles::ItemTypeRole);
             manualPlaylistsItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
             manualPlaylistsItem->setBackground(Qt::yellow);
+            manualPlaylistsItem->setDragEnabled(false);
 
             for(const auto& playlist : playlists){
                 auto playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
                 playlistItem->setData(PLAYLIST, CollectionRoles::ItemTypeRole);
                 playlistItem->setData(playlist.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+                playlistItem->setDragEnabled(false);
                 manualPlaylistsItem->appendRow(playlistItem);
             }
 
@@ -565,11 +576,13 @@ void MainWindow::rebuild() {
             autoPlaylistsItem->setData(ARTIST_AUTO_PLAYLISTS, CollectionRoles::ItemTypeRole);
             autoPlaylistsItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
             autoPlaylistsItem->setBackground(Qt::yellow);
+            autoPlaylistsItem->setDragEnabled(false);
 
             for(const auto& playlist : playlists){
                 auto playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
                 playlistItem->setData(PLAYLIST, CollectionRoles::ItemTypeRole);
                 playlistItem->setData(playlist.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+                playlistItem->setDragEnabled(false);
                 autoPlaylistsItem->appendRow(playlistItem);
             }
             artistItem->appendRow(autoPlaylistsItem);

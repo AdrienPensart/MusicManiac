@@ -46,7 +46,7 @@ class MusicManiac : public QApplication {
             try {
                 return QApplication::notify( receiver, event );
             } catch ( std::exception& e ) {
-                qDebug() << e.what();
+                qDebug() << "intercepted : " << e.what();
                 return false;
             }
         }

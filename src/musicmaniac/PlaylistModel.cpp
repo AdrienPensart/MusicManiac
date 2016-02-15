@@ -32,15 +32,16 @@ MusicFile * PlaylistModel::itemAt(int row) const {
 }
 
 Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
-	if (!index.isValid()) {
-		return Qt::ItemIsEnabled;
-	}
-	/*
-	if(index.column() == COLUMN_KEYWORDS || index.column() == COLUMN_RATING) {
-		return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-	}
-	*/
-	return QAbstractItemModel::flags(index);// | Qt::ItemIsEditable;
+    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+    if(!playlist->isManual()){
+        return defaultFlags;
+    }
+
+    if(index.isValid()){
+        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+    }
+    return Qt::ItemIsDropEnabled | defaultFlags;
 }
 
 QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
@@ -150,4 +151,16 @@ QVariant PlaylistModel::infoAtColumn(MusicFile * item, int column) const {
 			return tr("Undefined");
 	}
     return QVariant();
+}
+
+bool PlaylistModel::dropMimeData(const QMimeData *data,Qt::DropAction action, int row, int column, const QModelIndex &parent){
+    auto b = QAbstractTableModel::dropMimeData(data, action, row, column, parent);
+    qDebug() << "dropMimeData called : " << b;
+    return b;
+}
+
+Qt::DropActions PlaylistModel::supportedDropActions() const
+{
+    qDebug() << "supportedDropActions called";
+    return Qt::CopyAction;
 }

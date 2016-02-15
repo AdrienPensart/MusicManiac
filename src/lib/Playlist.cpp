@@ -106,13 +106,24 @@ void Playlist::refreshWith(const Musics& musicsCollection) {
 	}
 
     musics.clear();
-    for(const auto& p : musicsCollection) {
-        MusicFile * music = p.second;
-        if(conform(music)) {
-            // "ADDING : " + music->getFilepath();
-            add(music);
+    if(type == MANUAL){
+        cout << "continue loading of file " << filepath << endl;
+        std::string line;
+        while(std::getline(stream, line)) {
+            if(line.compare(0, 1, "#")){
+                if(musicsCollection.count(line)){
+                    add(musicsCollection.at(line));
+                }
+            }
         }
-	}
+    } else if(isAutogen()){
+        for(const auto& p : musicsCollection) {
+            MusicFile * music = p.second;
+            if(conform(music)) {
+                add(music);
+            }
+        }
+    }
 }
 
 void Playlist::load() {
@@ -121,21 +132,19 @@ void Playlist::load() {
     }
 
 	Common::read_file (filepath, filecontent);
-	std::istringstream playlist(filecontent);
+    stream.str(filecontent);
 
 	std::string header;
 	std::string musicmaniac;
-	std::getline(playlist, header);
-	std::getline(playlist, musicmaniac);
+    std::getline(stream, header);
+    std::getline(stream, musicmaniac);
 	if(header != HEADER || musicmaniac != MUSICMANIAC) {
-		cout << "Not a MusicManiac playlist : " + filepath + "\n";
         type = NOT_MUSICMANIAC;
 		return;
 	}
-
 	std::string line;
 	while(line != ENDHEADER) {
-		std::getline(playlist, line);
+        std::getline(stream, line);
         if(!line.compare(0, TYPE.length(), TYPE)){
             type = line.substr(TYPE.size());
         } else if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
@@ -154,8 +163,6 @@ void Playlist::load() {
 			Common::split(line.substr(WITH.size()), ",", with);
         }
 	}
-
-    cout << "Loading of playlist " << filepath << " ok\n";
 }
 
 void Playlist::save() {
@@ -191,14 +198,14 @@ void Playlist::save() {
 	}
 
 	if(filecontent != m3u_content.str()){
-		cout << "Updating playlist : " << filepath << endl;
+        //cout << "Updating playlist : " << filepath << endl;
 		ofstream m3u_file(m3u.c_str(), ios::out | ios::trunc);
 		m3u_file << m3u_content.str();
 		m3u_file.close();
 		filecontent = m3u_content.str();
-        cout << "Playlist saved : " << filecontent << endl;
+        //cout << "Playlist saved : " << filecontent << endl;
 	} else {
-		cout << "Playlist did not changed : " << filepath << endl;
+        //cout << "Playlist did not changed : " << filepath << endl;
 	}
 }
 

@@ -276,11 +276,9 @@ void Collection::generatePlaylists(){
     generateBest();
     generateBestByKeyword();
     for(auto& playlist : allPlaylists) {
-        if(!playlist.second->isAutogen()){
-            playlist.second->load();
-            playlist.second->refreshWith(musics);
-            playlist.second->save();
-        }
+        playlist.second->load();
+        playlist.second->refreshWith(musics);
+        playlist.second->save();
 	}
 }
 
