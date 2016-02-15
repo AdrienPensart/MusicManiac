@@ -152,6 +152,7 @@ void MainWindow::newPlaylist(){
     }
 
     playlist = new Playlist();
+    playlist->setType(MANUAL_AUTOGEN);
     collection.refreshPlaylist(playlist);
     ui->multiView->setModel(playlistModel);
     loadPlaylist(playlist);
@@ -183,7 +184,7 @@ bool MainWindow::savePlaylist(){
     }
 
     auto filename = (selectedArtistsModel.stringList()+withKeywordsModel.stringList()).join('_');
-    QString filePath =  + "//" + filename;
+    QString filePath = basefolder + "//" + filename;
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
 	if(!fileName.size()) {
         qDebug() << "Invalid filename";
@@ -194,6 +195,7 @@ bool MainWindow::savePlaylist(){
     playlist->setFilepath(fileName.toStdString());
     playlist->save();
     collection.addPlaylist(playlist);
+    rebuild();
     playlist = 0;
     return true;
 }
@@ -231,9 +233,18 @@ void MainWindow::updatePlaylist(){
 }
 
 void MainWindow::loadItem(QModelIndex index){
-    if( (playlist && !savePlaylist()) || playlist){
-        qDebug() << "Playlist not saved, not loading any item";
-        return;
+    if(playlist){
+        if(savePlaylist()){
+            qDebug() << "Playlist saved, not loading any item";
+            return;
+        } else {
+            if(playlist){
+                qDebug() << "Playlist kept, not loading any item";
+                return;
+            } else {
+                qDebug() << "Playlist destroyed, continue";
+            }
+        }
     }
 
     ui->playlistSettingsBox->setEnabled(false);
@@ -454,6 +465,12 @@ void MainWindow::rescanFolder(bool regen){
     progress.close();
 
     collection.generatePlaylists();
+    rebuild();
+    ui->actionRescanFolder->setEnabled(true);
+    ui->actionNewPlaylist->setEnabled(true);
+}
+
+void MainWindow::rebuild() {
     qDebug() << "Loading tree view";
     auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
     auto manualPlaylistsByArtist = collection.getManualPlaylistsByArtist();
@@ -560,8 +577,6 @@ void MainWindow::rescanFolder(bool regen){
         collectionModel.appendRow(artistItem);
     }
     ui->collectionView->setModel(&collectionModel);
-    ui->actionRescanFolder->setEnabled(true);
-    ui->actionNewPlaylist->setEnabled(true);
 }
 
 void MainWindow::aboutQt() {

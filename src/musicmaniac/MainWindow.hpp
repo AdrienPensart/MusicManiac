@@ -45,6 +45,7 @@ class MainWindow : public QMainWindow {
 
 	private:
 
+        void rebuild();
 		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
 		void loadFolderWith(bool regen);
         QStandardItemModel collectionModel;
