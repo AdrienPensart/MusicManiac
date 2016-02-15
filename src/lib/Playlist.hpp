@@ -12,8 +12,12 @@ class Playlist;
 typedef std::map<std::string, Playlist*> Playlists;
 typedef std::map<std::string, Playlists> PlaylistsByArtist;
 
-class Playlist {
+const std::string NOT_MUSICMANIAC = "not_musicmaniac";
+const std::string AUTOGEN = "autogen";
+const std::string MANUAL = "manual";
+const std::string MANUAL_AUTOGEN = "manual_autogen";
 
+class Playlist {
 	public:
 
         Playlist(const std::string& filepath="");
@@ -22,8 +26,12 @@ class Playlist {
         bool conform(MusicFile * music);
         void refreshWith(const Musics& musics);
 		void save();
-        void setAutogen(bool autogen);
+
+        bool isManual();
         bool isAutogen();
+        const std::string& getType();
+        void setType(const std::string& type);
+
         const Musics& getMusics();
 		size_t size()const;
         void setFilepath(const std::string& filepath);
@@ -48,8 +56,7 @@ class Playlist {
 
 	private:
 
-        bool autogen;
-		bool valid;
+        std::string type;
 		std::string filecontent;
 		std::string filepath;
 		double rating;

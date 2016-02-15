@@ -10,9 +10,7 @@ using namespace std;
 #include "Debugger.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/lambda/bind.hpp>
 namespace fs = boost::filesystem;
-namespace bl = boost::lambda;
 
 Collection::Collection() :
     regen(false),
@@ -21,7 +19,7 @@ Collection::Collection() :
 }
 
 Collection::~Collection(){
-    for(const auto& playlist : playlists){
+    for(const auto& playlist : allPlaylists){
         delete playlist.second;
     }
 
@@ -57,13 +55,13 @@ const std::string& Collection::getRoot() const {
 
 void Collection::generateBest(){
     std::set<std::string> without {"cutoff"};
-	// generate best.m3u playlists
+    // generate best.m3u playlists
 	// mainly for sync purpose
     for (const auto& i : musicsByArtists) {
         auto playlistPath = folder+"/"+i.first+"/best.m3u";
         auto playlist = new Playlist(playlistPath);
         playlist->setRating(4);
-        playlist->setAutogen(true);
+        playlist->setType(AUTOGEN);
         std::set<std::string> artists {i.first};
         playlist->setWithout(without);
         playlist->setArtists(artists);
@@ -85,7 +83,7 @@ void Collection::generateBestByKeyword(){
         for (auto const& j : i.second) {
             auto playlist = new Playlist(folder+"/"+i.first+"/"+j.first+".m3u");
             playlist->setRating(4);
-            playlist->setAutogen(true);
+            playlist->setType(AUTOGEN);
             std::set<std::string> artists {i.first};
             std::set<std::string> with {j.first};
             playlist->setWith(with);
@@ -128,8 +126,16 @@ bool Collection::valid() {
     return iterator != fs::recursive_directory_iterator();
 }
 
-const Playlists& Collection::getPlaylists() const {
-	return playlists;
+const Playlists& Collection::getAllPlaylists() const {
+    return allPlaylists;
+}
+
+const Playlists& Collection::getManualPlaylists() const {
+    return manualPlaylists;
+}
+
+const Playlists& Collection::getAutogenPlaylists() const {
+    return autogenPlaylists;
 }
 
 const Musics& Collection::getMusics() const {
@@ -176,13 +182,10 @@ bool Collection::factory() {
     return true;
 }
 
-void Collection::loadFile(const std::string& filepath){ 
+void Collection::loadFile(const std::string& filepath){
     if(boost::algorithm::ends_with(filepath, ".m3u")) {
-		if(playlists.count(filepath)){
-			cout << "Playlist already exists, deleting old..." << filepath << '\n';
-			delete playlists[filepath];
-		}
 		auto playlist = new Playlist(filepath);
+        playlist->load();
         addPlaylist(playlist);
     } else {
         MusicFile * file = getFile(filepath, regen);
@@ -257,8 +260,12 @@ const MusicsByGenres& Collection::getMusicsByGenres() const {
     return musicsByGenres;
 }
 
-const PlaylistsByArtist& Collection::getPlaylistsByArtist() const {
-    return playlistsByArtist;
+const PlaylistsByArtist& Collection::getManualPlaylistsByArtist() const {
+    return manualPlaylistsByArtist;
+}
+
+const PlaylistsByArtist& Collection::getAutoPlaylistsByArtist() const {
+    return autoPlaylistsByArtist;
 }
 
 const MusicsByArtistAlbums& Collection::getMusicsByArtistsAlbums() const {
@@ -268,7 +275,7 @@ const MusicsByArtistAlbums& Collection::getMusicsByArtistsAlbums() const {
 void Collection::generatePlaylists(){
     generateBest();
     generateBestByKeyword();
-    for(auto& playlist : playlists) {
+    for(auto& playlist : allPlaylists) {
         if(!playlist.second->isAutogen()){
             playlist.second->load();
             playlist.second->refreshWith(musics);
@@ -279,15 +286,26 @@ void Collection::generatePlaylists(){
 
 void Collection::addPlaylist(Playlist * playlist){
     if(playlist){
-        if(playlists.count(playlist->getFilepath())){
-            delete playlists[playlist->getFilepath()];
+        if(allPlaylists.count(playlist->getFilepath())){
+            cout << "Playlist already exists, deleting old..." << playlist->getFilepath() << '\n';
+            delete allPlaylists[playlist->getFilepath()];
         }
-        playlists[playlist->getFilepath()] = playlist;
+        allPlaylists[playlist->getFilepath()] = playlist;
 
-        auto artists = playlist->getArtists();
-        for(const auto& artist : artists)
-        {
-            playlistsByArtist[artist][playlist->getFilename()] = playlist;
+        if(playlist->getArtists().size() == 1){
+            for(const auto& artist : playlist->getArtists()){
+                if(playlist->isManual()){
+                    manualPlaylistsByArtist[artist][playlist->getFilename()] = playlist;
+                } else {
+                    autoPlaylistsByArtist[artist][playlist->getFilename()] = playlist;
+                }
+            }
+        } else {
+            if(playlist->isAutogen()){
+                autogenPlaylists[playlist->getFilepath()] = playlist;
+            } else {
+                manualPlaylists[playlist->getFilepath()] = playlist;
+            }
         }
     }
 }

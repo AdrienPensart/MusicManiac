@@ -29,7 +29,12 @@ class Collection {
         std::set<std::string> getGenres() const;
 
         const Musics& getMusics() const;
-        const Playlists& getPlaylists() const;
+        const Playlists& getAllPlaylists() const;
+        const Playlists& getManualPlaylists() const;
+        const Playlists& getAutogenPlaylists() const;
+        const PlaylistsByArtist& getManualPlaylistsByArtist() const;
+        const PlaylistsByArtist& getAutoPlaylistsByArtist() const;
+
         const MusicsByArtistAlbums& getMusicsByArtistsAlbums() const;
         const MusicsByArtists& getMusicsByArtists() const;
         const MusicsByKeywords& getMusicsByKeywords() const;
@@ -52,12 +57,22 @@ class Collection {
 		unsigned int totalCount;
 		unsigned int readCount;
 		Musics musics;
-        Playlists playlists;
+
+        // references all loaded playlists
+        Playlists allPlaylists;
+        // store manual playlists (more than one artist)
+        Playlists manualPlaylists;
+        // store manual playlists that should be autoregen and with more than one artist in it
+        Playlists autogenPlaylists;
+
         MusicsByArtistAlbums musicsByArtistsAlbums;
         MusicsByArtists musicsByArtists;
         MusicsByKeywords musicsByKeywords;
         MusicsByGenres musicsByGenres;
 		KeywordsByArtist keywordsByArtist;
-        PlaylistsByArtist playlistsByArtist;
+
+        PlaylistsByArtist manualPlaylistsByArtist;
+        PlaylistsByArtist autoPlaylistsByArtist;
+
         bool regen;
 };

@@ -8,7 +8,7 @@ using namespace std;
 
 const std::string HEADER = "#EXTM3U";
 const std::string MUSICMANIAC = "#EXTREM:musicmaniac";
-const std::string AUTOGEN = "#EXTREM:autogen";
+const std::string TYPE = "#EXTREM:type:";
 const std::string ENDHEADER = "#EXTREM:endheader";
 const std::string ARTISTS = "#EXTREM:artists:";
 const std::string GENRES = "#EXTREM:genres:";
@@ -21,7 +21,7 @@ const std::string INF = "#EXTINF: ";
 const std::string UUID = "#EXTREM:uuid ";
 
 Playlist::Playlist(const std::string& _filepath) :
-    filepath(_filepath), rating(0), valid(true), minDuration("00:00"), maxDuration("100:00"), autogen(false) {
+    filepath(_filepath), rating(0), type(NOT_MUSICMANIAC), minDuration("00:00"), maxDuration("100:00") {
 }
 
 const std::string& Playlist::getFilepath()const {
@@ -40,12 +40,20 @@ const Musics& Playlist::getMusics(){
     return musics;
 }
 
-void Playlist::setAutogen(bool _autogen){
-    autogen = _autogen;
+const std::string& Playlist::getType(){
+    return type;
+}
+
+void Playlist::setType(const std::string& _type){
+    type = _type;
+}
+
+bool Playlist::isManual(){
+    return type == MANUAL || type == MANUAL_AUTOGEN;
 }
 
 bool Playlist::isAutogen(){
-    return autogen;
+    return type == AUTOGEN || type == MANUAL_AUTOGEN;
 }
 
 void Playlist::setFilepath(const std::string& _filepath){
@@ -93,9 +101,10 @@ bool Playlist::conform(MusicFile *music){
 }
 
 void Playlist::refreshWith(const Musics& musicsCollection) {
-    if(!valid){
+    if(type == NOT_MUSICMANIAC){
 		return;
 	}
+
     musics.clear();
     for(const auto& p : musicsCollection) {
         MusicFile * music = p.second;
@@ -120,15 +129,15 @@ void Playlist::load() {
 	std::getline(playlist, musicmaniac);
 	if(header != HEADER || musicmaniac != MUSICMANIAC) {
 		cout << "Not a MusicManiac playlist : " + filepath + "\n";
-        valid = false;
+        type = NOT_MUSICMANIAC;
 		return;
 	}
 
 	std::string line;
 	while(line != ENDHEADER) {
 		std::getline(playlist, line);
-        if(line == AUTOGEN){
-            autogen = true;
+        if(!line.compare(0, TYPE.length(), TYPE)){
+            type = line.substr(TYPE.size());
         } else if(!line.compare(0, ARTISTS.length(), ARTISTS)) {
             Common::split(line.substr(ARTISTS.size()), ",", artists);
 		} else if(!line.compare(0, GENRES.length(), GENRES)) {
@@ -150,7 +159,7 @@ void Playlist::load() {
 }
 
 void Playlist::save() {
-    if(!valid || !filepath.size()){
+    if(type == NOT_MUSICMANIAC || !filepath.size()){
         cout << "Invalid playlist " << filepath << " not saving.\n";
 		return;
 	}
@@ -163,11 +172,9 @@ void Playlist::save() {
 
 	ostringstream m3u_content;
 	m3u_content << HEADER << '\n'
-                << MUSICMANIAC << '\n';
-    if(autogen){
-        m3u_content << AUTOGEN << '\n';
-    }
-    m3u_content << ARTISTS << Common::implode(artists) << '\n'
+                << MUSICMANIAC << '\n'
+                << TYPE << type << '\n'
+                << ARTISTS << Common::implode(artists) << '\n'
 				<< GENRES << Common::implode(genres) << '\n'
 				<< RATING << rating << '\n'
 				<< MIN_DURATION << minDuration << '\n'

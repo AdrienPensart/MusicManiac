@@ -252,7 +252,7 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
             if(de->d_type == DT_REG){
                 boost::filesystem::path full_path = folderpath / fsfile;
                 auto musics = collection.getMusics();
-                auto playlists = collection.getPlaylists();
+                auto playlists = collection.getAllPlaylists();
 
                 Musics::const_iterator m;
                 if((m = musics.find(full_path.c_str())) != musics.end()){
@@ -260,7 +260,8 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                         //cout << full_path << " = file does not conform\n";
                         continue;
                     }
-                } else if(playlists.find(full_path.c_str()) != playlists.end()) {
+                }
+                else if(playlists.find(full_path.c_str()) != playlists.end()) {
                     auto p = playlists[full_path.c_str()];
                     if(!p->size()){
                         continue;
@@ -276,7 +277,8 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                             continue;
                         }
                     }
-                } else {
+                }
+                else {
                     continue;
                 }
             }

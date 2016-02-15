@@ -16,6 +16,18 @@
 #include "MusicModel.hpp"
 #include "HorizontalProxyModel.hpp"
 
+const QString GLOBAL_MANUAL_PLAYLISTS = "global_manual_playlists";
+const QString GLOBAL_AUTO_PLAYLISTS = "global_auto_playlists";
+const QString ARTIST_MANUAL_PLAYLISTS = "artist_manual_playlists";
+const QString ARTIST_AUTO_PLAYLISTS = "artist_auto_playlists";
+
+const QString ARTIST = "artist";
+const QString ALBUM = "album";
+const QString ALBUMS = "albums";
+const QString SONG = "song";
+const QString SONGS = "songs";
+const QString PLAYLIST = "playlist";
+
 template<class Container>
 QStringList toStringList(const Container& input) {
 	QStringList output;
@@ -35,7 +47,8 @@ Container fromStringList(const QStringList& input) {
 }
 
 enum CollectionRoles {
-    ItemTypeRole = Qt::UserRole + 1
+    ItemTypeRole = Qt::UserRole + 1,
+    ItemKey
 };
 
 template<typename... Args> struct SELECT {
@@ -170,8 +183,8 @@ bool MainWindow::savePlaylist(){
     }
 
     auto filename = (selectedArtistsModel.stringList()+withKeywordsModel.stringList()).join('_');
-	QString filePath = basefolder + "//" + filename;
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
+    QString filePath =  + "//" + filename;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
 	if(!fileName.size()) {
         qDebug() << "Invalid filename";
         return false;
@@ -228,45 +241,61 @@ void MainWindow::loadItem(QModelIndex index){
     auto item = collectionModel.itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
     qDebug() << "Loading item type" << type;
-    if(type == "artist"){
+    if(type == ARTIST){
         ui->playlistSettingsBox->setVisible(false);
         auto artistName = item->text();
-        auto playlistsByArtist = collection.getPlaylistsByArtist();
+        auto manualPlaylistsByArtist = collection.getManualPlaylistsByArtist();
+        auto autoPlaylistsByArtist = collection.getAutoPlaylistsByArtist();
         auto musicsByArtists = collection.getMusicsByArtists();
         auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
 
         auto musics = musicsByArtists[artistName.toStdString()];
-        auto playlists = playlistsByArtist[artistName.toStdString()];
+        auto manualPlaylists = manualPlaylistsByArtist[artistName.toStdString()];
+        auto autoPlaylists = autoPlaylistsByArtist[artistName.toStdString()];
         auto albums = musicsByArtistsAlbums[artistName.toStdString()];
 
-        artistModel->set(artistName, musics, albums, playlists);
+        artistModel->set(artistName, musics, albums, manualPlaylists, autoPlaylists);
         horizontalProxyModel->setSourceModel(artistModel);
         ui->multiView->setModel(horizontalProxyModel);
         ui->multiView->reset();
-    } else if(type == "playlists") {
+    } else if(type == GLOBAL_MANUAL_PLAYLISTS){
         ui->playlistSettingsBox->setVisible(false);
-        auto artistIndex = index.parent();
-        auto artistItem = collectionModel.itemFromIndex(artistIndex);
-        auto artistName = artistItem->text();
-        auto playlistsByArtist = collection.getPlaylistsByArtist();
-        auto playlists = playlistsByArtist[artistName.toStdString()];
+        auto playlists = collection.getManualPlaylists();
         ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
-    } else if(type == "playlist"){
-        auto artistIndex = index.parent().parent();
-        auto artistItem = collectionModel.itemFromIndex(artistIndex);
-        auto artistName = artistItem->text();
-        qDebug() << "Detected artist name " << artistName;
-        auto playlistsByArtists = collection.getPlaylistsByArtist();
-        auto playlistName = item->data(Qt::DisplayRole).toString();
-        qDebug() << "Detected playlist name " << playlistName;
-        auto playlists = playlistsByArtists[artistName.toStdString()];
-        auto playlistIter = playlists.find(playlistName.toStdString());
-        if(playlistIter == playlists.end()){
-            return;
+    } else if(type == GLOBAL_AUTO_PLAYLISTS){
+        ui->playlistSettingsBox->setVisible(false);
+        auto playlists = collection.getAutogenPlaylists();
+        ui->multiView->setModel(playlistsModel);
+        playlistsModel->set(playlists);
+    } else if(type == ARTIST_MANUAL_PLAYLISTS) {
+        ui->playlistSettingsBox->setVisible(false);
+        auto artistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
+        auto playlistsByArtist = collection.getManualPlaylistsByArtist();
+        if(playlistsByArtist.count(artistKey)){
+            auto playlists = playlistsByArtist[artistKey];
+            ui->multiView->setModel(playlistsModel);
+            playlistsModel->set(playlists);
         }
-        loadPlaylist(playlistIter->second);
-    } else if(type == "albums"){
+    } else if(type == ARTIST_AUTO_PLAYLISTS){
+        ui->playlistSettingsBox->setVisible(false);
+        auto artistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
+        auto playlistsByArtist = collection.getAutoPlaylistsByArtist();
+        if(playlistsByArtist.count(artistKey)){
+            auto playlists = playlistsByArtist[artistKey];
+            ui->multiView->setModel(playlistsModel);
+            playlistsModel->set(playlists);
+        }
+    } else if(type == PLAYLIST){
+        auto playlistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
+        auto playlists = collection.getAllPlaylists();
+        if(playlists.count(playlistKey)){
+            auto playlist = playlists[playlistKey];
+            loadPlaylist(playlist);
+        } else {
+            qDebug() << playlistKey.c_str() << " not found";
+        }
+    } else if(type == ALBUMS){
         ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
@@ -275,7 +304,7 @@ void MainWindow::loadItem(QModelIndex index){
         auto albums = musicsByArtistsAlbums[artistName.toStdString()];
         ui->multiView->setModel(albumsModel);
         albumsModel->set(albums);
-    } else if(type == "album"){
+    } else if(type == ALBUM){
         ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent().parent();
         auto artistItem = collectionModel.itemFromIndex(artistIndex);
@@ -285,25 +314,27 @@ void MainWindow::loadItem(QModelIndex index){
         auto musics = musicsByArtistsAlbums[artistName.toStdString()][albumName.toStdString()];
         ui->multiView->setModel(albumModel);
         albumModel->set(musics);
-    } else if(type == "song"){
-        ui->playlistSettingsBox->setVisible(false);
-        auto albumIndex = index.parent();
-        auto albumItem = collectionModel.itemFromIndex(albumIndex);
-        auto albumName = albumItem->text();
-
-        auto artistIndex = albumIndex.parent().parent();
-        auto artistItem = collectionModel.itemFromIndex(artistIndex);
-        auto artistName = artistItem->text();
-
-        auto musicName = item->data(Qt::DisplayRole).toString();
-        auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
-        auto music = musicsByArtistsAlbums[artistName.toStdString()][albumName.toStdString()][musicName.toStdString()];
-
-        musicModel->set(music);
-        horizontalProxyModel->setSourceModel(musicModel);
-        ui->multiView->setModel(horizontalProxyModel);
-        ui->multiView->reset();
-
+    } else if(type == SONGS){
+        auto artistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
+        auto artists = collection.getMusicsByArtists();
+        if(artists.count(artistKey)){
+            auto musics = artists[artistKey];
+            ui->multiView->setModel(albumModel);
+            albumModel->set(musics);
+        }
+    } else if(type == SONG){
+        auto musicKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
+        auto musics = collection.getMusics();
+        if(musics.count(musicKey)){
+            qDebug() << "Loading " << musicKey.c_str();
+            auto music = musics[musicKey];
+            musicModel->set(music);
+            horizontalProxyModel->setSourceModel(musicModel);
+            ui->multiView->setModel(horizontalProxyModel);
+            ui->multiView->reset();
+        } else {
+            qDebug() << musicKey.c_str() << " not found";
+        }
     } else {
         qDebug() << "Type was not found : " << type;
     }
@@ -369,10 +400,10 @@ void MainWindow::loadPlaylist(Playlist * playlist){
     playlistModel->set(playlist);
     ui->multiView->setModel(playlistModel);
     ui->playlistSettingsBox->setVisible(true);
-    if(playlist->isAutogen()){
-        ui->playlistSettingsBox->setEnabled(false);
-    } else {
+    if(playlist->isManual()){
         ui->playlistSettingsBox->setEnabled(true);
+    } else {
+        ui->playlistSettingsBox->setEnabled(false);
     }
 
     ui->ratingSpinBox->blockSignals(false);
@@ -425,43 +456,106 @@ void MainWindow::rescanFolder(bool regen){
     collection.generatePlaylists();
     qDebug() << "Loading tree view";
     auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
-    auto playlistsByArtist = collection.getPlaylistsByArtist();
+    auto manualPlaylistsByArtist = collection.getManualPlaylistsByArtist();
+    auto autoPlaylistsByArtist = collection.getAutoPlaylistsByArtist();
+    auto playlists = collection.getAllPlaylists();
+    auto songs = collection.getMusicsByArtists();
     collectionModel.clear();
     collectionModel.setHorizontalHeaderLabels(headerLabels);
+    auto manualPlaylistsHeadersItem = new QStandardItem("Playlists (manual)");
+    manualPlaylistsHeadersItem->setData(GLOBAL_MANUAL_PLAYLISTS, CollectionRoles::ItemTypeRole);
+    manualPlaylistsHeadersItem->setBackground(Qt::yellow);
+
+    auto autogenPlaylistsHeadersItem = new QStandardItem("Playlists (auto)");
+    autogenPlaylistsHeadersItem->setData(GLOBAL_AUTO_PLAYLISTS, CollectionRoles::ItemTypeRole);
+    autogenPlaylistsHeadersItem->setBackground(Qt::yellow);
+
+    for(const auto& playlist : playlists){
+        if(playlist.second->getArtists().size() > 1){
+            auto playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
+            playlistItem->setData("playlist", CollectionRoles::ItemTypeRole);
+            playlistItem->setData(playlist.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+            if(playlist.second->isManual()){
+                manualPlaylistsHeadersItem->appendRow(playlistItem);
+            } else if (playlist.second->getType() == AUTOGEN){
+                autogenPlaylistsHeadersItem->appendRow(playlistItem);
+            }
+        }
+    }
+
+    if(manualPlaylistsHeadersItem->hasChildren()){
+        collectionModel.appendRow(manualPlaylistsHeadersItem);
+    }
+    if(autogenPlaylistsHeadersItem->hasChildren()){
+        collectionModel.appendRow(autogenPlaylistsHeadersItem);
+    }
+
     for(const auto& artist : musicsByArtistsAlbums){
-        QStandardItem * artistItem = new QStandardItem(artist.first.c_str());
-        artistItem->setData("artist", CollectionRoles::ItemTypeRole);
+        auto artistItem = new QStandardItem(artist.first.c_str());
+        artistItem->setData(ARTIST, CollectionRoles::ItemTypeRole);
         auto albums = artist.second;
-        QStandardItem * albumHeadersItem = new QStandardItem("Albums");
+        auto albumHeadersItem = new QStandardItem("Albums");
         albumHeadersItem->setBackground(Qt::green);
-        albumHeadersItem->setData("albums", CollectionRoles::ItemTypeRole);
+        albumHeadersItem->setData(ALBUMS, CollectionRoles::ItemTypeRole);
+
+        auto songsHeadersItem = new QStandardItem("All Songs");
+        songsHeadersItem->setBackground(Qt::gray);
+        songsHeadersItem->setData(SONGS, CollectionRoles::ItemTypeRole);
+        songsHeadersItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
+
+        for(const auto& song : songs[artist.first.c_str()]){
+            auto songItem = new QStandardItem(song.second->getTitle().c_str());
+            songItem->setData(SONG, CollectionRoles::ItemTypeRole);
+            songItem->setData(song.first.c_str(), CollectionRoles::ItemKey);
+            songsHeadersItem->appendRow(songItem);
+        }
+
+        artistItem->appendRow(songsHeadersItem);
         for(const auto& album : albums){
-            QStandardItem * albumItem = new QStandardItem(album.first.c_str());
-            albumItem->setData("album", CollectionRoles::ItemTypeRole);
+            auto albumItem = new QStandardItem(album.first.c_str());
+            albumItem->setData(ALBUM, CollectionRoles::ItemTypeRole);
             auto songs = album.second;
-            //QStandardItem * songHeaderItem = new QStandardItem("Song");
-            //albumItem->appendRow(songHeaderItem);
             for(const auto& song : songs){
-                QStandardItem * songItem = new QStandardItem(song.first.c_str());
-                songItem->setData("song", CollectionRoles::ItemTypeRole);
+                auto songItem = new QStandardItem(song.first.c_str());
+                songItem->setData(SONG, CollectionRoles::ItemTypeRole);
+                songItem->setData(song.second->getFilepath().c_str(), CollectionRoles::ItemKey);
                 albumItem->appendRow(songItem);
             }
             albumHeadersItem->appendRow(albumItem);
         }
         artistItem->appendRow(albumHeadersItem);
 
-        auto playlists = playlistsByArtist[artist.first];
-        if(playlists.size())
-        {
-            QStandardItem * playlistsItem = new QStandardItem("Playlists");
-            playlistsItem->setData("playlists", CollectionRoles::ItemTypeRole);
-            playlistsItem->setBackground(Qt::yellow);
+        if(manualPlaylistsByArtist.count(artist.first)){
+            auto playlists = manualPlaylistsByArtist[artist.first];
+            auto manualPlaylistsItem = new QStandardItem("Playlists (manual)");
+            manualPlaylistsItem->setData(ARTIST_MANUAL_PLAYLISTS, CollectionRoles::ItemTypeRole);
+            manualPlaylistsItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
+            manualPlaylistsItem->setBackground(Qt::yellow);
+
             for(const auto& playlist : playlists){
-                QStandardItem * playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
-                playlistItem->setData("playlist", CollectionRoles::ItemTypeRole);
-                playlistsItem->appendRow(playlistItem);
+                auto playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
+                playlistItem->setData(PLAYLIST, CollectionRoles::ItemTypeRole);
+                playlistItem->setData(playlist.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+                manualPlaylistsItem->appendRow(playlistItem);
             }
-            artistItem->appendRow(playlistsItem);
+
+            artistItem->appendRow(manualPlaylistsItem);
+        }
+
+        if(autoPlaylistsByArtist.count(artist.first)){
+            auto playlists = autoPlaylistsByArtist[artist.first];
+            auto autoPlaylistsItem = new QStandardItem("Playlists (auto)");
+            autoPlaylistsItem->setData(ARTIST_AUTO_PLAYLISTS, CollectionRoles::ItemTypeRole);
+            autoPlaylistsItem->setData(artist.first.c_str(), CollectionRoles::ItemKey);
+            autoPlaylistsItem->setBackground(Qt::yellow);
+
+            for(const auto& playlist : playlists){
+                auto playlistItem = new QStandardItem(playlist.second->getFilename().c_str());
+                playlistItem->setData(PLAYLIST, CollectionRoles::ItemTypeRole);
+                playlistItem->setData(playlist.second->getFilepath().c_str(), CollectionRoles::ItemKey);
+                autoPlaylistsItem->appendRow(playlistItem);
+            }
+            artistItem->appendRow(autoPlaylistsItem);
         }
         collectionModel.appendRow(artistItem);
     }

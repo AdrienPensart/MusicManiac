@@ -14,12 +14,16 @@ ArtistModel::ArtistModel(QObject *parent) :
 ArtistModel::~ArtistModel() {
 }
 
-void ArtistModel::set(QString _artist, const Musics& musics, const MusicsByAlbums& albums, const Playlists& playlists) {
+void ArtistModel::set(QString _artist,
+                      const Musics& musics,
+                      const MusicsByAlbums& albums,
+                      const Playlists& manualPlaylists,
+                      const Playlists& autoPlaylists) {
     beginResetModel();
     artist = _artist;
     musicsCount = musics.size();
     albumsCount = albums.size();
-    playlistsCount = playlists.size();
+    playlistsCount = manualPlaylists.size() + autoPlaylists.size();
 
     std::set<std::string> genresSet;
     std::set<std::string> keywordsSet;
