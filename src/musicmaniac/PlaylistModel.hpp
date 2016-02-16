@@ -33,6 +33,11 @@ class PlaylistModel : public QAbstractTableModel {
         MusicFile * itemAt(int row) const;
         virtual Qt::DropActions supportedDropActions() const;
         virtual bool dropMimeData(const QMimeData *data,Qt::DropAction action, int row, int column, const QModelIndex &parent);
+        virtual QStringList mimeTypes() const;
+
+    signals:
+
+        void newItem(const QString& key);
 
 	private:
 

@@ -38,6 +38,7 @@ class MainWindow : public QMainWindow {
 		void rescanFolder(bool=false);
 
         // playlist management
+        void addToPlaylist(const QString& key);
         void newAutomaticPlaylist();
         void newManualPlaylist();
         void updatePlaylist();

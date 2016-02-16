@@ -1,6 +1,9 @@
 #include "PlaylistModel.hpp"
 #include "common/Utility.hpp"
 #include <QDebug>
+#include <QMimeData>
+
+const QString MIME_TYPE = "application/string.path";
 
 PlaylistModel::PlaylistModel(QObject *parent) :
     QAbstractTableModel(parent) {
@@ -41,12 +44,15 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
 
     if(!playlist->isManual()){
+        qDebug() << "Not a manual playlist";
         return defaultFlags;
     }
 
     if(index.isValid()){
-        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+        qDebug() << "PlaylistModel valid index";
+        return /*Qt::ItemIsDragEnabled |*/ Qt::ItemIsDropEnabled | defaultFlags;
     }
+    qDebug() << "PlaylistModel index invalid";
     return Qt::ItemIsDropEnabled | defaultFlags;
 }
 
@@ -159,10 +165,15 @@ QVariant PlaylistModel::infoAtColumn(MusicFile * item, int column) const {
     return QVariant();
 }
 
-bool PlaylistModel::dropMimeData(const QMimeData *data,Qt::DropAction action, int row, int column, const QModelIndex &parent){
-    auto b = QAbstractTableModel::dropMimeData(data, action, row, column, parent);
-    qDebug() << "dropMimeData called : " << b;
-    return b;
+QStringList PlaylistModel::mimeTypes() const {
+    QStringList types;
+    types << MIME_TYPE;
+    return types;
+}
+
+bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent){
+    auto d = data->text();
+    emit newItem(d);
 }
 
 Qt::DropActions PlaylistModel::supportedDropActions() const
