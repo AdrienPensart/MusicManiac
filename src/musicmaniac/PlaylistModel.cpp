@@ -16,6 +16,12 @@ void PlaylistModel::set(Playlist * _playlist) {
     endResetModel();
 }
 
+void PlaylistModel::clear(){
+    beginResetModel();
+    items.clear();
+    endResetModel();
+}
+
 int PlaylistModel::rowCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : (int)items.size();
 }
@@ -161,6 +167,5 @@ bool PlaylistModel::dropMimeData(const QMimeData *data,Qt::DropAction action, in
 
 Qt::DropActions PlaylistModel::supportedDropActions() const
 {
-    qDebug() << "supportedDropActions called";
     return Qt::CopyAction;
 }

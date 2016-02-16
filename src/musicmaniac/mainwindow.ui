@@ -591,7 +591,6 @@
     </property>
     <addaction name="actionOpenFolder"/>
     <addaction name="actionOpenRegenFolder"/>
-    <addaction name="actionNewPlaylist"/>
     <addaction name="actionRescanFolder"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -603,7 +602,17 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuPlaylist">
+    <property name="title">
+     <string>Playlist</string>
+    </property>
+    <addaction name="actionNewAutomaticPlaylist"/>
+    <addaction name="actionNewManualPlaylist"/>
+    <addaction name="actionSavePlaylist"/>
+    <addaction name="actionDiscardPlaylist"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuPlaylist"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionOpenFolder">
@@ -679,9 +688,24 @@
     <string>Refresh All</string>
    </property>
   </action>
-  <action name="actionNewPlaylist">
+  <action name="actionNewAutomaticPlaylist">
    <property name="text">
-    <string>New Playlist</string>
+    <string>New automatic</string>
+   </property>
+  </action>
+  <action name="actionNewManualPlaylist">
+   <property name="text">
+    <string>New manual</string>
+   </property>
+  </action>
+  <action name="actionSavePlaylist">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionDiscardPlaylist">
+   <property name="text">
+    <string>Discard</string>
    </property>
   </action>
  </widget>

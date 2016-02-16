@@ -14,6 +14,7 @@
 #include "AlbumModel.hpp"
 #include "ArtistModel.hpp"
 #include "MusicModel.hpp"
+#include "CollectionModel.hpp"
 #include "HorizontalProxyModel.hpp"
 
 const QString GLOBAL_MANUAL_PLAYLISTS = "global_manual_playlists";
@@ -69,7 +70,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::loadFolder);
     connect(ui->actionOpenRegenFolder, &QAction::triggered, this, &MainWindow::loadFolderWithRegen);
     connect(ui->actionRescanFolder, &QAction::triggered, this, &MainWindow::rescanFolder);
-    connect(ui->actionNewPlaylist, &QAction::triggered, this, &MainWindow::newPlaylist);
+    connect(ui->actionNewAutomaticPlaylist, &QAction::triggered, this, &MainWindow::newAutomaticPlaylist);
+    connect(ui->actionNewManualPlaylist, &QAction::triggered, this, &MainWindow::newManualPlaylist);
+    connect(ui->actionSavePlaylist, &QAction::triggered, this, &MainWindow::savePlaylist);
+    connect(ui->actionDiscardPlaylist, &QAction::triggered, this, &MainWindow::discardPlaylist);
     connect(ui->collectionView, &QTreeView::clicked, this, &MainWindow::loadItem);
 
     connect(ui->inWithButton, &QPushButton::clicked, this,
@@ -123,11 +127,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->minDurationEdit, &QLineEdit::textChanged, this, &MainWindow::updatePlaylist);
     connect(ui->maxDurationEdit, &QLineEdit::textChanged, this, &MainWindow::updatePlaylist);
 
-    ui->playlistSettingsBox->setVisible(false);
     ui->multiView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->actionRescanFolder->setEnabled(false);
-    ui->actionNewPlaylist->setEnabled(false);
+    ui->menuPlaylist->setEnabled(false);
+    ui->playlistSettingsBox->setVisible(false);
 
+    collectionModel = new CollectionModel(this);
     playlistsModel = new PlaylistsModel(this);
     playlistModel = new PlaylistModel(this);
     albumsModel = new AlbumsModel(this);
@@ -144,46 +149,57 @@ MainWindow::~MainWindow() {
 	delete ui;
 }
 
-void MainWindow::newPlaylist(){
+void MainWindow::newAutomaticPlaylist(){
     if(!basefolder.size()) {
         QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
         return;
     }
 
     if(playlist){
+        QMessageBox::warning(this, tr("MusicMan"), tr("Save current playlist before creating a new one."));
         return;
     }
 
     playlist = new Playlist();
     playlist->setType(MANUAL_AUTOGEN);
     collection.refreshPlaylist(playlist);
-    ui->multiView->setModel(playlistModel);
     loadPlaylist(playlist);
 }
 
-bool MainWindow::savePlaylist(){
+void MainWindow::newManualPlaylist(){
+    if(!basefolder.size()) {
+        QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
+        return;
+    }
+
+    if(playlist){
+        QMessageBox::warning(this, tr("MusicMan"), tr("Save current playlist before creating a new one."));
+        return;
+    }
+
+    playlist = new Playlist();
+    playlist->setType(MANUAL);
+    loadPlaylist(playlist);
+}
+
+void MainWindow::discardPlaylist(){
+    if(playlist){
+        delete playlist;
+        playlist = 0;
+        playlistModel->clear();
+        ui->playlistSettingsBox->setVisible(false);
+    }
+}
+
+void MainWindow::savePlaylist(){
 	if(!basefolder.size()) {
 		QMessageBox::warning(this, tr("MusicMan"), tr("You did not load a folder yet."));
-        return false;
+        return;
 	}
 
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "Saving", "Do you want to save playlist ?", QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
-    switch(reply) {
-        case QMessageBox::No:
-            delete playlist;
-            playlist = 0;
-            qDebug() << "No pressed";
-            return true;
-            break;
-        case QMessageBox::Cancel:
-            qDebug() << "Cancel pressed";
-            return false;
-            break;
-        case QMessageBox::Yes:
-            qDebug() << "Yes pressed";
-            break;
-        default:
-            break;
+    if(!playlist){
+        QMessageBox::warning(this, tr("MusicMan"), tr("Create a playlist before saving it."));
+        return;
     }
 
     auto filename = (selectedArtistsModel.stringList()+withKeywordsModel.stringList()).join('_');
@@ -191,7 +207,7 @@ bool MainWindow::savePlaylist(){
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Playlist"), filePath, tr("Playlist (*.m3u)"));
 	if(!fileName.size()) {
         qDebug() << "Invalid filename";
-        return false;
+        return;
 	}
 
     qDebug() << "Saving playlist to " << fileName;
@@ -200,7 +216,6 @@ bool MainWindow::savePlaylist(){
     collection.addPlaylist(playlist);
     rebuild();
     playlist = 0;
-    return true;
 }
 
 void MainWindow::selectionToModel(QItemSelectionModel * sourceSelection, QStringListModel& sourceModel, QStringListModel& destinationModel) {
@@ -237,26 +252,16 @@ void MainWindow::updatePlaylist(){
 
 void MainWindow::loadItem(QModelIndex index){
     if(playlist){
-        if(savePlaylist()){
-            qDebug() << "Playlist saved, not loading any item";
-            return;
-        } else {
-            if(playlist){
-                qDebug() << "Playlist kept, not loading any item";
-                return;
-            } else {
-                qDebug() << "Playlist destroyed, continue";
-            }
-        }
+        QMessageBox::warning(this, tr("MusicMan"), tr("Save current playlist before."));
+        return;
     }
 
-    ui->playlistSettingsBox->setEnabled(false);
+    ui->playlistSettingsBox->setVisible(false);
 
-    auto item = collectionModel.itemFromIndex(index);
+    auto item = collectionModel->itemFromIndex(index);
     auto type = item->data(CollectionRoles::ItemTypeRole).toString();
     qDebug() << "Loading item type" << type;
     if(type == ARTIST){
-        ui->playlistSettingsBox->setVisible(false);
         auto artistName = item->text();
         auto manualPlaylistsByArtist = collection.getManualPlaylistsByArtist();
         auto autoPlaylistsByArtist = collection.getAutoPlaylistsByArtist();
@@ -273,17 +278,14 @@ void MainWindow::loadItem(QModelIndex index){
         ui->multiView->setModel(horizontalProxyModel);
         ui->multiView->reset();
     } else if(type == GLOBAL_MANUAL_PLAYLISTS){
-        ui->playlistSettingsBox->setVisible(false);
         auto playlists = collection.getManualPlaylists();
         ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
     } else if(type == GLOBAL_AUTO_PLAYLISTS){
-        ui->playlistSettingsBox->setVisible(false);
         auto playlists = collection.getAutogenPlaylists();
         ui->multiView->setModel(playlistsModel);
         playlistsModel->set(playlists);
     } else if(type == ARTIST_MANUAL_PLAYLISTS) {
-        ui->playlistSettingsBox->setVisible(false);
         auto artistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
         auto playlistsByArtist = collection.getManualPlaylistsByArtist();
         if(playlistsByArtist.count(artistKey)){
@@ -292,7 +294,6 @@ void MainWindow::loadItem(QModelIndex index){
             playlistsModel->set(playlists);
         }
     } else if(type == ARTIST_AUTO_PLAYLISTS){
-        ui->playlistSettingsBox->setVisible(false);
         auto artistKey = item->data(CollectionRoles::ItemKey).toString().toStdString();
         auto playlistsByArtist = collection.getAutoPlaylistsByArtist();
         if(playlistsByArtist.count(artistKey)){
@@ -310,18 +311,16 @@ void MainWindow::loadItem(QModelIndex index){
             qDebug() << playlistKey.c_str() << " not found";
         }
     } else if(type == ALBUMS){
-        ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent();
-        auto artistItem = collectionModel.itemFromIndex(artistIndex);
+        auto artistItem = collectionModel->itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
         auto albums = musicsByArtistsAlbums[artistName.toStdString()];
         ui->multiView->setModel(albumsModel);
         albumsModel->set(albums);
     } else if(type == ALBUM){
-        ui->playlistSettingsBox->setVisible(false);
         auto artistIndex = index.parent().parent();
-        auto artistItem = collectionModel.itemFromIndex(artistIndex);
+        auto artistItem = collectionModel->itemFromIndex(artistIndex);
         auto artistName = artistItem->text();
         auto musicsByArtistsAlbums = collection.getMusicsByArtistsAlbums();
         auto albumName = item->data(Qt::DisplayRole).toString();
@@ -355,7 +354,6 @@ void MainWindow::loadItem(QModelIndex index){
 }
 
 void MainWindow::loadPlaylist(Playlist * playlist){
-
     ui->ratingSpinBox->blockSignals(true);
     ui->maxDurationEdit->blockSignals(true);
     ui->minDurationEdit->blockSignals(true);
@@ -413,11 +411,17 @@ void MainWindow::loadPlaylist(Playlist * playlist){
 
     playlistModel->set(playlist);
     ui->multiView->setModel(playlistModel);
-    ui->playlistSettingsBox->setVisible(true);
-    if(playlist->isManual()){
-        ui->playlistSettingsBox->setEnabled(true);
+    if(playlist->getType() == MANUAL){
+        ui->playlistSettingsBox->setVisible(false);
+    } else if(playlist->isAutogen()){
+        ui->playlistSettingsBox->setVisible(true);
+        if(playlist->getType() == AUTOGEN){
+            ui->playlistSettingsBox->setEnabled(false);
+        } else if(playlist->getType() == MANUAL_AUTOGEN){
+            ui->playlistSettingsBox->setEnabled(true);
+        }
     } else {
-        ui->playlistSettingsBox->setEnabled(false);
+        qDebug() << "Not a musicmaniac playlist";
     }
 
     ui->ratingSpinBox->blockSignals(false);
@@ -434,8 +438,11 @@ void MainWindow::loadFolderWithRegen() {
 }
 
 void MainWindow::loadFolderWith(bool regen) {
-	basefolder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	rescanFolder(regen);
+    QString dirPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if(dirPath.size()){
+        basefolder = dirPath;
+        rescanFolder(regen);
+    }
 }
 
 void MainWindow::rescanFolder(bool regen){
@@ -470,7 +477,7 @@ void MainWindow::rescanFolder(bool regen){
     collection.generatePlaylists();
     rebuild();
     ui->actionRescanFolder->setEnabled(true);
-    ui->actionNewPlaylist->setEnabled(true);
+    ui->menuPlaylist->setEnabled(true);
 }
 
 void MainWindow::rebuild() {
@@ -480,8 +487,8 @@ void MainWindow::rebuild() {
     auto autoPlaylistsByArtist = collection.getAutoPlaylistsByArtist();
     auto playlists = collection.getAllPlaylists();
     auto songs = collection.getMusicsByArtists();
-    collectionModel.clear();
-    collectionModel.setHorizontalHeaderLabels(headerLabels);
+    collectionModel->clear();
+    collectionModel->setHorizontalHeaderLabels(headerLabels);
     auto manualPlaylistsHeadersItem = new QStandardItem("Playlists (manual)");
     manualPlaylistsHeadersItem->setData(GLOBAL_MANUAL_PLAYLISTS, CollectionRoles::ItemTypeRole);
     manualPlaylistsHeadersItem->setBackground(Qt::yellow);
@@ -504,10 +511,10 @@ void MainWindow::rebuild() {
     }
 
     if(manualPlaylistsHeadersItem->hasChildren()){
-        collectionModel.appendRow(manualPlaylistsHeadersItem);
+        collectionModel->appendRow(manualPlaylistsHeadersItem);
     }
     if(autogenPlaylistsHeadersItem->hasChildren()){
-        collectionModel.appendRow(autogenPlaylistsHeadersItem);
+        collectionModel->appendRow(autogenPlaylistsHeadersItem);
     }
 
     for(const auto& artist : musicsByArtistsAlbums){
@@ -539,6 +546,7 @@ void MainWindow::rebuild() {
         for(const auto& album : albums){
             auto albumItem = new QStandardItem(album.first.c_str());
             albumItem->setData(ALBUM, CollectionRoles::ItemTypeRole);
+            albumItem->setDragEnabled(false);
             auto songs = album.second;
             for(const auto& song : songs){
                 auto songItem = new QStandardItem(song.first.c_str());
@@ -587,9 +595,9 @@ void MainWindow::rebuild() {
             }
             artistItem->appendRow(autoPlaylistsItem);
         }
-        collectionModel.appendRow(artistItem);
+        collectionModel->appendRow(artistItem);
     }
-    ui->collectionView->setModel(&collectionModel);
+    ui->collectionView->setModel(collectionModel);
 }
 
 void MainWindow::aboutQt() {

@@ -23,6 +23,7 @@ class PlaylistModel : public QAbstractTableModel {
 
         Playlist * getPlaylist(){return playlist;}
         void set(Playlist * _playlist);
+        void clear();
         int rowCount(const QModelIndex& parent = QModelIndex()) const;
         int columnCount(const QModelIndex& parent = QModelIndex()) const;
         virtual QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;

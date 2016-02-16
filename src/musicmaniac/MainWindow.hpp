@@ -3,7 +3,6 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QItemSelectionModel>
-#include <QStandardItemModel>
 #include "db/MusicDb.hpp"
 
 namespace Ui {
@@ -17,6 +16,7 @@ class AlbumsModel;
 class AlbumModel;
 class ArtistModel;
 class MusicModel;
+class CollectionModel;
 class HorizontalProxyModel;
 
 class MainWindow : public QMainWindow {
@@ -38,9 +38,11 @@ class MainWindow : public QMainWindow {
 		void rescanFolder(bool=false);
 
         // playlist management
-        void newPlaylist();
+        void newAutomaticPlaylist();
+        void newManualPlaylist();
         void updatePlaylist();
-        bool savePlaylist();
+        void discardPlaylist();
+        void savePlaylist();
         void loadPlaylist(Playlist * playlist);
 
 	private:
@@ -48,7 +50,7 @@ class MainWindow : public QMainWindow {
         void rebuild();
 		void selectionToModel(QItemSelectionModel *, QStringListModel&, QStringListModel&);
 		void loadFolderWith(bool regen);
-        QStandardItemModel collectionModel;
+        CollectionModel * collectionModel;
         //CustomSortFilterProxyModel * musicProxyModel;
 		const QStringList empty;
 		QItemSelectionModel * withoutKeywordsSelection;
