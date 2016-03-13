@@ -47,7 +47,7 @@ class MusicManiac : public QApplication {
                 return QApplication::notify( receiver, event );
             } catch ( std::exception& e ) {
                 qDebug() << "intercepted : " << e.what();
-                return false;
+                throw;
             }
         }
 };
@@ -158,11 +158,10 @@ int main(int argc, char * argv[]) try {
         return mfs.run(mountpoint);
     }
 
-    //collection.loadAll();
     //collection.consolidateTitles();
     collection.generateBest();
     collection.generateBestByKeyword();
-
+    collection.generateList();
     //MusicDb db(dbpath.c_str());
     //db.save(collection);
     //db.fetchYoutube();

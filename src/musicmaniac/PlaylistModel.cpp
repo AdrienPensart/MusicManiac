@@ -1,12 +1,12 @@
 #include "PlaylistModel.hpp"
+#include "DragAndDropMusic.hpp"
+#include "Playlist.hpp"
+#include "Collection.hpp"
 #include "common/Utility.hpp"
 #include <QDebug>
-#include <QMimeData>
 
-const QString MIME_TYPE = "application/string.path";
-
-PlaylistModel::PlaylistModel(QObject *parent) :
-    QAbstractTableModel(parent) {
+PlaylistModel::PlaylistModel(Collection& _collection, QObject *parent) :
+    QAbstractTableModel(parent), collection(_collection), playlist(nullptr) {
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -15,18 +15,26 @@ PlaylistModel::~PlaylistModel() {
 void PlaylistModel::set(Playlist * _playlist) {
     beginResetModel();
     playlist = _playlist;
-    Common::MapToVec(playlist->getMusics(), items);
     endResetModel();
 }
 
 void PlaylistModel::clear(){
     beginResetModel();
-    items.clear();
+    if(playlist){
+        playlist->getMusics().clear();
+    }
     endResetModel();
 }
 
+Playlist * PlaylistModel::getPlaylist(){
+    return playlist;
+}
+
 int PlaylistModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : (int)items.size();
+    if(playlist){
+        return parent.isValid() ? 0 : (int)playlist->getMusics().size();
+    }
+    return 0;
 }
 
 int PlaylistModel::columnCount(const QModelIndex& parent) const {
@@ -34,8 +42,8 @@ int PlaylistModel::columnCount(const QModelIndex& parent) const {
 }
 
 MusicFile * PlaylistModel::itemAt(int row) const {
-    if(row >= 0 && row < rowCount()) {
-        return items.at(row);
+    if(playlist && row >= 0 && row < rowCount()) {
+        return playlist->getMusics().at(row);
 	}
 	return 0;
 }
@@ -43,17 +51,14 @@ MusicFile * PlaylistModel::itemAt(int row) const {
 Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
 
-    if(!playlist->isManual()){
-        qDebug() << "Not a manual playlist";
+    if(playlist && !playlist->isManual()){
         return defaultFlags;
     }
 
     if(index.isValid()){
-        qDebug() << "PlaylistModel valid index";
-        return /*Qt::ItemIsDragEnabled |*/ Qt::ItemIsDropEnabled | defaultFlags;
+        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsSelectable | defaultFlags;
     }
-    qDebug() << "PlaylistModel index invalid";
-    return Qt::ItemIsDropEnabled | defaultFlags;
+    return Qt::ItemIsDropEnabled | Qt::ItemIsSelectable | defaultFlags;
 }
 
 QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
@@ -79,6 +84,9 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const {
 }
 
 bool PlaylistModel::setData (const QModelIndex & index, const QVariant & value, int role) {
+    if(index.isValid()){
+        qDebug() << "setData" << index;
+    }
 	/*
 	if (index.isValid() && role == Qt::EditRole) {
 		// "Setting data : " + value.toString().toStdString();
@@ -112,6 +120,9 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
             case COLUMN_ARTIST:
                 return tr("Artist");
 				break;
+            case COLUMN_DURATION:
+                return tr("Duration");
+                break;
             case COLUMN_GENRE:
                 return tr("Genre");
 				break;
@@ -144,6 +155,9 @@ QVariant PlaylistModel::infoAtColumn(MusicFile * item, int column) const {
         case COLUMN_ARTIST:
             return item->getArtist().c_str();
 			break;
+        case COLUMN_DURATION:
+            return item->getDuration().c_str();
+            break;
         case COLUMN_GENRE:
             return item->getGenre().c_str();
 			break;
@@ -171,12 +185,84 @@ QStringList PlaylistModel::mimeTypes() const {
     return types;
 }
 
-bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent){
-    auto d = data->text();
-    emit newItem(d);
+bool PlaylistModel::dropMimeData(const QMimeData * mimeData, Qt::DropAction action, int row, int column, const QModelIndex &parent){
+    QByteArray encodedData = mimeData->data(MIME_TYPE);
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    DraggedMusic dm;
+    stream >> dm;
+
+    if(dm.action == Qt::CopyAction){
+        qDebug() << "Inserting music " << dm.key << " to " << parent.row() << ", " << parent.column();
+        qDebug() << "For info, row = " << row << " and column = " << column;
+        auto musics = collection.getMusics();
+        auto key = dm.key;
+        auto mf = musics[key.toStdString()];
+
+        if(parent.row() == -1 && row == -1){
+            qDebug() << "Row is invalid, inserting at " << rowCount(parent);
+            beginInsertRows(parent, rowCount(parent), rowCount(parent));
+            playlist->getMusics().push_back(mf);
+        } else {
+            qDebug() << "Row is ok, inserting at " << row;
+            beginInsertRows(parent, row, row);
+            auto it = playlist->getMusics().begin() + row;
+            playlist->getMusics().insert(it, {mf});
+        }
+        endInsertRows();
+
+    } else if(dm.action == Qt::MoveAction){
+        qDebug() << "dm.row :" << dm.row << "and dm.column :" << dm.column;
+        qDebug() << "row :" << row << " and column :" << column;
+        qDebug() << "insert to :" << parent.row() << ", " << parent.column();
+        if(parent.row() == -1 && row == -1){
+            beginMoveRows(parent, dm.row, dm.row, parent, rowCount(parent));
+            auto it = playlist->getMusics().begin() + dm.row;
+            std::rotate(it, it + 1, playlist->getMusics().end());
+
+        } else {
+            beginMoveRows(QModelIndex(), dm.row, dm.row, QModelIndex(), parent.row());
+            //auto mf = playlist->getMusics().at(dm.row);
+            //playlist->getMusics().erase(playlist->getMusics().begin()+dm.row);
+            //playlist->getMusics().insert(playlist->getMusics().begin()+parent.row(), mf);
+            endMoveRows();
+        }
+
+    } else {
+        qDebug() << "Bad action : " << action;
+        return false;
+    }
+    return true;
+}
+
+QMimeData* PlaylistModel::mimeData(const QModelIndexList &indexes) const {
+    QMimeData* mimeData = new QMimeData();
+    QByteArray encodedData;
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+    // take only the first index
+    for(const auto &index : indexes){
+        if (index.isValid()){
+            auto item = itemAt(index.row());
+            if(item) {
+                DraggedMusic dm;
+                dm.action = Qt::MoveAction;
+                dm.row = index.row();
+                dm.column = index.column();
+                dm.key = item->getFilepath().c_str();
+                stream << dm;
+                break;
+            }
+        }
+    }
+    mimeData->setData(MIME_TYPE, encodedData);
+    return mimeData;
 }
 
 Qt::DropActions PlaylistModel::supportedDropActions() const
 {
-    return Qt::CopyAction;
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+Qt::DropActions PlaylistModel::supportedDragActions() const {
+    return Qt::MoveAction;
 }

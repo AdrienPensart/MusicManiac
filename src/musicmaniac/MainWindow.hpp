@@ -4,6 +4,7 @@
 #include <QStringListModel>
 #include <QItemSelectionModel>
 #include "db/MusicDb.hpp"
+#include "DragAndDropMusic.hpp"
 
 namespace Ui {
 	class MainWindow;
@@ -38,7 +39,6 @@ class MainWindow : public QMainWindow {
 		void rescanFolder(bool=false);
 
         // playlist management
-        void addToPlaylist(const QString& key);
         void newAutomaticPlaylist();
         void newManualPlaylist();
         void updatePlaylist();

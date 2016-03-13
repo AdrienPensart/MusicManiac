@@ -19,6 +19,7 @@ class Collection {
 		bool factory();
         void addPlaylist(Playlist *);
         void refreshPlaylist(Playlist *);
+        void generateList();
         void generatePlaylists();
 		void generateBest();
 		void generateBestByKeyword();

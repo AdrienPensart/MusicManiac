@@ -28,6 +28,26 @@ Collection::~Collection(){
     }
 }
 
+void Collection::generateList(){
+    if (!fs::is_directory(folder)){
+        std::cout << folder << " is not a valid directory\n";
+        return;
+    }
+
+    Playlist mylist;
+    std::set<std::string> without { "cutoff", "nosync" };
+    mylist.setRating(4);
+    mylist.setWithout(without);
+
+    ofstream myfile(folder+"/list.txt", ios::out | ios::trunc);
+    for(auto music : musics){
+        if(mylist.conform(music.second)){
+            myfile << music.second->getFilepath() << '\n';
+        }
+    }
+    myfile.close();
+}
+
 void Collection::setRegen(bool _regen){
     regen = _regen;
 }

@@ -33,7 +33,7 @@ class Playlist {
         const std::string& getType();
         void setType(const std::string& type);
 
-        const Musics& getMusics();
+        MusicVector& getMusics();
 		size_t size()const;
         void setFilepath(const std::string& filepath);
 		std::string getFilename() const;
@@ -68,5 +68,5 @@ class Playlist {
         std::set<std::string> artists;
         std::set<std::string> without;
         std::set<std::string> with;
-		Musics musics;
+        MusicVector musics;
 };

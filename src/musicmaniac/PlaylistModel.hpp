@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "Playlist.hpp"
+
+class Playlist;
+class Collection;
+class MusicFile;
 
 class PlaylistModel : public QAbstractTableModel {
     Q_OBJECT
@@ -12,16 +15,17 @@ class PlaylistModel : public QAbstractTableModel {
             COLUMN_ARTIST,
             COLUMN_ALBUM,
             COLUMN_GENRE,
+            COLUMN_DURATION,
             COLUMN_RATING,
             COLUMN_KEYWORDS,
             COLUMN_UUID,
             COLUMN_COUNT,
             COLUMN_MAX=COLUMN_COUNT-1
         };
-        explicit PlaylistModel(QObject *parent = 0);
+        explicit PlaylistModel(Collection& collection, QObject *parent = 0);
 		virtual ~PlaylistModel();
 
-        Playlist * getPlaylist(){return playlist;}
+        Playlist * getPlaylist();
         void set(Playlist * _playlist);
         void clear();
         int rowCount(const QModelIndex& parent = QModelIndex()) const;
@@ -32,16 +36,14 @@ class PlaylistModel : public QAbstractTableModel {
         virtual bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
         MusicFile * itemAt(int row) const;
         virtual Qt::DropActions supportedDropActions() const;
-        virtual bool dropMimeData(const QMimeData *data,Qt::DropAction action, int row, int column, const QModelIndex &parent);
+        virtual Qt::DropActions supportedDragActions() const;
+        virtual bool dropMimeData(const QMimeData *mimeData, Qt::DropAction action, int row, int column, const QModelIndex &parent);
         virtual QStringList mimeTypes() const;
-
-    signals:
-
-        void newItem(const QString& key);
+        virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
 
 	private:
 
         QVariant infoAtColumn(MusicFile * mf, int row) const;
         Playlist * playlist;
-        MusicVector items;
+        Collection& collection;
 };

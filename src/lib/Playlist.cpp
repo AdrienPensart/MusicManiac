@@ -36,7 +36,7 @@ size_t Playlist::size()const {
 	return musics.size();
 }
 
-const Musics& Playlist::getMusics(){
+MusicVector& Playlist::getMusics(){
     return musics;
 }
 
@@ -192,9 +192,9 @@ void Playlist::save() {
 
     for(const auto& m : musics) {
 		size_t found = filepath.find_last_of("/");
-        m3u_content << INF << m.second->getDurationInSeconds() << "," << m.first.substr(found+1) << '\n'
-                    << UUID << m.second->getUUID() << '\n'
-                    << m.first << '\n';
+        m3u_content << INF << m->getDurationInSeconds() << "," << m->getFilepath().substr(found+1) << '\n'
+                    << UUID << m->getUUID() << '\n'
+                    << m->getFilepath() << '\n';
 	}
 
 	if(filecontent != m3u_content.str()){
@@ -210,7 +210,7 @@ void Playlist::save() {
 }
 
 void Playlist::add(MusicFile * music) {
-	musics[music->getFilepath()] = music;
+    musics.push_back(music);
 }
 
 double Playlist::getRating() {
@@ -224,7 +224,7 @@ void Playlist::setRating(double _rating) {
 std::string Playlist::getDuration(){
     int totalSeconds = 0;
     for(const auto& song : musics){
-        totalSeconds += song.second->getDurationInSeconds();
+        totalSeconds += song->getDurationInSeconds();
     }
     return secondsToString(totalSeconds);
 }
@@ -236,7 +236,7 @@ double Playlist::getAverageRating() {
 
     double totalRating = 0.0;
     for(const auto& song : musics){
-        totalRating += song.second->getRating();
+        totalRating += song->getRating();
     }
     return totalRating /= (double)size();
 }

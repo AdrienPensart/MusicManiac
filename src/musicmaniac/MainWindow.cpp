@@ -10,6 +10,7 @@
 #include "Collection.hpp"
 #include "PlaylistModel.hpp"
 #include "PlaylistsModel.hpp"
+#include "PlaylistViewStyle.hpp"
 #include "AlbumsModel.hpp"
 #include "AlbumModel.hpp"
 #include "ArtistModel.hpp"
@@ -111,14 +112,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->maxDurationEdit, &QLineEdit::textChanged, this, &MainWindow::updatePlaylist);
 
     ui->multiView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->multiView->setStyle(new PlaylistViewStyle(style()));
     ui->actionRescanFolder->setEnabled(false);
     ui->menuPlaylist->setEnabled(false);
     ui->playlistSettingsBox->setVisible(false);
 
     collectionModel = new CollectionModel(this);
     playlistsModel = new PlaylistsModel(this);
-    playlistModel = new PlaylistModel(this);
-    connect(playlistModel, &PlaylistModel::newItem, this, &MainWindow::addToPlaylist);
+    playlistModel = new PlaylistModel(collection, this);
 
     albumsModel = new AlbumsModel(this);
     albumModel = new AlbumModel(this);
@@ -132,13 +133,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
 	delete ui;
-}
-
-void MainWindow::addToPlaylist(const QString& key){
-    qDebug() << " adding " << key << " to playlist";
-    auto musics = collection.getMusics();
-    playlist->add(musics[key.toStdString()]);
-    playlistModel->set(playlist);
 }
 
 void MainWindow::newAutomaticPlaylist(){

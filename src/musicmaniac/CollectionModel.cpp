@@ -1,9 +1,6 @@
 #include "CollectionModel.hpp"
-
-#include <QMimeData>
+#include "DragAndDropMusic.hpp"
 #include <QDebug>
-
-const QString MIME_TYPE = "application/string.path";
 
 CollectionModel::CollectionModel(QObject *parent) :
     QStandardItemModel(parent) {
@@ -18,7 +15,6 @@ Qt::ItemFlags CollectionModel::flags(const QModelIndex &index) const {
         auto item = itemFromIndex(index);
         auto type = item->data(CollectionRoles::ItemTypeRole).toString();
         if(type == SONG){
-            qDebug() << "it is a song, enabling drag";
             return Qt::ItemIsDragEnabled | defaultFlags;
         }
     }
@@ -36,12 +32,16 @@ QMimeData* CollectionModel::mimeData(const QModelIndexList &indexes) const {
     QByteArray encodedData;
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
+    // take only the first index available
     for(const auto &index : indexes){
         if (index.isValid()){
             auto item = itemFromIndex(index);
-            auto musicKey = item->data(CollectionRoles::ItemKey).toString();
-            stream << musicKey;
-            mimeData->setText(musicKey);
+            DraggedMusic dm;
+            dm.action = Qt::CopyAction;
+            dm.row = index.row();
+            dm.column = index.column();
+            dm.key = item->data(CollectionRoles::ItemKey).toString();
+            stream << dm;
         }
     }
     mimeData->setData(MIME_TYPE, encodedData);

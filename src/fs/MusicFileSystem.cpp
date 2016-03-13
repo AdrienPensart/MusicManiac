@@ -269,7 +269,7 @@ int MusicFileSystem::Readdir(const char *path, void *buf, fuse_fill_dir_t filler
                         // if one file in the playlist does not conform, evict
                         bool conform = true;
                         for(auto music : p->getMusics()){
-                            if(!playlist.conform(music.second)){
+                            if(!playlist.conform(music)){
                                 conform = false;
                             }
                         }
