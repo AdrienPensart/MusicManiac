@@ -9,6 +9,7 @@ import vlc
 import time
 import re
 import random
+import urwid
 from collections import defaultdict
 
 def find_files(directory, pattern):
@@ -68,7 +69,8 @@ parser.add_argument('--rating', '-r', type=restricted_float, default=0.0,
 parser.add_argument('--min_duration', '--min', type=str, default=None,
     help='filter with minimum duration (xx:xx:xx)')
 parser.add_argument('--max_duration', '--max', type=str, default=None,
-        help='filter with maximum duration (xx:xx:xx)')
+    help='filter with maximum duration (xx:xx:xx)')
+parser.add_argument('--plex', type=str, default=None, help='import playlists to Plex')
 parser.add_argument('--noflac', action='store_true', help='disable flac loading')
 parser.add_argument('--nomp3', action='store_true', help='disable mp3 loading')
 parser.add_argument('--genm3u', action='store_true', help='autogenerate best playlists by keywords')
@@ -79,10 +81,11 @@ parser.add_argument('--play', '-p', action='store_true', help='play list of file
 parser.add_argument('--shuffle', '--random', '-s', action='store_true', help='shuffle playlist')
 parser.add_argument('--loop', '-l', action='store_true', help='play files in loop')
 parser.add_argument('--generate', '-g', type=str, default=None, help='generate m3u playlist')
+parser.add_argument('--relative', action='store_true', help='generate playlist with relative path')
+parser.add_argument('--gui', action='store_true', help='start GUI')
 parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
 args = parser.parse_args()
 
-print("Scanning", args.folder)
 # hide tags error in files, by default taglib print them on stderr
 #os.close(sys.stderr.fileno())
 
@@ -136,6 +139,7 @@ for f in files:
     musics.append(f)
     if args.show:
         print(f, f.tags)
+    f.close()
 
 if args.shuffle:
     random.shuffle(musics)
@@ -145,18 +149,32 @@ if args.genm3u:
     for m in musics:
         playlists[get_artist(m)].append(m)
     for artist, playlist in playlists.items():
+        beginning = os.path.join(args.folder,artist+'/')
         filename = os.path.join(args.folder,artist,'best.m3u')
         m3u = open(filename, 'w')
         m3u.write("#EXTM3U\n")
         files = defaultdict()
         for music in playlist:
-            m3u.write(music.path+'\n')
+            if args.relative:
+                if music.path.startswith(beginning):
+                    m3u.write(music.path[len(beginning):]+'\n')
+                else:
+                    print("Invalid beginning for relative path", music.path, "beginning is", beginning)
+                    continue
+            else:
+                m3u.write(music.path+'\n')
             for keyword in get_keywords(music):
                 if keyword not in files:
                     filename = os.path.join(args.folder,artist,keyword+'.m3u')
                     files[keyword] = open(filename, 'w')
                     files[keyword].write("#EXTM3U\n")
-                files[keyword].write(music.path+'\n')
+                if args.relative:
+                    if music.path.startswith(beginning):
+                        files[keyword].write(music.path[len(beginning):]+'\n')
+                    else:
+                        print("Invalid beginning for relative path", music.path, "beginning is",beginning)
+                else:
+                    files[keyword].write(music.path+'\n')
         for k,f in files.items():
             f.close()
         m3u.close()
@@ -183,3 +201,8 @@ if args.play:
         if not args.loop:
             break
 
+if args.gui:
+    txt = urwid.Text(u"Hello World")
+    fill = urwid.Filler(txt, 'top')
+    loop = urwid.MainLoop(fill)
+    loop.run()
