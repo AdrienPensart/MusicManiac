@@ -35,14 +35,14 @@ void Collection::generateList(){
     }
 
     Playlist mylist;
-    std::set<std::string> without { "cutoff", "nosync" };
+    std::set<std::string> without { "nosync", "cutoff", "nosync" };
     mylist.setRating(4);
     mylist.setWithout(without);
 
     ofstream myfile(folder+"/list.txt", ios::out | ios::trunc);
     for(auto music : musics){
         if(mylist.conform(music.second)){
-            myfile << music.second->getFilepath() << '\n';
+            myfile << music.second->getFilepath().substr(folder.size()) << '\n';
         }
     }
     myfile.close();
