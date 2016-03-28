@@ -11,6 +11,7 @@ import re
 import random
 import urwid
 from collections import defaultdict
+from PlexPlaylistImporter import PlexPlaylistImporter
 
 def find_files(directory, pattern):
     for root, dirs, files in os.walk(directory):
@@ -70,7 +71,10 @@ parser.add_argument('--min_duration', '--min', type=str, default=None,
     help='filter with minimum duration (xx:xx:xx)')
 parser.add_argument('--max_duration', '--max', type=str, default=None,
     help='filter with maximum duration (xx:xx:xx)')
-parser.add_argument('--plex', type=str, default=None, help='import playlists to Plex')
+parser.add_argument('--plexdb', type=str, default=None, help='import playlists to Plex (need root access)')
+# sudo chmod og+w "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
+# sudo chmod og+rw "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db-shm"
+# sudo chmod og+rw "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db-wal"
 parser.add_argument('--noflac', action='store_true', help='disable flac loading')
 parser.add_argument('--nomp3', action='store_true', help='disable mp3 loading')
 parser.add_argument('--genm3u', action='store_true', help='autogenerate best playlists by keywords')
@@ -97,6 +101,9 @@ if not args.nomp3:
 files = find_files(args.folder, formats)
 musics = list()
 rating = args.rating / 5.0
+
+if args.plexdb is not None:
+    args.relative = True
 
 try:
     if args.min_duration is not None:
@@ -144,40 +151,48 @@ for f in files:
 if args.shuffle:
     random.shuffle(musics)
 
-playlists = defaultdict(list)
+artists = defaultdict(list)
+playlists = defaultdict()
 if args.genm3u:
     for m in musics:
-        playlists[get_artist(m)].append(m)
-    for artist, playlist in playlists.items():
+        artists[get_artist(m)].append(m)
+    for artist, musics in artists.items():
         beginning = os.path.join(args.folder,artist+'/')
         filename = os.path.join(args.folder,artist,'best.m3u')
         m3u = open(filename, 'w')
+        playlists[filename] = artist + " Best"
         m3u.write("#EXTM3U\n")
         files = defaultdict()
-        for music in playlist:
+        for m in musics:
             if args.relative:
-                if music.path.startswith(beginning):
-                    m3u.write(music.path[len(beginning):]+'\n')
+                if m.path.startswith(beginning):
+                    m3u.write(m.path[len(beginning):]+'\n')
                 else:
-                    print("Invalid beginning for relative path", music.path, "beginning is", beginning)
+                    print("Invalid beginning for relative path", m.path, "beginning is", beginning)
                     continue
             else:
-                m3u.write(music.path+'\n')
-            for keyword in get_keywords(music):
+                m3u.write(m.path+'\n')
+            for keyword in get_keywords(m):
                 if keyword not in files:
                     filename = os.path.join(args.folder,artist,keyword+'.m3u')
                     files[keyword] = open(filename, 'w')
+                    playlists[filename] = artist + " " + keyword.capitalize()
                     files[keyword].write("#EXTM3U\n")
                 if args.relative:
-                    if music.path.startswith(beginning):
-                        files[keyword].write(music.path[len(beginning):]+'\n')
+                    if m.path.startswith(beginning):
+                        files[keyword].write(m.path[len(beginning):]+'\n')
                     else:
-                        print("Invalid beginning for relative path", music.path, "beginning is",beginning)
+                        print("Invalid beginning for relative path", m.path, "beginning is", beginning)
                 else:
-                    files[keyword].write(music.path+'\n')
+                    files[keyword].write(m.path+'\n')
         for k,f in files.items():
             f.close()
         m3u.close()
+
+if args.plexdb is not None:
+    print('using DB',args.plexdb)
+    for path,name in playlists.items():
+        PlexPlaylistImporter.ImportIntoPlex(path, name, args.plexdb)
 
 if args.generate is not None:
     filename = os.path.join(args.folder, args.generate)
