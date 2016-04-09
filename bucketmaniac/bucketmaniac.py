@@ -74,6 +74,7 @@ parser.add_argument('--plex', action='store_true', help='import playlists to Ple
 parser.add_argument('--plexdb', type=str, default=default_db_path, help='import playlists to Plex (need write access to DB')
 # sudo chmod og+w "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db*"
 
+parser.add_argument('--noerror', action='store_true', help='Hide error stream')
 parser.add_argument('--fields', type=str, help='show only these tags (artist, album, etc)')
 parser.add_argument('--noflac', action='store_true', help='disable flac loading')
 parser.add_argument('--nomp3', action='store_true', help='disable mp3 loading')
@@ -92,7 +93,9 @@ parser.add_argument('--verbose', action='store_true', help='increase verbosity l
 args = parser.parse_args()
 
 # hide tags error in files, by default taglib print them on stderr
-#os.close(sys.stderr.fileno())
+if args.noerror:
+    os.close(sys.stderr.fileno())
+
 vprint = print if args.verbose else lambda *a, **k: None
 
 formats = list()
