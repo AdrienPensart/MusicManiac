@@ -12,6 +12,7 @@ import random
 import urwid
 from collections import defaultdict
 from PlexPlaylistImporter import PlexPlaylistImporter
+import plexapi
 
 def find_files(directory, pattern):
     for root, dirs, files in os.walk(directory):
