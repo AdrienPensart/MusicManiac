@@ -68,4 +68,5 @@ Buckethead/1992 - Bucketheadland/CD2/01 - Intro_ Park Theme Extension.flac
 - web exposition daemon
 - player
 - reproduce fuse : ./musicfs /home/crunch/music /home/crunch/fiio -f -s
+- music versionning instead of UUID
 
