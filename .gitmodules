@@ -13,6 +13,3 @@
 [submodule "src/catch"]
 	path = src/catch
 	url = git@github.com:philsquared/Catch.git
-[submodule "bucketmaniac/PlexPlaylistImporter"]
-	path = bucketmaniac/PlexPlaylistImporter
-	url = https://github.com/AdrienPensart/PlexPlaylistImporter.git
